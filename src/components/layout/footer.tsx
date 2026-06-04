@@ -24,7 +24,7 @@ export function Footer() {
     <footer className="bg-linear-to-b from-ktf-navy to-ktf-obsidian text-ktf-gray-400">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Main Footer */}
-        <div className="grid grid-cols-1 gap-10 py-16 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-8 py-10 sm:grid-cols-2 sm:py-12 lg:grid-cols-4">
           {/* Brand Column */}
           <div className="sm:col-span-2 lg:col-span-1">
             <Link href="/" className="inline-flex items-center gap-3">
@@ -99,10 +99,10 @@ export function Footer() {
         <div className="border-t border-ktf-gray-800" />
       </div>
 
-      <div className="w-full overflow-hidden px-4 pt-8 sm:px-6 lg:px-8">
+      <div className="w-full overflow-hidden px-4 pt-3 sm:px-6 lg:px-8">
         <p
           aria-hidden="true"
-          className="select-none text-center text-[clamp(4.5rem,18vw,18rem)] font-bold uppercase leading-none tracking-normal text-white/[0.045]"
+          className="select-none text-center text-[clamp(4.5rem,18vw,18rem)] font-bold uppercase leading-none tracking-normal text-white/[0.095]"
         >
           BESPOKE
         </p>
@@ -110,7 +110,7 @@ export function Footer() {
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Bottom Bar */}
-        <div className="flex flex-col items-center justify-between gap-4 py-6 sm:flex-row">
+        <div className="flex flex-col items-center justify-between gap-4 py-4 sm:flex-row">
           <p className="text-xs text-ktf-gray-600">
             &copy; {currentYear} {SITE_NAME}. All rights reserved.
           </p>

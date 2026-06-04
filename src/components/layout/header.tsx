@@ -19,7 +19,7 @@ export function Header() {
 
   return (
     <>
-      <header className="sticky top-0 z-100 border-b border-ktf-gray-200 bg-ktf-white/80 backdrop-blur-xl supports-backdrop-filter:bg-ktf-white/60">
+      <header className="sticky top-0 z-100 border-b border-ktf-gray-200 bg-ktf-white shadow-xs">
         <nav
           className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8"
           aria-label="Main navigation"
