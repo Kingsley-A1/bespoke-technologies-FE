@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
 import { Container } from "@/components/layout";
 import { Badge } from "@/components/ui";
-import { SITE_NAME } from "@/lib/constants";
+import { CONTACT_EMAIL, SITE_DOMAIN, SITE_NAME } from "@/lib/constants";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy — King Tech Foundation",
-  description:
-    "King Tech Foundation's Privacy Policy. We are committed to protecting your privacy. We do not collect, sell, or share personal data for advertising purposes.",
+  title: `Privacy Policy — ${SITE_NAME}`,
+  description: `${SITE_NAME}'s Privacy Policy. We are committed to protecting your privacy. We do not collect, sell, or share personal data for advertising purposes.`,
   robots: { index: true, follow: false },
 };
 
@@ -16,7 +15,7 @@ const sections = [
   {
     id: "overview",
     title: "1. Overview",
-    content: `King Tech Foundation ("we", "our", "us") is committed to protecting your privacy. This Privacy Policy explains how we handle information in connection with your use of our website at kingtechfoundation.com (the "Site").
+    content: `Bespoke Technologies ("we", "our", "us") is committed to protecting your privacy. This Privacy Policy explains how we handle information in connection with your use of our website at ${SITE_DOMAIN} (the "Site").
 
 We believe in minimal data collection, radical transparency, and treating your personal information with the respect it deserves. We do not sell your data. We do not use it for advertising. We do not share it with third parties for commercial purposes.`,
   },
@@ -81,12 +80,12 @@ Business Transfers: In the event of a merger, acquisition, or sale of all or sub
     title: "7. Data Retention",
     content: `Contact form submissions are retained for as long as is necessary to fully respond to your enquiry and for a reasonable period thereafter to maintain accurate business records (typically no longer than 24 months).
 
-You may request deletion of your data at any time by contacting us at hello@kingtechfoundation.com. We will confirm receipt of your request and action it within 30 days.`,
+You may request deletion of your data at any time by contacting us at ${CONTACT_EMAIL}. We will confirm receipt of your request and action it within 30 days.`,
   },
   {
     id: "international",
     title: "8. International Transfers",
-    content: `King Tech Foundation is based in Nigeria. Our website is hosted on Vercel's global edge network, which may route or store data in servers located in the European Union, United States, or other jurisdictions.
+    content: `Bespoke Technologies is based in Nigeria. Our website is hosted on Vercel's global edge network, which may route or store data in servers located in the European Union, United States, or other jurisdictions.
 
 By submitting information through this Site, you acknowledge that your data may be processed in countries outside your country of residence. We take reasonable steps to ensure appropriate safeguards are in place for such transfers in accordance with applicable data protection laws.`,
   },
@@ -102,14 +101,14 @@ By submitting information through this Site, you acknowledge that your data may 
 • Right to Object: To object to processing based on legitimate interests.
 • Right to Portability: To receive your data in a structured, machine-readable format.
 
-To exercise any of these rights, please contact us at hello@kingtechfoundation.com. We will respond to all requests within 30 days.`,
+To exercise any of these rights, please contact us at ${CONTACT_EMAIL}. We will respond to all requests within 30 days.`,
   },
   {
     id: "children",
     title: "10. Children's Privacy",
     content: `This Site is not directed at children under the age of 13, and we do not knowingly collect personal data from children. If we become aware that a child under 13 has submitted personal information through our Site, we will promptly delete it.
 
-If you are a parent or guardian and believe your child has provided us with personal information, please contact us at hello@kingtechfoundation.com.`,
+If you are a parent or guardian and believe your child has provided us with personal information, please contact us at ${CONTACT_EMAIL}.`,
   },
   {
     id: "security",
@@ -130,8 +129,8 @@ Material changes will be communicated via a notice on our Site homepage for a pe
     title: "13. Contact Us",
     content: `If you have any questions, concerns, or requests relating to this Privacy Policy or our data practices, please contact us:
 
-Email: hello@kingtechfoundation.com
-Website: kingtechfoundation.com/contact
+Email: ${CONTACT_EMAIL}
+Website: ${SITE_DOMAIN}/contact
 
 We are committed to resolving any privacy concerns honestly and promptly.`,
   },
@@ -253,10 +252,10 @@ export default function PrivacyPage() {
               <strong className="text-ktf-navy">1 July 2025</strong>. For
               questions, contact us at{" "}
               <a
-                href="mailto:hello@kingtechfoundation.com"
+                href={`mailto:${CONTACT_EMAIL}`}
                 className="text-ktf-blue hover:underline"
               >
-                hello@kingtechfoundation.com
+                {CONTACT_EMAIL}
               </a>
             </p>
           </div>

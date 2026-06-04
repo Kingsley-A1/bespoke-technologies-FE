@@ -3,31 +3,34 @@ import { TypingText } from "@/components/ui/typing-text";
 import { Container } from "@/components/layout";
 import { ContactForm } from "@/components/marketing/contact-form";
 import {
+  CONTACT_EMAIL,
   PHONE_NUMBER,
   PHONE_DISPLAY,
+  SITE_DOMAIN,
+  SITE_NAME,
+  SITE_URL,
   WHATSAPP_NUMBER,
   WHATSAPP_INQUIRY_MESSAGE,
 } from "@/lib/constants";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Contact — King Tech Foundation",
-  description:
-    "Get in touch with King Tech Foundation. Tell us about your project and we'll respond within one business day.",
+  title: `Contact — ${SITE_NAME}`,
+  description: `Get in touch with ${SITE_NAME}. Tell us about your project and we'll respond within one business day.`,
 };
 
 const contactDetails = [
   {
     icon: "✉",
     label: "Email",
-    value: "hello@kingtechfoundation.com",
-    href: "mailto:hello@kingtechfoundation.com",
+    value: CONTACT_EMAIL,
+    href: `mailto:${CONTACT_EMAIL}`,
   },
   {
     icon: "🌐",
     label: "Website",
-    value: "kingtechfoundation.com",
-    href: "https://kingtechfoundation.com",
+    value: SITE_DOMAIN,
+    href: SITE_URL,
   },
 ];
 

@@ -1,13 +1,12 @@
 import { Button, Badge } from "@/components/ui";
 import { TypingText } from "@/components/ui/typing-text";
 import { Container } from "@/components/layout";
-import { TESTIMONIALS, STATS } from "@/lib/constants";
+import { TESTIMONIALS, STATS, SITE_NAME } from "@/lib/constants";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Reviews — King Tech Foundation",
-  description:
-    "Read what clients say about working with King Tech Foundation. Real feedback from real projects.",
+  title: `Reviews — ${SITE_NAME}`,
+  description: `Read what clients say about working with ${SITE_NAME}. Real feedback from real projects.`,
 };
 
 export default function ReviewsPage() {
@@ -31,7 +30,7 @@ export default function ReviewsPage() {
           </h1>
           <p className="text-body-lg text-ktf-gray-400 leading-body max-w-2xl mx-auto">
             Our reputation is built on results. Here is what our clients say
-            about working with King Tech Foundation.
+            about working with Bespoke Technologies.
           </p>
         </Container>
       </section>

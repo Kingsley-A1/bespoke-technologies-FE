@@ -1,5 +1,5 @@
 /**
- * King Tech Foundation — Utility Functions
+ * Bespoke Technologies — Utility Functions
  */
 
 import { type ClassValue, clsx } from "clsx";

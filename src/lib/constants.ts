@@ -1,21 +1,30 @@
 /**
- * King Tech Foundation — Shared Constants
+ * Bespoke Technologies — Shared Constants
  */
 
-export const SITE_NAME = "King Tech Foundation";
-export const SITE_TAGLINE = "For Honour and For Excellence";
+export const SITE_NAME = "Bespoke Technologies";
+export const SITE_SHORT_NAME = "BT";
+export const SITE_TAGLINE =
+  "Engineering the solutions for this, and The Next Generations_";
+export const SITE_CREED =
+  "For Honor and For Excellence. Engineering the solutions for this, and The Next Generations_";
 export const SITE_DESCRIPTION =
-  "For Honour and For Excellence, Engineering the Solutions of this, and the Next Generation.";
+  "Bespoke Technologies engineers websites, mobile apps, SaaS platforms, AI systems, automation, and business software with production discipline.";
+export const SITE_DOMAIN = "www.bespoketech.com.ng";
 export const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL || "https://kingtech.com.ng";
+  process.env.NEXT_PUBLIC_SITE_URL || `https://${SITE_DOMAIN}`;
 export const API_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
 export const PHONE_NUMBER = "08088071657";
 export const PHONE_DISPLAY = "08088071657";
 export const WHATSAPP_NUMBER = "2348088071657";
+export const CONTACT_EMAIL = "hello@bespoketech.com.ng";
+export const SOCIAL_HANDLE = "@bespoketech";
+export const BRAND_ICON_SRC = "/icons/bespoke-technologies-icon.png";
+export const BRAND_LOGO_SRC = "/icons/bespoke-technologies-logo-main.png";
 export const WHATSAPP_INQUIRY_MESSAGE =
-  "Hello King Tech Foundation, I'd like to enquire about your engineering services. Please can you help me?";
+  "Hello Bespoke Technologies, I'd like to enquire about your engineering services. Please can you help me?";
 
 export const NAV_LINKS = [
   { label: "Home", href: "/" },
@@ -58,7 +67,7 @@ export const SERVICES = [
     id: "mobile",
     icon: "mobile",
     title: "Mobile Development",
-    tagline: "Native & cross-platform apps",
+    tagline: "Native and cross-platform apps",
     description:
       "We build robust mobile applications using React Native and Expo — delivering App Store-quality experiences for both iOS and Android from a single codebase.",
     features: [
@@ -102,10 +111,10 @@ export const SERVICES = [
   {
     id: "api",
     icon: "api",
-    title: "API & Backend",
+    title: "API & Backend Engineering",
     tagline: "High-throughput, documented backends",
     description:
-      "We engineer secure, fully-documented REST and GraphQL APIs — using NestJS, Go, and CockroachDB for enterprise-grade reliability and multi-tenant scale.",
+      "We engineer secure, fully documented REST and GraphQL APIs using NestJS, Go, and CockroachDB for enterprise-grade reliability and multi-tenant scale.",
     features: [
       "OpenAPI / Swagger documentation",
       "Multi-tenant architecture",
@@ -117,7 +126,7 @@ export const SERVICES = [
   {
     id: "design",
     icon: "design",
-    title: "UI / UX Design",
+    title: "UI/UX Design",
     tagline: "Design systems that endure",
     description:
       "We create pixel-perfect, accessible design systems and user interfaces that reflect brand excellence — from wireframes through to production-ready component libraries.",
@@ -135,9 +144,9 @@ export const SERVICES = [
 
 export const VALUES = [
   {
-    id: "honour",
+    id: "honor",
     icon: "🤝",
-    title: "Honour",
+    title: "Honor",
     description:
       "Our word is our bond. We operate with unwavering integrity in every client relationship, every line of code, and every decision we make.",
   },
@@ -184,7 +193,7 @@ export const TESTIMONIALS = [
   {
     id: "1",
     quote:
-      "King Tech Foundation didn't just build our platform — they redesigned how we think about our digital infrastructure. The quality and thoughtfulness of their engineering is extraordinary.",
+      "Bespoke Technologies didn't just build our platform — they redesigned how we think about our digital infrastructure. The quality and thoughtfulness of their engineering is extraordinary.",
     author: "Amara Okafor",
     role: "Co-Founder & CTO",
     company: "FinEdge Technologies",
@@ -194,7 +203,7 @@ export const TESTIMONIALS = [
   {
     id: "2",
     quote:
-      "Working with KTF was a defining moment for our startup. They delivered a production-ready SaaS platform in record time, without a single compromise on quality or performance.",
+      "Working with Bespoke Technologies was a defining moment for our startup. They delivered a production-ready SaaS platform in record time, without a single compromise on quality or performance.",
     author: "James Thornton",
     role: "Chief Executive Officer",
     company: "Debranded Studio",
@@ -204,7 +213,7 @@ export const TESTIMONIALS = [
   {
     id: "3",
     quote:
-      "The KTF team has become our permanent engineering partner. Their work ethic, technical depth, and genuine care for our product sets them apart from every agency we have ever worked with.",
+      "The Bespoke Technologies team has become our permanent engineering partner. Their work ethic, technical depth, and genuine care for our product sets them apart from every agency we have ever worked with.",
     author: "Priya Nair",
     role: "VP of Technology",
     company: "Horizon Logistics Group",
@@ -214,7 +223,7 @@ export const TESTIMONIALS = [
   {
     id: "4",
     quote:
-      "What impressed me most was how KTF treated our project as if it were their own. The design system they built for us is still serving us perfectly two years later.",
+      "What impressed me most was how Bespoke Technologies treated our project as if it were their own. The design system they built for us is still serving us perfectly two years later.",
     author: "David Chen",
     role: "Founder",
     company: "BuildXR Studio",
@@ -230,7 +239,7 @@ export const PARTNERS = [
     id: "vercel",
     name: "Vercel",
     description:
-      "Powering every KTF frontend deployment with instant global edge delivery and zero infrastructure overhead.",
+      "Powering every Bespoke Technologies frontend deployment with instant global edge delivery and zero infrastructure overhead.",
     tier: "strategic" as const,
     websiteLink: "https://vercel.com",
     logo: "https://cdn.simpleicons.org/vercel/000000",
@@ -275,7 +284,7 @@ export const PARTNERS = [
     id: "github",
     name: "GitHub",
     description:
-      "Where all KTF code lives — our CI/CD pipeline, code reviews, and collaboration workflow run entirely on GitHub.",
+      "Where Bespoke Technologies code lives — our CI/CD pipeline, code reviews, and collaboration workflow run entirely on GitHub.",
     tier: "community" as const,
     websiteLink: "https://github.com",
     logo: "https://cdn.simpleicons.org/github/181717",
@@ -294,7 +303,7 @@ export const PARTNERSHIP_TIERS = [
       "Bi-directional business referral network",
       "Joint performance tracking & reporting",
       "Dedicated partnership liaison",
-      "Priority access to KTF engineering capacity",
+      "Priority access to Bespoke Technologies engineering capacity",
     ],
     highlighted: true,
   },
@@ -302,11 +311,11 @@ export const PARTNERSHIP_TIERS = [
     id: "co-development",
     name: "Co-development",
     description:
-      "Deep technical integration and joint go-to-market programs with KTF's core engineering team — building products and solutions together.",
+      "Deep technical integration and joint go-to-market programs with Bespoke Technologies' core engineering team — building products and solutions together.",
     benefits: [
       "Co-development on joint engineering projects",
       "Joint marketing & co-branded case studies",
-      "Early access to KTF solutions & tooling",
+      "Early access to Bespoke Technologies solutions & tooling",
       "Dedicated partnership manager",
       "Revenue sharing programs on applicable projects",
     ],
@@ -316,9 +325,9 @@ export const PARTNERSHIP_TIERS = [
     id: "technology",
     name: "Technology",
     description:
-      "Technology integration, ecosystem collaboration, and access to KTF's developer network — amplifying your tools in everything we build.",
+      "Technology integration, ecosystem collaboration, and access to Bespoke Technologies' developer network — amplifying your tools in everything we build.",
     benefits: [
-      "API & SDK integration into KTF-delivered projects",
+      "API & SDK integration into Bespoke Technologies-delivered projects",
       "Technical documentation access & support",
       "Partner portal & developer resources",
       "Quarterly business reviews",
@@ -333,6 +342,20 @@ export const PARTNERSHIP_TIERS = [
 export type ProjectType = "web" | "mobile" | "ios" | "desktop" | "web+mobile";
 
 export const PROJECTS = [
+  {
+    id: "down-below",
+    name: "DownBelow Family Health Initiatives",
+    type: "web" as ProjectType,
+    category: "Health Education Platform",
+    description:
+      "A public web platform for DownBelow Family Health Initiatives with Dr. Didi, a faith-grounded family health ministry sharing reliable guidance on relationships, sexuality, reproductive health, and community outreach.",
+    image: "/projects/downbelow.png",
+    liveUrl: "https://www.down-below.com",
+    tags: ["Health Education", "Family Wellness", "Community Outreach"],
+    year: "2026",
+    comingSoon: false,
+    featured: true,
+  },
   {
     id: "graviloch-finishing",
     name: "Graviloch Finishing Ltd",
@@ -355,7 +378,7 @@ export const PROJECTS = [
     description:
       "An AI Powered and high-performance speed typing platform with competitive leaderboards, customisable drill modes, and detailed WPM analytics for computer professionals and  learners.",
     image: "/projects/swift-type.png",
-    liveUrl: "https://swift-type-two.vercel.app",
+    liveUrl: "https://swift-type.com.ng",
     tags: ["React", "TypeScript", "Real-time"],
     year: "2024",
     comingSoon: false,

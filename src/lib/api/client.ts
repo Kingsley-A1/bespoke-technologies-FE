@@ -1,5 +1,5 @@
 /**
- * King Tech Foundation — Base API Client
+ * Bespoke Technologies — Base API Client
  *
  * Type-safe fetch wrapper for communicating with the NestJS backend.
  * All API calls flow through this module to ensure consistent

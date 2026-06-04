@@ -1,13 +1,13 @@
-const CACHE_NAME = "ktf-v1";
+const CACHE_NAME = "bt-v1";
 const STATIC_ASSETS = [
   "/",
   "/about",
   "/services",
   "/projects",
   "/contact",
-  "/partnership",
-  "/icons/ktf-logo.png",
-  "/icons/ktf-logo-main.png",
+  "/partnerships",
+  "/icons/bespoke-technologies-icon.png",
+  "/icons/bespoke-technologies-logo-main.png",
 ];
 
 self.addEventListener("install", (event) => {

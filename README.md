@@ -1,15 +1,15 @@
-# King Tech Foundation — Frontend
+# Bespoke Technologies — Frontend
 
-The official marketing website for King Tech Foundation (KTF), built with Next.js 16, React 19, Tailwind CSS v4, and KTF's custom design token system.
+The official marketing website for Bespoke Technologies (BT), built with Next.js 16, React 19, Tailwind CSS v4, and Bespoke Technologies' custom design token system.
 
 ## Live Site
 
-**Production:** https://king-tech-foundation-frontend.vercel.app
+**Production:** https://www.bespoketech.com.ng
 
 ## Tech Stack
 
 - **Framework:** Next.js 16.2.1 (App Router)
-- **UI:** React 19, Tailwind CSS v4 with KTF design tokens
+- **UI:** React 19, Tailwind CSS v4 with Bespoke Technologies design tokens
 - **Animation:** Motion (motion/react) v12
 - **Language:** TypeScript (strict)
 - **Package Manager:** pnpm
@@ -24,7 +24,7 @@ The official marketing website for King Tech Foundation (KTF), built with Next.j
 | `/partnerships`  | Partnership tiers and current partners                                |
 | `/reviews`       | Client testimonials and ratings                                       |
 | `/contact`       | Contact form with validation                                          |
-| `/design-system` | KTF design token reference                                            |
+| `/design-system` | Bespoke Technologies design token reference                           |
 
 ## Getting Started
 
@@ -57,7 +57,7 @@ pnpm start   # Start production server
 
 ## GitHub
 
-https://github.com/Kingsley-A1/king-tech-foundation-frontend
+https://github.com/Kingsley-A1/bespoke-technologies-FE
 
 ## Deploy on Vercel
 

@@ -1,13 +1,18 @@
 import { Button, Badge } from "@/components/ui";
 import { TypingText } from "@/components/ui/typing-text";
 import { Container } from "@/components/layout";
-import { VALUES, STATS } from "@/lib/constants";
+import {
+  SITE_CREED,
+  SITE_NAME,
+  SITE_TAGLINE,
+  VALUES,
+  STATS,
+} from "@/lib/constants";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "About — King Tech Foundation",
-  description:
-    "Learn about King Tech Foundation — our mission, values, and the principles that drive engineering excellence.",
+  title: `About — ${SITE_NAME}`,
+  description: `Learn about ${SITE_NAME} — our mission, values, and the principles that drive engineering excellence.`,
 };
 
 export default function AboutPage() {
@@ -26,8 +31,8 @@ export default function AboutPage() {
             Who <TypingText text="We Are" className="text-ktf-blue" />
           </h1>
           <p className="text-body-lg text-ktf-gray-400 leading-body max-w-2xl mx-auto">
-            King Tech Foundation was built on a simple conviction: that great
-            software changes lives — and that it should be crafted with the same
+            Bespoke Technologies was built on a simple conviction: that great
+            software changes lives, and that it should be crafted with the same
             care a craftsman brings to any lasting work.
           </p>
         </Container>
@@ -42,10 +47,7 @@ export default function AboutPage() {
                 Our Mission
               </p>
               <h2 className="text-h2 font-bold leading-heading text-ktf-navy mb-6">
-                Engineering the Solutions of{" "}
-                <span className="text-ktf-blue">
-                  This and the Next Generation
-                </span>
+                {SITE_TAGLINE}
               </h2>
               <p className="text-body-lg text-ktf-gray-600 leading-body mb-4">
                 We exist to close the gap between vision and reality. Too many
@@ -66,7 +68,7 @@ export default function AboutPage() {
                 Our Story
               </p>
               <p className="text-body text-ktf-gray-700 leading-body mb-4">
-                King Tech Foundation began as a personal commitment — a pledge
+                Bespoke Technologies began as a personal commitment: a pledge
                 that every line of code written would be purposeful, every
                 design decision intentional, and every product shipped with
                 pride.
@@ -78,9 +80,8 @@ export default function AboutPage() {
               </p>
               <p className="text-body text-ktf-gray-700 leading-body">
                 Today, we are a focused team of engineers and designers driven
-                by two values above all else:{" "}
-                <strong className="text-ktf-navy">Honour</strong> and{" "}
-                <strong className="text-ktf-navy">Excellence</strong>.
+                by a clear creed:{" "}
+                <strong className="text-ktf-navy">{SITE_CREED}</strong>
               </p>
             </div>
           </div>

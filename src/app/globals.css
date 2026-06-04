@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 /* ============================================================
-   King Tech Foundation — Design Token System (Tailwind CSS v4)
+   Bespoke Technologies — Design Token System (Tailwind CSS v4)
    ============================================================ */
 
 @theme inline {
@@ -262,4 +262,26 @@ body {
 
 .animate-fade-in {
   animation: var(--animate-fade-in);
+}
+
+/* ---- Delivery engine: traveling honeycomb glow ---- */
+@keyframes ktfHexPulse {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  45% {
+    opacity: 0.4;
+  }
+}
+
+.ktf-hex-pulse {
+  animation: ktfHexPulse 3.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ktf-hex-pulse {
+    animation: none;
+    opacity: 0.1;
+  }
 }

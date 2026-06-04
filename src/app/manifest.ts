@@ -1,11 +1,16 @@
 import type { MetadataRoute } from "next";
+import {
+  BRAND_ICON_SRC,
+  SITE_DESCRIPTION,
+  SITE_NAME,
+  SITE_SHORT_NAME,
+} from "@/lib/constants";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "King Tech Foundation",
-    short_name: "KTF",
-    description:
-      "Engineering Solutions for This, and The Next Generation. Web, mobile, cloud, and AI — built with precision.",
+    name: SITE_NAME,
+    short_name: SITE_SHORT_NAME,
+    description: SITE_DESCRIPTION,
     start_url: "/",
     display: "standalone",
     background_color: "#0b1f3a",
@@ -14,13 +19,13 @@ export default function manifest(): MetadataRoute.Manifest {
     categories: ["business", "productivity", "technology"],
     icons: [
       {
-        src: "/icons/ktf-logo.png",
-        sizes: "192x192",
+        src: BRAND_ICON_SRC,
+        sizes: "512x512",
         type: "image/png",
         purpose: "any",
       },
       {
-        src: "/icons/ktf-logo-main.png",
+        src: BRAND_ICON_SRC,
         sizes: "512x512",
         type: "image/png",
         purpose: "maskable",

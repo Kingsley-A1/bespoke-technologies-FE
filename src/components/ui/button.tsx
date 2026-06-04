@@ -1,7 +1,7 @@
 /**
- * King Tech Foundation — Button Component
+ * Bespoke Technologies — Button Component
  *
- * Production-grade button with KTF design system variants.
+ * Production-grade button with Bespoke Technologies design system variants.
  * Renders as <a> via Next.js Link when `href` is provided.
  */
 

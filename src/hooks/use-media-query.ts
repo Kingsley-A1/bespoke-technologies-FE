@@ -1,5 +1,5 @@
 /**
- * King Tech Foundation — useMediaQuery Hook
+ * Bespoke Technologies — useMediaQuery Hook
  *
  * SSR-safe media query hook using useSyncExternalStore.
  */

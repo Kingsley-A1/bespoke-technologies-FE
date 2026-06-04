@@ -21,18 +21,18 @@ import {
 } from "@/components/ui";
 
 const COLORS = [
-  { name: "ktf-blue", hex: "#0A84FF", className: "bg-ktf-blue" },
-  { name: "ktf-blue-deep", hex: "#0057D9", className: "bg-ktf-blue-deep" },
+  { name: "bt-blue", hex: "#0A84FF", className: "bg-ktf-blue" },
+  { name: "bt-blue-deep", hex: "#0057D9", className: "bg-ktf-blue-deep" },
   {
-    name: "ktf-blue-pressed",
+    name: "bt-blue-pressed",
     hex: "#0047B3",
     className: "bg-ktf-blue-pressed",
   },
-  { name: "ktf-navy", hex: "#0B1F3A", className: "bg-ktf-navy" },
-  { name: "ktf-white", hex: "#FDFDFD", className: "bg-ktf-white border" },
-  { name: "ktf-surface", hex: "#F6F8FB", className: "bg-ktf-surface border" },
-  { name: "ktf-obsidian", hex: "#111318", className: "bg-ktf-obsidian" },
-  { name: "ktf-charcoal", hex: "#2A2F36", className: "bg-ktf-charcoal" },
+  { name: "bt-navy", hex: "#0B1F3A", className: "bg-ktf-navy" },
+  { name: "bt-white", hex: "#FDFDFD", className: "bg-ktf-white border" },
+  { name: "bt-surface", hex: "#F6F8FB", className: "bg-ktf-surface border" },
+  { name: "bt-obsidian", hex: "#111318", className: "bg-ktf-obsidian" },
+  { name: "bt-charcoal", hex: "#2A2F36", className: "bg-ktf-charcoal" },
 ];
 
 const GRAYS = [
@@ -117,7 +117,7 @@ export default function DesignSystemPage() {
             Design System
           </h1>
           <p className="mt-4 text-lg text-ktf-gray-600 max-w-2xl">
-            The King Tech Foundation living style guide. All design tokens,
+            The Bespoke Technologies living style guide. All design tokens,
             colours, typography, and UI components in one place.
           </p>
         </header>
@@ -181,7 +181,7 @@ export default function DesignSystemPage() {
                   {t.size}
                 </div>
                 <p className={`${t.className} font-semibold text-ktf-obsidian`}>
-                  {t.name} — King Tech Foundation
+                  {t.name} — Bespoke Technologies
                 </p>
               </div>
             ))}

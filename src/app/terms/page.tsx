@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
 import { Container } from "@/components/layout";
 import { Badge } from "@/components/ui";
-import { SITE_NAME } from "@/lib/constants";
+import { CONTACT_EMAIL, SITE_DOMAIN, SITE_NAME } from "@/lib/constants";
 
 export const metadata: Metadata = {
-  title: "Terms of Service — King Tech Foundation",
-  description:
-    "Read the Terms of Service for King Tech Foundation. Understand your rights and responsibilities when using our website and services.",
+  title: `Terms of Service — ${SITE_NAME}`,
+  description: `Read the Terms of Service for ${SITE_NAME}. Understand your rights and responsibilities when using our website and services.`,
   robots: { index: true, follow: false },
 };
 
@@ -16,16 +15,16 @@ const sections = [
   {
     id: "acceptance",
     title: "1. Acceptance of Terms",
-    content: `By accessing or using the King Tech Foundation website (the "Site") at kingtechfoundation.com, you confirm that you have read, understood, and agree to be bound by these Terms of Service ("Terms"). If you are accessing the Site on behalf of an organisation, you warrant that you have the authority to bind that organisation to these Terms.
+    content: `By accessing or using the Bespoke Technologies website (the "Site") at ${SITE_DOMAIN}, you confirm that you have read, understood, and agree to be bound by these Terms of Service ("Terms"). If you are accessing the Site on behalf of an organisation, you warrant that you have the authority to bind that organisation to these Terms.
 
 If you do not agree with any part of these Terms, you must discontinue your use of the Site immediately.`,
   },
   {
     id: "services",
     title: "2. Description of Services",
-    content: `King Tech Foundation ("we", "our", "us") provides engineering, software development, and technology consulting services to businesses and individuals globally. The Site serves as an informational and contact platform for prospective and existing clients.
+    content: `Bespoke Technologies ("we", "our", "us") provides engineering, software development, and technology consulting services to businesses and individuals globally. The Site serves as an informational and contact platform for prospective and existing clients.
 
-Any engagement for specific services will be governed by a separate, written service agreement executed between King Tech Foundation and the client. These Terms do not constitute a service agreement or create any obligation to provide services.`,
+Any engagement for specific services will be governed by a separate, written service agreement executed between Bespoke Technologies and the client. These Terms do not constitute a service agreement or create any obligation to provide services.`,
   },
   {
     id: "use",
@@ -36,7 +35,7 @@ Any engagement for specific services will be governed by a separate, written ser
 • Attempt to gain unauthorised access to any part of the Site or its underlying infrastructure.
 • Use automated tools (bots, scrapers, crawlers) to extract data from the Site without prior written consent.
 • Introduce malware, viruses, or any other malicious code.
-• Impersonate King Tech Foundation or any of its personnel.
+• Impersonate Bespoke Technologies or any of its personnel.
 • Use the Site in any manner that could damage, disable, or impair its normal operation.
 
 We reserve the right to terminate or restrict your access to the Site at our sole discretion, without notice, for conduct that we believe violates these Terms or is harmful to other users, us, or third parties.`,
@@ -44,9 +43,9 @@ We reserve the right to terminate or restrict your access to the Site at our sol
   {
     id: "ip",
     title: "4. Intellectual Property",
-    content: `All content on this Site — including but not limited to text, graphics, logos, icons, images, design systems, code, and trade names — is the exclusive intellectual property of King Tech Foundation or its licensors and is protected by applicable intellectual property laws.
+    content: `All content on this Site — including but not limited to text, graphics, logos, icons, images, design systems, code, and trade names — is the exclusive intellectual property of Bespoke Technologies or its licensors and is protected by applicable intellectual property laws.
 
-Nothing in these Terms grants you any licence or right to use our intellectual property without prior written permission. The "King Tech Foundation" name, "KTF" mark, and associated logos may not be used in any way that implies endorsement or affiliation without our express written consent.
+Nothing in these Terms grants you any licence or right to use our intellectual property without prior written permission. The "Bespoke Technologies" name, "BT" mark, and associated logos may not be used in any way that implies endorsement or affiliation without our express written consent.
 
 You may share links to our Site content for personal, non-commercial purposes, provided that you do not misrepresent us or our services.`,
   },
@@ -65,7 +64,7 @@ We make reasonable efforts to ensure the accuracy and currency of information on
   {
     id: "liability",
     title: "7. Limitation of Liability",
-    content: `To the maximum extent permitted by applicable law, King Tech Foundation and its directors, employees, contractors, and affiliates shall not be liable for any indirect, incidental, special, punitive, or consequential damages arising from or related to your use of, or inability to use, the Site — even if we have been advised of the possibility of such damages.
+    content: `To the maximum extent permitted by applicable law, Bespoke Technologies and its directors, employees, contractors, and affiliates shall not be liable for any indirect, incidental, special, punitive, or consequential damages arising from or related to your use of, or inability to use, the Site — even if we have been advised of the possibility of such damages.
 
 Our total aggregate liability for any claims arising under or related to these Terms shall not exceed the greater of (i) the amount paid by you to us in the preceding three months, or (ii) one hundred dollars (USD $100).
 
@@ -90,8 +89,8 @@ If you are accessing the Site from outside Nigeria, you are responsible for comp
     title: "10. Contact Information",
     content: `If you have any questions about these Terms of Service, please contact us:
 
-Email: hello@kingtechfoundation.com
-Website: kingtechfoundation.com/contact
+Email: ${CONTACT_EMAIL}
+Website: ${SITE_DOMAIN}/contact
 
 We will endeavour to respond to all enquiries within two business days.`,
   },
@@ -188,10 +187,10 @@ export default function TermsPage() {
               <strong className="text-ktf-navy">1 July 2025</strong>. For
               questions, contact us at{" "}
               <a
-                href="mailto:hello@kingtechfoundation.com"
+                href={`mailto:${CONTACT_EMAIL}`}
                 className="text-ktf-blue hover:underline"
               >
-                hello@kingtechfoundation.com
+                {CONTACT_EMAIL}
               </a>
             </p>
           </div>

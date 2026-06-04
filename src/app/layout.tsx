@@ -5,6 +5,12 @@ import { Footer } from "@/components/layout/footer";
 import { WhatsappFab } from "@/components/marketing/whatsapp-fab";
 import { InstallPrompt } from "@/components/pwa/install-prompt";
 import { ServiceWorkerRegistration } from "@/components/pwa/service-worker-registration";
+import {
+  BRAND_ICON_SRC,
+  SITE_DESCRIPTION,
+  SITE_NAME,
+  SITE_URL,
+} from "@/lib/constants";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -21,35 +27,28 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "King Tech Foundation",
-    template: "%s | King Tech Foundation",
+    default: SITE_NAME,
+    template: `%s | ${SITE_NAME}`,
   },
-  description:
-    "For Honour and For Excellence, Engineering the Solutions of this, and the Next Generation.",
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL ?? "https://kingtech.com.ng",
-  ),
+  description: SITE_DESCRIPTION,
+  metadataBase: new URL(SITE_URL),
   manifest: "/manifest.webmanifest",
   icons: {
-    icon: [{ url: "/icons/ktf-logo.png", sizes: "192x192", type: "image/png" }],
-    apple: [
-      { url: "/icons/ktf-logo-main.png", sizes: "512x512", type: "image/png" },
-    ],
-    shortcut: "/icons/ktf-logo.png",
+    icon: [{ url: BRAND_ICON_SRC, sizes: "512x512", type: "image/png" }],
+    apple: [{ url: BRAND_ICON_SRC, sizes: "512x512", type: "image/png" }],
+    shortcut: BRAND_ICON_SRC,
   },
   openGraph: {
     type: "website",
     locale: "en_US",
-    siteName: "King Tech Foundation",
-    title: "King Tech Foundation",
-    description:
-      "For Honour and For Excellence, Engineering the Solutions of this, and the Next Generation.",
+    siteName: SITE_NAME,
+    title: SITE_NAME,
+    description: SITE_DESCRIPTION,
   },
   twitter: {
     card: "summary_large_image",
-    title: "King Tech Foundation",
-    description:
-      "For Honour and For Excellence, Engineering the Solutions of this, and the Next Generation.",
+    title: SITE_NAME,
+    description: SITE_DESCRIPTION,
   },
   robots: {
     index: true,

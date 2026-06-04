@@ -3,14 +3,13 @@ import { Badge } from "@/components/ui";
 import { TypingText } from "@/components/ui/typing-text";
 import { Container } from "@/components/layout";
 import { ProjectsGrid } from "@/components/marketing/projects-grid";
-import { PROJECTS } from "@/lib/constants";
+import { PROJECTS, SITE_NAME } from "@/lib/constants";
 
 export const metadata: Metadata = {
-  title: "Projects — King Tech Foundation",
-  description:
-    "Explore the accomplished works of King Tech Foundation — web applications, mobile apps, and digital products built with precision and purpose.",
+  title: `Projects — ${SITE_NAME}`,
+  description: `Explore the accomplished works of ${SITE_NAME} — web applications, mobile apps, and digital products built with precision and purpose.`,
   openGraph: {
-    title: "Our Projects — King Tech Foundation",
+    title: `Our Projects — ${SITE_NAME}`,
     description:
       "From government portals to fashion platforms, explore the portfolio of engineering excellence we have delivered.",
   },

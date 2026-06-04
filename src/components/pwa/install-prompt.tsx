@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import Image from "next/image";
+import { BRAND_ICON_SRC, SITE_NAME } from "@/lib/constants";
 
 interface BeforeInstallPromptEvent extends Event {
   readonly platforms: string[];
@@ -24,7 +25,7 @@ export function InstallPrompt() {
     if (window.matchMedia("(display-mode: standalone)").matches) return;
 
     // Check if previously dismissed (within 7 days)
-    const dismissedAt = localStorage.getItem("ktf-install-dismissed");
+    const dismissedAt = localStorage.getItem("bt-install-dismissed");
     if (dismissedAt) {
       const sevenDays = 7 * 24 * 60 * 60 * 1000;
       if (Date.now() - parseInt(dismissedAt) < sevenDays) return;
@@ -66,7 +67,7 @@ export function InstallPrompt() {
   const handleDismiss = () => {
     setShow(false);
     setDismissed(true);
-    localStorage.setItem("ktf-install-dismissed", Date.now().toString());
+    localStorage.setItem("bt-install-dismissed", Date.now().toString());
   };
 
   if (dismissed || (!deferredPrompt && !isIOS)) return null;
@@ -81,7 +82,7 @@ export function InstallPrompt() {
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
           className="fixed bottom-5 left-4 right-4 z-300 md:bottom-6 md:left-auto md:right-6 md:w-96"
           role="dialog"
-          aria-label="Install King Tech Foundation app"
+          aria-label={`Install ${SITE_NAME} app`}
         >
           <div className="overflow-hidden rounded-2xl border border-ktf-gray-200 bg-ktf-white/95 shadow-premium backdrop-blur-xl">
             <div className="h-1 w-full bg-linear-to-r from-ktf-blue via-ktf-blue-deep to-ktf-gold" />
@@ -90,8 +91,8 @@ export function InstallPrompt() {
               <div className="flex items-start gap-3">
                 <div className="h-11 w-11 shrink-0 overflow-hidden rounded-xl border border-ktf-gray-200 bg-ktf-white">
                   <Image
-                    src="/icons/ktf-logo.png"
-                    alt="KTF"
+                    src={BRAND_ICON_SRC}
+                    alt="Bespoke Technologies logo"
                     width={44}
                     height={44}
                     className="object-cover"
@@ -100,11 +101,11 @@ export function InstallPrompt() {
 
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-semibold text-ktf-navy leading-snug">
-                    Install King Tech Foundation
+                    Install Bespoke Technologies
                   </p>
                   <p className="mt-1 text-caption leading-relaxed text-ktf-gray-600">
-                    Keep KTF one tap away for a faster, polished app-like
-                    experience.
+                    Keep Bespoke Technologies one tap away for a faster,
+                    polished app-like experience.
                   </p>
                 </div>
 

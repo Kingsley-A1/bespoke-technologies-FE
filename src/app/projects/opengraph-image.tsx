@@ -78,7 +78,7 @@ export default function Image() {
             boxShadow: "0 8px 32px rgba(10,132,255,0.4)",
           }}
         >
-          KTF
+          BT
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
           <span
@@ -91,7 +91,7 @@ export default function Image() {
               lineHeight: 1,
             }}
           >
-            KING TECH
+            BESPOKE
           </span>
           <span
             style={{
@@ -103,7 +103,7 @@ export default function Image() {
               lineHeight: 1,
             }}
           >
-            FOUNDATION
+            TECHNOLOGIES
           </span>
         </div>
       </div>

@@ -1,5 +1,5 @@
 /**
- * King Tech Foundation — Shared TypeScript Types
+ * Bespoke Technologies — Shared TypeScript Types
  *
  * These interfaces correspond to the NestJS backend OpenAPI DTOs.
  * Keep in sync with backend contract definitions.

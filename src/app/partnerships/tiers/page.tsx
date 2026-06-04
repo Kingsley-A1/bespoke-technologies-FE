@@ -7,17 +7,17 @@ import {
   PARTNERSHIP_TIERS,
   PHONE_DISPLAY,
   PHONE_NUMBER,
+  SITE_NAME,
   WHATSAPP_NUMBER,
 } from "@/lib/constants";
 
 export const metadata: Metadata = {
-  title: "Partnership Tiers — King Tech Foundation",
+  title: `Partnership Tiers — ${SITE_NAME}`,
   description:
-    "Explore KTF's three partnership tiers in full detail — Strategic B2B revenue-sharing, Co-development, and Technology integration. Clear terms, real value.",
+    "Explore Bespoke Technologies' three partnership tiers in full detail — Strategic B2B revenue-sharing, Co-development, and Technology integration. Clear terms, real value.",
   openGraph: {
-    title: "Partnership Tiers — King Tech Foundation",
-    description:
-      "Three ways to partner with King Tech Foundation — each built on genuine mutual value, clear terms, and real outcomes.",
+    title: `Partnership Tiers — ${SITE_NAME}`,
+    description: `Three ways to partner with ${SITE_NAME} — each built on genuine mutual value, clear terms, and real outcomes.`,
   },
 };
 
@@ -46,22 +46,22 @@ const TIER_DETAIL = {
         <path d="M12 6v6l4 2" />
       </svg>
     ),
-    intro: `The Strategic Partnership is a formal B2B revenue-sharing arrangement built on a simple principle: mutual financial incentive. When you refer a client to King Tech Foundation and we deliver the project, we pay you 10% of the gross project revenue. When we refer an opportunity your way and you deliver it, you pay us 10% of yours. Both parties have skin in the game — which means both parties are fully invested in the outcome.`,
+    intro: `The Strategic Partnership is a formal B2B revenue-sharing arrangement built on a simple principle: mutual financial incentive. When you refer a client to Bespoke Technologies and we deliver the project, we pay you 10% of the gross project revenue. When we refer an opportunity your way and you deliver it, you pay us 10% of yours. Both parties have skin in the game — which means both parties are fully invested in the outcome.`,
     howItWorks: [
       {
         step: "01",
-        title: "You refer a client to KTF",
-        body: "You identify a business that needs engineering services and introduce them to King Tech Foundation. The referral is registered and assigned to you under your active partnership agreement.",
+        title: "You refer a client to Bespoke Technologies",
+        body: "You identify a business that needs engineering services and introduce them to Bespoke Technologies. The referral is registered and assigned to you under your active partnership agreement.",
       },
       {
         step: "02",
-        title: "KTF scopes and delivers the project",
+        title: "Bespoke Technologies scopes and delivers the project",
         body: "Our engineering team engages the referred client, produces a formal Statement of Work, and delivers the project to specification. You are kept informed on progress at key milestones.",
       },
       {
         step: "03",
         title: "10% revenue share is issued to you",
-        body: "Within 30 calendar days of project payment being received by KTF, we issue 10% of the gross project value to you — no deductions, fully documented.",
+        body: "Within 30 calendar days of project payment being received by Bespoke Technologies, we issue 10% of the gross project value to you — no deductions, fully documented.",
       },
       {
         step: "04",
@@ -82,7 +82,7 @@ const TIER_DETAIL = {
       "Disputes are first addressed through good-faith mediation before any external legal process.",
     ],
     waMessage:
-      "Hello%20King%20Tech%20Foundation%2C%20I%20am%20interested%20in%20the%20Strategic%20Partnership%20tier%20(B2B%20Revenue-Sharing).%20Please%20could%20we%20discuss%20the%20terms%20and%20next%20steps%3F",
+      "Hello%20Bespoke%20Technologies%2C%20I%20am%20interested%20in%20the%20Strategic%20Partnership%20tier%20(B2B%20Revenue-Sharing).%20Please%20could%20we%20discuss%20the%20terms%20and%20next%20steps%3F",
   },
   "co-development": {
     badge: "Joint Engineering & Go-to-Market",
@@ -108,7 +108,7 @@ const TIER_DETAIL = {
         <path d="M16 3.13a4 4 0 0 1 0 7.75" />
       </svg>
     ),
-    intro: `The Co-development Partnership creates a deep technical alliance between KTF's engineering team and your organisation. We collaborate on building products, platforms, and market-facing solutions together — aligning technical roadmaps, sharing resources, and executing joint go-to-market strategies. This tier is designed for businesses who want a genuine engineering partner embedded in their product journey, not a transactional outsourcing relationship.`,
+    intro: `The Co-development Partnership creates a deep technical alliance between Bespoke Technologies' engineering team and your organisation. We collaborate on building products, platforms, and market-facing solutions together — aligning technical roadmaps, sharing resources, and executing joint go-to-market strategies. This tier is designed for businesses who want a genuine engineering partner embedded in their product journey, not a transactional outsourcing relationship.`,
     howItWorks: [
       {
         step: "01",
@@ -117,7 +117,7 @@ const TIER_DETAIL = {
       },
       {
         step: "02",
-        title: "KTF engineers integrate into your workflow",
+        title: "Bespoke Technologies engineers integrate into your workflow",
         body: "Our engineers work alongside yours (or lead independently where agreed), embedded in your development cycle with access to shared repositories, sprint cadences, and communication channels.",
       },
       {
@@ -137,13 +137,13 @@ const TIER_DETAIL = {
       "Each party is responsible for their own team costs, tooling licences, and operating expenses unless jointly budgeted.",
       "Joint marketing materials, case studies, and press releases require written consent from both parties before publication.",
       "Revenue sharing on jointly delivered client projects, where applicable, is defined per-project in signed addendums.",
-      "Early access to new KTF solutions, design systems, and internal tooling is granted as a standing benefit.",
+      "Early access to new Bespoke Technologies solutions, design systems, and internal tooling is granted as a standing benefit.",
       "Either party may exit with 60 days' written notice; a mutually agreed handover plan must be in place before exit.",
       "Projects in active delivery at the time of notice continue under the original terms until completion.",
       "Confidentiality obligations covering shared technology, client data, and business strategy are binding for 36 months post-exit.",
     ],
     waMessage:
-      "Hello%20King%20Tech%20Foundation%2C%20I%20am%20interested%20in%20the%20Co-development%20Partnership%20tier.%20I%20would%20like%20to%20explore%20a%20joint%20engineering%20collaboration.%20Please%20could%20we%20discuss%20further%3F",
+      "Hello%20Bespoke%20Technologies%2C%20I%20am%20interested%20in%20the%20Co-development%20Partnership%20tier.%20I%20would%20like%20to%20explore%20a%20joint%20engineering%20collaboration.%20Please%20could%20we%20discuss%20further%3F",
   },
   technology: {
     badge: "Technology Integration & Ecosystem",
@@ -167,12 +167,12 @@ const TIER_DETAIL = {
         <polyline points="8 6 2 12 8 18" />
       </svg>
     ),
-    intro: `The Technology Partnership is built for technology providers, developer platforms, and infrastructure companies who want their products embedded in what KTF builds for clients. We integrate your APIs, SDKs, and infrastructure into applicable client projects, provide verified technical feedback through quarterly reviews, and represent your brand to a growing network of engineers and decision-makers.`,
+    intro: `The Technology Partnership is built for technology providers, developer platforms, and infrastructure companies who want their products embedded in what Bespoke Technologies builds for clients. We integrate your APIs, SDKs, and infrastructure into applicable client projects, provide verified technical feedback through quarterly reviews, and represent your brand to a growing network of engineers and decision-makers.`,
     howItWorks: [
       {
         step: "01",
         title: "We evaluate your technology",
-        body: "KTF's engineering team assesses your API, SDK, or platform for fit against our current and upcoming client project stack. Where a fit exists, we begin integration planning.",
+        body: "Bespoke Technologies' engineering team assesses your API, SDK, or platform for fit against our current and upcoming client project stack. Where a fit exists, we begin integration planning.",
       },
       {
         step: "02",
@@ -192,17 +192,17 @@ const TIER_DETAIL = {
     ],
     terms: [
       "Technology partners must provide current API/SDK access and maintain up-to-date, developer-facing documentation.",
-      "KTF integrates partner technology at its own engineering discretion, based on project-by-project suitability assessments.",
+      "Bespoke Technologies integrates partner technology at its own engineering discretion, based on project-by-project suitability assessments.",
       "Co-branding and attribution are provided only on solutions where the technology is meaningfully and visibly used.",
       "A dedicated technical point of contact must be maintained by the technology partner for integration support queries.",
       "Attendance or participation in quarterly business reviews is required to maintain active Technology Partner status.",
       "Partners may offer platform credits, extended API limits, or developer incentives at their discretion for integration volume.",
       "This tier does not include revenue sharing unless separately negotiated via a signed project addendum.",
-      "KTF does not guarantee minimum integration volume or client adoption of any specific technology partner.",
+      "Bespoke Technologies does not guarantee minimum integration volume or client adoption of any specific technology partner.",
       "Either party may exit the partnership with 30 days' written notice; any in-flight integrations continue to completion.",
     ],
     waMessage:
-      "Hello%20King%20Tech%20Foundation%2C%20I%20am%20interested%20in%20the%20Technology%20Partnership%20tier.%20I%20would%20like%20to%20explore%20technical%20integration%20and%20ecosystem%20collaboration.%20Please%20could%20we%20discuss%20further%3F",
+      "Hello%20Bespoke%20Technologies%2C%20I%20am%20interested%20in%20the%20Technology%20Partnership%20tier.%20I%20would%20like%20to%20explore%20technical%20integration%20and%20ecosystem%20collaboration.%20Please%20could%20we%20discuss%20further%3F",
   },
 } satisfies Record<
   string,
@@ -238,9 +238,9 @@ export default function PartnershipTiersPage() {
             The Full Terms. No Ambiguity.
           </h1>
           <p className="text-body-lg text-ktf-gray-400 leading-body max-w-2xl mx-auto mb-8">
-            Every KTF partnership tier is built on clarity, fairness, and
-            genuine mutual value. Read the terms, understand what you get, and
-            reach out when you&apos;re ready.
+            Every Bespoke Technologies partnership tier is built on clarity,
+            fairness, and genuine mutual value. Read the terms, understand what
+            you get, and reach out when you&apos;re ready.
           </p>
           {/* Jump links */}
           <nav
@@ -456,7 +456,7 @@ export default function PartnershipTiersPage() {
               Call {PHONE_DISPLAY}
             </a>
             <a
-              href={`https://wa.me/${WHATSAPP_NUMBER}?text=Hello%20King%20Tech%20Foundation%2C%20I%20would%20like%20to%20enquire%20about%20a%20partnership.%20Please%20could%20you%20help%20me%20choose%20the%20right%20tier%3F`}
+              href={`https://wa.me/${WHATSAPP_NUMBER}?text=Hello%20Bespoke%20Technologies%2C%20I%20would%20like%20to%20enquire%20about%20a%20partnership.%20Please%20could%20you%20help%20me%20choose%20the%20right%20tier%3F`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex h-13 items-center gap-2.5 rounded-xl bg-[#25D366] px-7 text-body font-semibold text-white transition-opacity hover:opacity-90"

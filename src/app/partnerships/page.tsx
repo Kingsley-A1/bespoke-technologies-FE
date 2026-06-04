@@ -1,15 +1,14 @@
 import { Button, Badge } from "@/components/ui";
 import { TypingText } from "@/components/ui/typing-text";
 import { Container } from "@/components/layout";
-import { PARTNERS, PARTNERSHIP_TIERS } from "@/lib/constants";
+import { PARTNERS, PARTNERSHIP_TIERS, SITE_NAME } from "@/lib/constants";
 import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Partnerships — King Tech Foundation",
-  description:
-    "Partner with King Tech Foundation. Three tiers of collaboration — strategic, technology, and community — built on mutual value.",
+  title: `Partnerships — ${SITE_NAME}`,
+  description: `Partner with ${SITE_NAME}. Three tiers of collaboration — strategic, technology, and community — built on mutual value.`,
 };
 
 export default function PartnershipsPage() {
@@ -198,7 +197,7 @@ export default function PartnershipsPage() {
       <section className="bg-ktf-white py-24">
         <Container size="md" className="text-center">
           <p className="text-overline font-semibold uppercase tracking-widest text-ktf-blue mb-3">
-            Why Partner with KTF
+            Why Partner with Bespoke Technologies
           </p>
           <h2 className="text-h2 font-bold leading-heading text-ktf-navy mb-6">
             More than a Logo on a Page
@@ -233,7 +232,7 @@ export default function PartnershipsPage() {
           <div className="relative overflow-hidden rounded-2xl shadow-xl">
             <Image
               src="/Team/team.png"
-              alt="The King Tech Foundation team — The Powers Behind the Engine"
+              alt="The Bespoke Technologies team - The Powers Behind the Engine"
               width={1200}
               height={600}
               className="w-full object-cover"

@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "motion/react";
-import { NAV_LINKS } from "@/lib/constants";
+import { BRAND_ICON_SRC, NAV_LINKS, SITE_NAME } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { useMediaQuery } from "@/hooks";
 
@@ -31,16 +31,17 @@ export function Header() {
             onClick={closeMobile}
           >
             <Image
-              src="/icons/ktf-logo.png"
-              alt="KTF logo"
+              src={BRAND_ICON_SRC}
+              alt="Bespoke Technologies logo"
               width={44}
               height={44}
-              className="rounded-xl object-contain"
+              className="h-11 w-11 rounded-xl object-cover"
               priority
             />
-            <span className="text-ktf-blue">KING</span>
-            <span className="text-ktf-blue">TECH</span>
-            <span className="text-ktf-obsidian">FOUNDATION</span>
+            <span className="hidden items-baseline gap-1.5 sm:inline-flex">
+              <span className="text-ktf-blue">BESPOKE</span>
+              <span className="text-ktf-obsidian">TECHNOLOGIES</span>
+            </span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -168,21 +169,21 @@ export function Header() {
                   href="/"
                   onClick={closeMobile}
                   className="flex items-center gap-2.5"
-                  aria-label="King Tech Foundation home"
+                  aria-label={`${SITE_NAME} home`}
                 >
                   <Image
-                    src="/icons/ktf-logo.png"
-                    alt="KTF logo"
+                    src={BRAND_ICON_SRC}
+                    alt="Bespoke Technologies logo"
                     width={36}
                     height={36}
-                    className="rounded-lg object-contain"
+                    className="h-9 w-9 rounded-lg object-cover"
                   />
                   <div className="flex flex-col leading-none">
-                    <span className="text-overline font-extrabold tracking-[0.15em] text-ktf-blue uppercase">
-                      King Tech
+                    <span className="text-overline font-extrabold tracking-[0.12em] text-ktf-blue uppercase">
+                      Bespoke
                     </span>
-                    <span className="text-overline font-extrabold tracking-[0.15em] text-ktf-obsidian uppercase">
-                      Foundation
+                    <span className="text-overline font-extrabold tracking-[0.12em] text-ktf-obsidian uppercase">
+                      Technologies
                     </span>
                   </div>
                 </Link>
