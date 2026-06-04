@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "motion/react";
 import { PROJECTS, type ProjectType } from "@/lib/constants";
+import { cn } from "@/lib/utils";
 
 // ── Type meta ──────────────────────────────────────────────────────────────
 
@@ -149,8 +150,15 @@ const FILTERS: { id: FilterOption; label: string }[] = [
 
 // ── Project Card ───────────────────────────────────────────────────────────
 
-function ProjectCard({ project }: { project: (typeof PROJECTS)[number] }) {
+export function ProjectCard({
+  project,
+  compact = false,
+}: {
+  project: (typeof PROJECTS)[number];
+  compact?: boolean;
+}) {
   const meta = TYPE_META[project.type];
+  const visibleTags = compact ? project.tags.slice(0, 2) : project.tags;
 
   return (
     <motion.article
@@ -159,7 +167,7 @@ function ProjectCard({ project }: { project: (typeof PROJECTS)[number] }) {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -16, scale: 0.97 }}
       transition={{ duration: 0.3 }}
-      className="group relative flex flex-col rounded-2xl border border-ktf-gray-200 bg-ktf-white overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+      className="group relative flex flex-col overflow-hidden rounded-2xl border border-ktf-gray-200 bg-ktf-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
     >
       {/* Project image */}
       <div className="relative aspect-video w-full overflow-hidden bg-ktf-surface">
@@ -168,7 +176,11 @@ function ProjectCard({ project }: { project: (typeof PROJECTS)[number] }) {
           alt={project.name}
           fill
           className="object-cover transition-transform duration-500 group-hover:scale-105"
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          sizes={
+            compact
+              ? "(max-width: 640px) 50vw, (max-width: 1024px) 50vw, 33vw"
+              : "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          }
         />
 
         {/* Coming Soon overlay */}
@@ -183,38 +195,75 @@ function ProjectCard({ project }: { project: (typeof PROJECTS)[number] }) {
 
         {/* Year badge */}
         <div className="absolute top-3 left-3">
-          <span className="rounded-lg bg-ktf-obsidian/70 backdrop-blur-sm px-2.5 py-1 text-caption font-medium text-ktf-silver">
+          <span className="rounded-lg bg-ktf-obsidian/70 backdrop-blur-sm px-2.5 py-1 text-caption font-medium text-white">
             {project.year}
           </span>
         </div>
       </div>
 
       {/* Card body */}
-      <div className="flex flex-1 flex-col p-6">
+      <div className={cn("flex flex-1 flex-col", compact ? "p-3 sm:p-6" : "p-6")}>
         {/* Type + Category */}
-        <div className="flex items-center gap-2 mb-3">
+        <div
+          className={cn(
+            "mb-3 flex gap-2",
+            compact
+              ? "flex-col items-start gap-1.5 sm:flex-row sm:items-center"
+              : "items-center",
+          )}
+        >
           <span
-            className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-caption font-semibold ${meta.bgClass} ${meta.textClass} ${meta.borderClass}`}
+            className={cn(
+              "inline-flex items-center gap-1.5 rounded-full border font-semibold",
+              compact
+                ? "px-2 py-0.5 text-[10px] sm:px-2.5 sm:py-1 sm:text-caption"
+                : "px-2.5 py-1 text-caption",
+              meta.bgClass,
+              meta.textClass,
+              meta.borderClass,
+            )}
           >
             {meta.icon}
             {meta.badge}
           </span>
-          <span className="text-caption text-ktf-gray-500">
+          <span
+            className={cn(
+              "line-clamp-1 text-ktf-gray-500",
+              compact ? "text-[10px] sm:text-caption" : "text-caption",
+            )}
+          >
             {project.category}
           </span>
         </div>
 
-        <h3 className="text-body-lg font-bold text-ktf-navy mb-3 leading-snug">
+        <h3
+          className={cn(
+            "mb-3 line-clamp-2 font-bold leading-snug text-ktf-navy",
+            compact ? "text-[13px] sm:text-body-lg" : "text-body-lg",
+          )}
+        >
           {project.name}
         </h3>
         <div className="h-px w-full bg-ktf-blue/25 mb-3" aria-hidden="true" />
-        <p className="text-body-sm text-ktf-gray-600 leading-body line-clamp-3 flex-1">
+        <p
+          className={cn(
+            "flex-1 leading-body text-ktf-gray-600",
+            compact
+              ? "line-clamp-2 text-[11px] sm:line-clamp-3 sm:text-body-sm"
+              : "line-clamp-3 text-body-sm",
+          )}
+        >
           {project.description}
         </p>
 
         {/* Tags */}
-        <div className="flex flex-wrap gap-1.5 mt-4 mb-5">
-          {project.tags.map((tag) => (
+        <div
+          className={cn(
+            "mt-4 mb-5 flex-wrap gap-1.5",
+            compact ? "hidden sm:flex" : "flex",
+          )}
+        >
+          {visibleTags.map((tag) => (
             <span
               key={tag}
               className="rounded-md bg-ktf-surface border border-ktf-gray-200 px-2 py-0.5 text-caption text-ktf-gray-600"
@@ -230,9 +279,18 @@ function ProjectCard({ project }: { project: (typeof PROJECTS)[number] }) {
             href={project.liveUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-ktf-blue px-5 py-2.5 text-body-sm font-semibold text-white transition-colors duration-150 hover:bg-ktf-blue-deep active:bg-ktf-blue-pressed"
+            aria-label={`View ${project.name} live project`}
+            className={cn(
+              "inline-flex items-center justify-center gap-2 rounded-xl bg-ktf-blue font-semibold text-white transition-colors duration-150 hover:bg-ktf-blue-deep active:bg-ktf-blue-pressed",
+              compact
+                ? "mt-4 px-3 py-2 text-caption sm:mt-0 sm:px-5 sm:py-2.5 sm:text-body-sm"
+                : "px-5 py-2.5 text-body-sm",
+            )}
           >
-            View Live Project
+            <span className={compact ? "hidden sm:inline" : ""}>
+              View Live Project
+            </span>
+            {compact && <span className="sm:hidden">Live</span>}
             <svg
               width="14"
               height="14"
@@ -250,7 +308,14 @@ function ProjectCard({ project }: { project: (typeof PROJECTS)[number] }) {
             </svg>
           </a>
         ) : (
-          <div className="inline-flex items-center justify-center gap-2 rounded-xl bg-ktf-surface border border-ktf-gray-200 px-5 py-2.5 text-body-sm font-medium text-ktf-gray-500 cursor-not-allowed">
+          <div
+            className={cn(
+              "inline-flex cursor-not-allowed items-center justify-center gap-2 rounded-xl border border-ktf-gray-200 bg-ktf-surface font-medium text-ktf-gray-500",
+              compact
+                ? "mt-4 px-3 py-2 text-caption sm:mt-0 sm:px-5 sm:py-2.5 sm:text-body-sm"
+                : "px-5 py-2.5 text-body-sm",
+            )}
+          >
             {project.comingSoon ? "In Development" : "Preview Unavailable"}
           </div>
         )}
