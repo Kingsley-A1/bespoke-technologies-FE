@@ -42,7 +42,7 @@ export function Header() {
               <span className="block w-full text-left text-[1.02rem] font-extrabold tracking-[-0.035em] text-ktf-blue sm:w-auto sm:text-xl sm:tracking-tight">
                 BESPOKE
               </span>
-              <span className="mt-0.5 block w-full text-center text-[0.5rem] font-extrabold tracking-[0.1em] text-ktf-obsidian sm:mt-0 sm:w-auto sm:text-xl sm:tracking-tight">
+              <span className="mt-0.5 block w-full text-left text-[0.5rem] font-extrabold tracking-[0.1em] text-ktf-obsidian sm:mt-0 sm:w-auto sm:text-xl sm:tracking-tight">
                 TECHNOLOGIES
               </span>
             </span>
