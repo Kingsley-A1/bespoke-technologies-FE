@@ -38,11 +38,11 @@ export function Header() {
               className="h-11 w-11 rounded-xl object-cover"
               priority
             />
-            <span className="flex w-[7.05rem] shrink-0 flex-col justify-center leading-none sm:w-auto sm:flex-row sm:items-baseline sm:gap-1.5">
-              <span className="block text-[1.05rem] font-extrabold tracking-[-0.03em] text-ktf-blue sm:text-xl sm:tracking-tight">
+            <span className="grid w-[6.25rem] shrink-0 grid-cols-1 justify-items-center leading-none sm:w-auto sm:flex sm:flex-row sm:items-baseline sm:gap-1.5">
+              <span className="block w-full text-left text-[1.02rem] font-extrabold tracking-[-0.035em] text-ktf-blue sm:w-auto sm:text-xl sm:tracking-tight">
                 BESPOKE
               </span>
-              <span className="mt-0.5 block w-full text-center text-[0.56rem] font-extrabold tracking-[0.14em] text-ktf-obsidian sm:mt-0 sm:w-auto sm:text-xl sm:tracking-tight">
+              <span className="mt-0.5 block w-full text-center text-[0.5rem] font-extrabold tracking-[0.1em] text-ktf-obsidian sm:mt-0 sm:w-auto sm:text-xl sm:tracking-tight">
                 TECHNOLOGIES
               </span>
             </span>

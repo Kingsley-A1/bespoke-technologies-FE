@@ -19,8 +19,13 @@ import {
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: `${SITE_NAME} - ${SITE_TAGLINE}`,
+  title: {
+    absolute: `${SITE_NAME} | ${SITE_TAGLINE}`,
+  },
   description: SITE_DESCRIPTION,
+  alternates: {
+    canonical: "/",
+  },
 };
 
 const homeProjects = PROJECTS.filter((project) => !project.comingSoon).slice(
@@ -69,7 +74,7 @@ export default function HomePage() {
           className="pointer-events-none absolute inset-0"
           style={{
             background:
-              "linear-gradient(to right, rgba(11,31,58,0.085) 1px, transparent 1px), linear-gradient(to bottom, rgba(11,31,58,0.075) 1px, transparent 1px)",
+              "linear-gradient(to right, rgba(11,31,58,0.04) 1px, transparent 1px), linear-gradient(to bottom, rgba(11,31,58,0.035) 1px, transparent 1px)",
             backgroundSize: "56px 56px",
             maskImage:
               "linear-gradient(to bottom, black 0%, black 62%, transparent 100%)",
@@ -81,10 +86,10 @@ export default function HomePage() {
         {/* Fine blue guide lines for the hero focal area */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 top-0 h-80 opacity-[0.45]"
+          className="pointer-events-none absolute inset-x-0 top-0 h-80 opacity-[0.22]"
           style={{
             backgroundImage:
-              "linear-gradient(to right, rgba(10,132,255,0.1) 1px, transparent 1px), linear-gradient(to bottom, rgba(10,132,255,0.08) 1px, transparent 1px)",
+              "linear-gradient(to right, rgba(10,132,255,0.055) 1px, transparent 1px), linear-gradient(to bottom, rgba(10,132,255,0.045) 1px, transparent 1px)",
             backgroundSize: "112px 112px",
             maskImage:
               "linear-gradient(to bottom, black 0%, transparent 82%)",
@@ -225,10 +230,10 @@ export default function HomePage() {
         {/* Straight-line grid */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 opacity-50"
+          className="pointer-events-none absolute inset-0 opacity-[0.28]"
           style={{
             backgroundImage:
-              "linear-gradient(to right, rgba(10,132,255,0.09) 1px, transparent 1px), linear-gradient(to bottom, rgba(10,132,255,0.075) 1px, transparent 1px)",
+              "linear-gradient(to right, rgba(10,132,255,0.045) 1px, transparent 1px), linear-gradient(to bottom, rgba(10,132,255,0.04) 1px, transparent 1px)",
             backgroundSize: "48px 48px",
             maskImage:
               "linear-gradient(to bottom, black 0%, black 58%, transparent 100%)",

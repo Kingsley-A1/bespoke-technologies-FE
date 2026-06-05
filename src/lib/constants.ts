@@ -19,7 +19,7 @@ export const API_URL =
 export const PHONE_NUMBER = "08088071657";
 export const PHONE_DISPLAY = "08088071657";
 export const WHATSAPP_NUMBER = "2348088071657";
-export const CONTACT_EMAIL = "hello@bespoketech.com.ng";
+export const CONTACT_EMAIL = "bespoketech.ng@gmail.com";
 export const SOCIAL_HANDLE = "@bespoketech";
 export const BRAND_ICON_SRC = "/icons/bespoke-technologies-icon.png";
 export const BRAND_LOGO_SRC = "/icons/bespoke-technologies-logo-main.png";
@@ -39,7 +39,7 @@ export const NAV_LINKS = [
 // ── Stats ──────────────────────────────────────────────────────────────────
 
 export const STATS = [
-  { value: "14+", label: "Projects Delivered" },
+  { value: "16+", label: "Projects Delivered" },
   { value: "3–4 Wks", label: "Est. Delivery" },
   { value: "2+", label: "Years of Excellence" },
   { value: "99%", label: "Client Satisfaction" },

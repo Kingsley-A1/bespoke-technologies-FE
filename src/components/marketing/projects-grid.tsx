@@ -167,10 +167,15 @@ export function ProjectCard({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -16, scale: 0.97 }}
       transition={{ duration: 0.3 }}
-      className="group relative flex flex-col overflow-hidden rounded-2xl border border-ktf-gray-200 bg-ktf-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+      className="group relative flex flex-col overflow-hidden rounded-sm border border-ktf-gray-200 bg-ktf-white shadow-xs transition-all duration-300 hover:-translate-y-0.5 hover:border-ktf-blue/25 hover:shadow-md"
     >
       {/* Project image */}
-      <div className="relative aspect-video w-full overflow-hidden bg-ktf-surface">
+      <div
+        className={cn(
+          "relative w-full overflow-hidden bg-ktf-surface",
+          compact ? "aspect-[4/3] sm:aspect-video" : "aspect-video",
+        )}
+      >
         <Image
           src={project.image}
           alt={project.name}
@@ -281,7 +286,7 @@ export function ProjectCard({
             rel="noopener noreferrer"
             aria-label={`View ${project.name} live project`}
             className={cn(
-              "inline-flex items-center justify-center gap-2 rounded-xl bg-ktf-blue font-semibold text-white transition-colors duration-150 hover:bg-ktf-blue-deep active:bg-ktf-blue-pressed",
+              "inline-flex items-center justify-center gap-2 rounded-lg bg-ktf-blue font-semibold text-white transition-colors duration-150 hover:bg-ktf-blue-deep active:bg-ktf-blue-pressed",
               compact
                 ? "mt-4 px-3 py-2 text-caption sm:mt-0 sm:px-5 sm:py-2.5 sm:text-body-sm"
                 : "px-5 py-2.5 text-body-sm",
@@ -310,7 +315,7 @@ export function ProjectCard({
         ) : (
           <div
             className={cn(
-              "inline-flex cursor-not-allowed items-center justify-center gap-2 rounded-xl border border-ktf-gray-200 bg-ktf-surface font-medium text-ktf-gray-500",
+              "inline-flex cursor-not-allowed items-center justify-center gap-2 rounded-lg border border-ktf-gray-200 bg-ktf-surface font-medium text-ktf-gray-500",
               compact
                 ? "mt-4 px-3 py-2 text-caption sm:mt-0 sm:px-5 sm:py-2.5 sm:text-body-sm"
                 : "px-5 py-2.5 text-body-sm",

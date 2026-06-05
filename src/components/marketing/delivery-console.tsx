@@ -106,7 +106,7 @@ export function DeliveryConsole({
       id={id}
       aria-label="Bespoke delivery console"
       className={cn(
-        "rounded-2xl border border-ktf-gray-200 bg-white shadow-xl shadow-ktf-navy/10",
+        "rounded-xl border border-ktf-gray-200 bg-white shadow-[0_18px_48px_-38px_rgba(11,31,58,0.42)]",
         className,
       )}
     >
