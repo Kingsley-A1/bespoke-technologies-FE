@@ -106,11 +106,11 @@ export function DeliveryConsole({
       id={id}
       aria-label="Bespoke delivery console"
       className={cn(
-        "rounded-xl border border-ktf-gray-200 bg-white shadow-[0_18px_48px_-38px_rgba(11,31,58,0.42)]",
+        "w-full max-w-full overflow-hidden rounded-xl border border-ktf-gray-200 bg-white shadow-[0_18px_48px_-38px_rgba(11,31,58,0.42)]",
         className,
       )}
     >
-      <div className="flex items-center justify-between gap-3 border-b border-ktf-gray-200 px-5 py-3.5">
+      <div className="flex items-center justify-between gap-3 border-b border-ktf-gray-200 px-4 py-3.5 sm:px-5">
         <div className="flex min-w-0 items-center gap-3">
           <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-ktf-blue/15 bg-white shadow-xs">
             <Image
@@ -130,7 +130,7 @@ export function DeliveryConsole({
             </p>
           </div>
         </div>
-        <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-ktf-success/30 bg-ktf-success/10 px-2.5 py-1 text-caption font-semibold text-ktf-success">
+        <span className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border border-ktf-success/30 bg-ktf-success/10 px-2.5 py-1 text-caption font-semibold text-ktf-success">
           <span
             aria-hidden="true"
             className="h-1.5 w-1.5 rounded-full bg-ktf-success"
@@ -139,15 +139,15 @@ export function DeliveryConsole({
         </span>
       </div>
 
-      <div className="space-y-4 p-5">
+      <div className="space-y-4 p-4 sm:p-5">
         <nav
           aria-label="Delivery console flow"
           className="rounded-xl border border-ktf-blue/15 bg-ktf-blue/5 p-2"
         >
-          <ol className="flex flex-wrap items-center gap-1.5">
+          <ol className="flex flex-wrap items-center gap-1">
             {CONSOLE_FLOW.map((item, index) => {
               const classes =
-                "inline-flex items-center rounded-lg px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-ktf-blue-deep transition-colors hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ktf-blue";
+                "inline-flex items-center rounded-lg px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-ktf-blue-deep transition-colors hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ktf-blue sm:px-2.5 sm:text-[11px]";
 
               return (
                 <li
@@ -170,13 +170,13 @@ export function DeliveryConsole({
           </ol>
         </nav>
 
-        <div className="rounded-xl border border-ktf-gray-200 bg-ktf-surface p-4">
-          <div className="flex items-center gap-4">
+        <div className="rounded-xl border border-ktf-gray-200 bg-ktf-surface p-3 sm:p-4">
+          <div className="flex min-w-0 items-center gap-3 sm:gap-4">
             <svg
               viewBox="0 0 180 172"
               role="img"
               aria-label="Bespoke Technologies build engine for web, apps, SaaS, AI, cloud, and UX"
-              className="h-auto w-[140px] shrink-0"
+              className="h-auto w-[104px] shrink-0 sm:w-[140px]"
             >
               {OUTER_HEXES.map((h, i) => (
                 <g key={h.label}>
@@ -222,7 +222,7 @@ export function DeliveryConsole({
               />
             </svg>
 
-            <div className="grid flex-1 grid-cols-1 gap-2">
+            <div className="grid min-w-0 flex-1 grid-cols-1 gap-2">
               {METRICS.map((metric) => (
                 <Metric key={metric.label} {...metric} />
               ))}
