@@ -190,7 +190,7 @@ export default function HomePage() {
                   className="hidden h-4 w-px bg-ktf-gray-200 sm:block"
                 />
 
-                <span className="text-body-sm text-ktf-gray-500">
+                <span className="w-full text-body-sm text-ktf-gray-500 sm:w-auto">
                   <strong className="font-semibold text-ktf-navy">14+</strong>{" "}
                   projects shipped
                 </span>
@@ -200,7 +200,7 @@ export default function HomePage() {
                   className="hidden h-4 w-px bg-ktf-gray-200 sm:block"
                 />
 
-                <span className="text-body-sm text-ktf-gray-500">
+                <span className="w-full text-body-sm text-ktf-gray-500 sm:w-auto">
                   <strong className="font-semibold text-ktf-navy">99%</strong>{" "}
                   client satisfaction
                 </span>

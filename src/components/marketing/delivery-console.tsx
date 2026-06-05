@@ -130,12 +130,13 @@ export function DeliveryConsole({
             </p>
           </div>
         </div>
-        <span className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border border-ktf-success/30 bg-ktf-success/10 px-2.5 py-1 text-caption font-semibold text-ktf-success">
+        <span className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border border-ktf-success/30 bg-ktf-success/10 px-2 py-1 text-caption font-semibold text-ktf-success sm:px-2.5">
           <span
             aria-hidden="true"
             className="h-1.5 w-1.5 rounded-full bg-ktf-success"
           />
-          Live Ops
+          <span className="sm:hidden">Live</span>
+          <span className="hidden sm:inline">Live Ops</span>
         </span>
       </div>
 
