@@ -11,8 +11,11 @@ import {
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: `About — ${SITE_NAME}`,
+  title: "About",
   description: `Learn about ${SITE_NAME} — our mission, values, and the principles that drive engineering excellence.`,
+  alternates: {
+    canonical: "/about",
+  },
 };
 
 export default function AboutPage() {

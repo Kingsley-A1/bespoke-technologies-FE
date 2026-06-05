@@ -1,13 +1,16 @@
 import { Button, Badge } from "@/components/ui";
 import { TypingText } from "@/components/ui/typing-text";
 import { Container } from "@/components/layout";
-import { SERVICES, SITE_NAME } from "@/lib/constants";
+import { SERVICES } from "@/lib/constants";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: `Services — ${SITE_NAME}`,
+  title: "Services",
   description:
     "End-to-end digital engineering services: web applications, mobile, cloud infrastructure, AI/ML, API platforms, and design systems.",
+  alternates: {
+    canonical: "/services",
+  },
 };
 
 export default function ServicesPage() {

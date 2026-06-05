@@ -6,8 +6,11 @@ import { ProjectsGrid } from "@/components/marketing/projects-grid";
 import { PROJECTS, SITE_NAME } from "@/lib/constants";
 
 export const metadata: Metadata = {
-  title: `Projects — ${SITE_NAME}`,
+  title: "Projects",
   description: `Explore the accomplished works of ${SITE_NAME} — web applications, mobile apps, and digital products built with precision and purpose.`,
+  alternates: {
+    canonical: "/projects",
+  },
   openGraph: {
     title: `Our Projects — ${SITE_NAME}`,
     description:

@@ -7,10 +7,12 @@ import { InstallPrompt } from "@/components/pwa/install-prompt";
 import { ServiceWorkerRegistration } from "@/components/pwa/service-worker-registration";
 import {
   BRAND_ICON_SRC,
+  CONTACT_EMAIL,
   SITE_DESCRIPTION,
   SITE_NAME,
-  SITE_URL,
+  WHATSAPP_NUMBER,
 } from "@/lib/constants";
+import { absoluteUrl, SITE_ORIGIN } from "@/lib/seo";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -31,7 +33,7 @@ export const metadata: Metadata = {
     template: `%s | ${SITE_NAME}`,
   },
   description: SITE_DESCRIPTION,
-  metadataBase: new URL(SITE_URL),
+  metadataBase: new URL(SITE_ORIGIN),
   manifest: "/manifest.webmanifest",
   icons: {
     icon: [{ url: BRAND_ICON_SRC, sizes: "512x512", type: "image/png" }],
@@ -56,6 +58,24 @@ export const metadata: Metadata = {
   },
 };
 
+const organizationJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: SITE_NAME,
+  url: SITE_ORIGIN,
+  logo: absoluteUrl(BRAND_ICON_SRC),
+  description: SITE_DESCRIPTION,
+  contactPoint: [
+    {
+      "@type": "ContactPoint",
+      contactType: "customer service",
+      email: CONTACT_EMAIL,
+      telephone: `+${WHATSAPP_NUMBER}`,
+      availableLanguage: ["en"],
+    },
+  ],
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -67,6 +87,12 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-ktf-white text-ktf-obsidian">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(organizationJsonLd),
+          }}
+        />
         <Header />
         <main className="flex flex-col flex-1">{children}</main>
         <Footer />

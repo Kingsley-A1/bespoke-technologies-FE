@@ -7,8 +7,11 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: `Partnerships — ${SITE_NAME}`,
+  title: "Partnerships",
   description: `Partner with ${SITE_NAME}. Three tiers of collaboration — strategic, technology, and community — built on mutual value.`,
+  alternates: {
+    canonical: "/partnerships",
+  },
 };
 
 export default function PartnershipsPage() {

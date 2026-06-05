@@ -12,9 +12,12 @@ import {
 } from "@/lib/constants";
 
 export const metadata: Metadata = {
-  title: `Partnership Tiers — ${SITE_NAME}`,
+  title: "Partnership Tiers",
   description:
     "Explore Bespoke Technologies' three partnership tiers in full detail — Strategic B2B revenue-sharing, Co-development, and Technology integration. Clear terms, real value.",
+  alternates: {
+    canonical: "/partnerships/tiers",
+  },
   openGraph: {
     title: `Partnership Tiers — ${SITE_NAME}`,
     description: `Three ways to partner with ${SITE_NAME} — each built on genuine mutual value, clear terms, and real outcomes.`,

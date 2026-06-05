@@ -15,8 +15,11 @@ import {
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: `Contact — ${SITE_NAME}`,
+  title: "Contact",
   description: `Get in touch with ${SITE_NAME}. Tell us about your project and we'll respond within one business day.`,
+  alternates: {
+    canonical: "/contact",
+  },
 };
 
 const contactDetails = [

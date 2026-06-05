@@ -5,8 +5,11 @@ import { TESTIMONIALS, STATS, SITE_NAME } from "@/lib/constants";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: `Reviews — ${SITE_NAME}`,
+  title: "Reviews",
   description: `Read what clients say about working with ${SITE_NAME}. Real feedback from real projects.`,
+  alternates: {
+    canonical: "/reviews",
+  },
 };
 
 export default function ReviewsPage() {

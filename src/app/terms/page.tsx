@@ -4,9 +4,12 @@ import { Badge } from "@/components/ui";
 import { CONTACT_EMAIL, SITE_DOMAIN, SITE_NAME } from "@/lib/constants";
 
 export const metadata: Metadata = {
-  title: `Terms of Service — ${SITE_NAME}`,
+  title: "Terms of Service",
   description: `Read the Terms of Service for ${SITE_NAME}. Understand your rights and responsibilities when using our website and services.`,
-  robots: { index: true, follow: false },
+  alternates: {
+    canonical: "/terms",
+  },
+  robots: { index: false, follow: true },
 };
 
 const LAST_UPDATED = "1 July 2025";

@@ -4,9 +4,12 @@ import { Badge } from "@/components/ui";
 import { CONTACT_EMAIL, SITE_DOMAIN, SITE_NAME } from "@/lib/constants";
 
 export const metadata: Metadata = {
-  title: `Privacy Policy — ${SITE_NAME}`,
+  title: "Privacy Policy",
   description: `${SITE_NAME}'s Privacy Policy. We are committed to protecting your privacy. We do not collect, sell, or share personal data for advertising purposes.`,
-  robots: { index: true, follow: false },
+  alternates: {
+    canonical: "/privacy",
+  },
+  robots: { index: false, follow: true },
 };
 
 const LAST_UPDATED = "1 July 2025";
