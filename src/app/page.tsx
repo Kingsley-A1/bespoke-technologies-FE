@@ -104,7 +104,7 @@ export default function HomePage() {
             className="grid min-w-0 gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(400px,0.82fr)] lg:items-start lg:gap-16"
           >
             {/* ── Left: Copy column ── */}
-            <div className="min-w-0 max-w-2xl">
+            <div className="w-full min-w-0 max-w-[calc(100vw-2rem)] sm:max-w-2xl">
 
               {/* Eyebrow: live availability signal */}
               <div className="mb-8">
@@ -124,7 +124,7 @@ export default function HomePage() {
               <HeroHeadline className="max-w-full text-[2rem] font-bold leading-[1.08] tracking-tight break-words sm:text-display sm:leading-[1.06] lg:text-[4.25rem]" />
 
               {/* Sub-copy */}
-              <p className="mt-6 max-w-full text-balance text-body-lg leading-body text-ktf-gray-600 sm:mt-7 sm:max-w-lg">
+              <p className="mt-6 max-w-full text-balance text-body leading-body text-ktf-gray-600 sm:mt-7 sm:max-w-lg sm:text-body-lg">
                 From strategy to launch, we design, build, and ship
                 production-grade digital products with the discipline and craft
                 serious businesses demand.
@@ -207,7 +207,7 @@ export default function HomePage() {
               </div>
 
               {/* Process signature — single line, confident */}
-              <p className="mt-5 max-w-full text-body-sm text-ktf-gray-400">
+              <p className="mt-5 max-w-[20rem] text-body-sm text-ktf-gray-400 sm:max-w-full">
                 Strategy · UX · Build · Launch · Handover — full ownership, start to finish.
               </p>
             </div>
@@ -217,7 +217,7 @@ export default function HomePage() {
           </div>
 
           {/* ── Mobile: Console below copy ── */}
-          <div className="mt-10 max-w-full overflow-hidden lg:hidden">
+          <div className="mt-10 max-w-[calc(100vw-2rem)] overflow-hidden lg:hidden">
             <DeliveryConsole />
           </div>
         </Container>

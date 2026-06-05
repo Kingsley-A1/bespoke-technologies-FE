@@ -106,7 +106,7 @@ export function DeliveryConsole({
       id={id}
       aria-label="Bespoke delivery console"
       className={cn(
-        "w-full max-w-full overflow-hidden rounded-xl border border-ktf-gray-200 bg-white shadow-[0_18px_48px_-38px_rgba(11,31,58,0.42)]",
+        "w-full max-w-[calc(100vw-2rem)] overflow-hidden rounded-xl border border-ktf-gray-200 bg-white shadow-[0_18px_48px_-38px_rgba(11,31,58,0.42)] sm:max-w-full",
         className,
       )}
     >
