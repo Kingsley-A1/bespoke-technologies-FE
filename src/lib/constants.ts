@@ -11,8 +11,7 @@ export const SITE_CREED =
 export const SITE_DESCRIPTION =
   "Bespoke Technologies engineers websites, mobile apps, SaaS platforms, AI systems, automation, and business software with production discipline.";
 export const SITE_DOMAIN = "www.bespoketech.com.ng";
-export const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL || `https://${SITE_DOMAIN}`;
+export const SITE_URL = `https://${SITE_DOMAIN}`;
 export const API_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
