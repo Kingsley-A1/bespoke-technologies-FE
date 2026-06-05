@@ -23,22 +23,10 @@ export const metadata: Metadata = {
   description: SITE_DESCRIPTION,
 };
 
-const heroMetrics = [
-  { value: "14+", label: "Projects delivered" },
-  { value: "99%", label: "Client satisfaction" },
-  { value: "2+", label: "Years delivering" },
-] as const;
-
 const homeProjects = PROJECTS.filter((project) => !project.comingSoon).slice(
   0,
   6,
 );
-
-const heroFlowLinks = [
-  { label: "Delivery system", href: "#delivery-system" },
-  { label: "Projects", href: "#home-projects" },
-  { label: "Start", href: "/contact" },
-] as const;
 
 interface ServiceIconProps {
   id: (typeof SERVICES)[number]["id"];
@@ -67,101 +55,94 @@ function ServiceIcon({ id }: ServiceIconProps) {
   }
 }
 
-function FlowArrowIcon() {
-  return (
-    <svg
-      aria-hidden="true"
-      viewBox="0 0 16 16"
-      className="h-3.5 w-3.5 shrink-0"
-    >
-      <path
-        fill="currentColor"
-        d="M8.9 3.2 13.6 8l-4.7 4.8-1.1-1.1 2.7-2.8H2.4V7.1h8.1L7.8 4.3z"
-      />
-    </svg>
-  );
-}
-
 export default function HomePage() {
   return (
     <>
       {/* ── Hero ─────────────────────────────────────────────── */}
       <section
         aria-labelledby="home-hero-title"
-        className="relative overflow-hidden border-b border-ktf-gray-200 bg-linear-to-b from-ktf-surface via-ktf-white to-ktf-white pt-8 pb-12 sm:pt-12 sm:pb-16 lg:pt-14 lg:pb-20"
+        className="relative overflow-hidden border-b border-ktf-gray-200 bg-ktf-white pt-10 pb-16 sm:pt-14 sm:pb-20 lg:pt-16 lg:pb-24"
       >
-        {/* Subtle neutral grid, fading into the white content band */}
+        {/* Vercel-style line grid: visible structure without visual weight */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 top-0 h-72 opacity-[0.05]"
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(to right, rgba(11,31,58,0.085) 1px, transparent 1px), linear-gradient(to bottom, rgba(11,31,58,0.075) 1px, transparent 1px)",
+            backgroundSize: "56px 56px",
+            maskImage:
+              "linear-gradient(to bottom, black 0%, black 62%, transparent 100%)",
+            WebkitMaskImage:
+              "linear-gradient(to bottom, black 0%, black 62%, transparent 100%)",
+          }}
+        />
+
+        {/* Fine blue guide lines for the hero focal area */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 top-0 h-80 opacity-[0.45]"
           style={{
             backgroundImage:
-              "linear-gradient(to right, #0b1f3a 1px, transparent 1px), linear-gradient(to bottom, #0b1f3a 1px, transparent 1px)",
-            backgroundSize: "56px 56px",
-            maskImage: "linear-gradient(to bottom, black, transparent)",
-            WebkitMaskImage: "linear-gradient(to bottom, black, transparent)",
+              "linear-gradient(to right, rgba(10,132,255,0.1) 1px, transparent 1px), linear-gradient(to bottom, rgba(10,132,255,0.08) 1px, transparent 1px)",
+            backgroundSize: "112px 112px",
+            maskImage:
+              "linear-gradient(to bottom, black 0%, transparent 82%)",
+            WebkitMaskImage:
+              "linear-gradient(to bottom, black 0%, transparent 82%)",
           }}
         />
 
         <Container size="xl" className="relative">
-          <svg
-            aria-hidden="true"
-            viewBox="0 0 140 260"
-            className="pointer-events-none absolute left-[48%] top-12 hidden h-64 w-36 text-ktf-blue/35 lg:block"
-          >
-            <path
-              d="M14 38 C72 34 80 80 126 78"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeDasharray="4 6"
-            />
-            <path
-              d="M118 72 128 78 116 84"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M125 146 C78 150 76 204 18 210"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeDasharray="4 6"
-            />
-            <path
-              d="M27 202 16 210 29 216"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-
           <div
             id="delivery-system"
-            className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(380px,0.9fr)] lg:items-start lg:gap-12"
+            className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(400px,0.82fr)] lg:items-start lg:gap-16"
           >
-            <div className="max-w-2xl lg:pt-1">
-              <HeroHeadline className="text-h2 font-bold leading-[1.08] tracking-tight text-ktf-navy sm:text-display lg:text-[4rem]" />
+            {/* ── Left: Copy column ── */}
+            <div className="max-w-2xl">
 
-              <p className="mt-5 max-w-xl text-balance text-body-lg leading-tight text-ktf-gray-700 sm:mt-6 sm:text-h5">
-                Websites, apps, SaaS, and AI systems built to make your business
-                look ready.
+              {/* Eyebrow: live availability signal */}
+              <div className="mb-8">
+                <span className="inline-flex items-center gap-2.5 rounded-full border border-ktf-success/30 bg-ktf-success/8 px-4 py-1.5 text-caption font-semibold text-ktf-success">
+                  <span
+                    aria-hidden="true"
+                    className="relative flex h-2 w-2 shrink-0"
+                  >
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-ktf-success opacity-60" />
+                    <span className="relative inline-flex h-2 w-2 rounded-full bg-ktf-success" />
+                  </span>
+                  Accepting new projects · 3–4 week delivery
+                </span>
+              </div>
+
+              {/* Headline — rotates through product category */}
+              <HeroHeadline className="text-h2 font-bold leading-[1.06] tracking-tight sm:text-display lg:text-[4.25rem]" />
+
+              {/* Sub-copy */}
+              <p className="mt-6 max-w-lg text-balance text-body-lg leading-body text-ktf-gray-600 sm:mt-7">
+                From strategy to launch, we design, build, and ship
+                production-grade digital products with the discipline and craft
+                serious businesses demand.
               </p>
 
-              <div className="mt-7 flex flex-col gap-3 sm:mt-8 sm:flex-row sm:items-center">
+              {/* CTAs */}
+              <div className="mt-8 flex flex-col gap-3 sm:mt-9 sm:flex-row sm:items-center">
                 <Button
                   size="lg"
                   href="/contact"
                   className="w-full bg-ktf-blue-deep hover:bg-ktf-blue-pressed sm:w-auto"
                 >
                   Start a Project
+                  <svg
+                    aria-hidden="true"
+                    viewBox="0 0 16 16"
+                    className="ml-2 h-4 w-4 shrink-0"
+                  >
+                    <path
+                      fill="currentColor"
+                      d="M8.9 3.2 13.6 8l-4.7 4.8-1.1-1.1 2.7-2.8H2.4V7.1h8.1L7.8 4.3z"
+                    />
+                  </svg>
                 </Button>
                 <Button
                   variant="outline"
@@ -173,71 +154,66 @@ export default function HomePage() {
                 </Button>
               </div>
 
-              <nav
-                aria-label="Hero delivery flow"
-                className="mt-5 sm:mt-6"
+              {/* Social proof strip — always visible */}
+              <div
+                aria-label="Client satisfaction summary"
+                className="mt-8 flex flex-wrap items-center gap-x-4 gap-y-2.5 sm:mt-9"
               >
-                <ol className="grid max-w-full grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center">
-                  <li className="min-w-0">
-                    <span className="inline-flex max-w-full items-center rounded-full border border-ktf-gray-200 bg-white px-3 py-1.5 text-caption font-semibold text-ktf-navy shadow-xs">
-                      Value
-                    </span>
-                  </li>
-                  {heroFlowLinks.map((link) => (
-                    <li
-                      key={link.href}
-                      className="inline-flex min-w-0 items-center gap-1.5 text-ktf-blue-deep"
-                    >
-                      <FlowArrowIcon />
-                      <a
-                        href={link.href}
-                        className="inline-flex max-w-full items-center whitespace-nowrap rounded-full border border-ktf-blue/20 bg-white px-3 py-1.5 text-caption font-semibold text-ktf-blue-deep shadow-xs transition-colors hover:border-ktf-blue/50 hover:bg-ktf-blue/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ktf-blue"
+                <div className="flex items-center gap-1.5">
+                  <span className="flex gap-0.5" aria-hidden="true">
+                    {[0, 1, 2, 3, 4].map((i) => (
+                      <svg
+                        key={i}
+                        viewBox="0 0 16 16"
+                        className="h-3.5 w-3.5 fill-ktf-warning"
+                        aria-hidden="true"
                       >
-                        {link.label}
-                      </a>
-                    </li>
-                  ))}
-                </ol>
-              </nav>
-
-              <p className="mt-4 text-body-sm font-medium text-ktf-gray-500">
-                Strategy, UX, build, launch, handover.
-              </p>
-
-              {/* Compact proof — keeps the strongest trust signal above the fold on mobile */}
-              <div className="mt-8 rounded-2xl border border-ktf-gray-200 bg-white p-4 shadow-xs lg:hidden">
-                <div className="flex items-center justify-between gap-3">
-                  <p className="text-caption font-bold uppercase tracking-widest text-ktf-gray-500">
-                    Proof of delivery
-                  </p>
-                  <span className="inline-flex items-center gap-1.5 rounded-full border border-ktf-success/30 bg-ktf-success/10 px-2 py-0.5 text-caption font-semibold text-ktf-success">
-                    <span
-                      aria-hidden="true"
-                      className="h-1.5 w-1.5 rounded-full bg-ktf-success"
-                    />
-                    Live work
+                        <path d="M8 1.1l1.75 3.55 3.92.57-2.84 2.77.67 3.9L8 9.77l-3.5 1.13.67-3.9L2.33 5.22l3.92-.57z" />
+                      </svg>
+                    ))}
+                  </span>
+                  <span className="text-body-sm font-semibold text-ktf-navy">
+                    5.0
+                  </span>
+                  <span className="text-body-sm text-ktf-gray-500">
+                    · rated by every client
                   </span>
                 </div>
 
-                <dl className="mt-3 grid grid-cols-3 gap-3">
-                  {heroMetrics.map((metric) => (
-                    <div key={metric.label}>
-                      <dt className="sr-only">{metric.label}</dt>
-                      <dd>
-                        <span className="block text-h5 font-bold leading-none text-ktf-navy">
-                          {metric.value}
-                        </span>
-                        <span className="mt-1 block text-[11px] leading-tight text-ktf-gray-500">
-                          {metric.label}
-                        </span>
-                      </dd>
-                    </div>
-                  ))}
-                </dl>
+                <span
+                  aria-hidden="true"
+                  className="hidden h-4 w-px bg-ktf-gray-200 sm:block"
+                />
+
+                <span className="text-body-sm text-ktf-gray-500">
+                  <strong className="font-semibold text-ktf-navy">14+</strong>{" "}
+                  projects shipped
+                </span>
+
+                <span
+                  aria-hidden="true"
+                  className="hidden h-4 w-px bg-ktf-gray-200 sm:block"
+                />
+
+                <span className="text-body-sm text-ktf-gray-500">
+                  <strong className="font-semibold text-ktf-navy">99%</strong>{" "}
+                  client satisfaction
+                </span>
               </div>
+
+              {/* Process signature — single line, confident */}
+              <p className="mt-5 text-body-sm text-ktf-gray-400">
+                Strategy · UX · Build · Launch · Handover — full ownership, start to finish.
+              </p>
             </div>
 
+            {/* ── Right: Delivery console (desktop) ── */}
             <DeliveryConsole className="hidden lg:block" />
+          </div>
+
+          {/* ── Mobile: Console below copy ── */}
+          <div className="mt-10 lg:hidden">
+            <DeliveryConsole />
           </div>
         </Container>
       </section>
@@ -246,14 +222,18 @@ export default function HomePage() {
         id="home-projects"
         className="relative overflow-hidden bg-white py-24 sm:py-32"
       >
-        {/* Blue dot grid */}
+        {/* Straight-line grid */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 opacity-[0.18]"
+          className="pointer-events-none absolute inset-0 opacity-50"
           style={{
             backgroundImage:
-              "radial-gradient(circle at 1px 1px, #0a84ff 1px, transparent 0)",
-            backgroundSize: "32px 32px",
+              "linear-gradient(to right, rgba(10,132,255,0.09) 1px, transparent 1px), linear-gradient(to bottom, rgba(10,132,255,0.075) 1px, transparent 1px)",
+            backgroundSize: "48px 48px",
+            maskImage:
+              "linear-gradient(to bottom, black 0%, black 58%, transparent 100%)",
+            WebkitMaskImage:
+              "linear-gradient(to bottom, black 0%, black 58%, transparent 100%)",
           }}
         />
 

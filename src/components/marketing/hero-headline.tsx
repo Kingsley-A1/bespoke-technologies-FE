@@ -3,9 +3,9 @@
 /**
  * Bespoke Technologies — Hero Headline
  *
- * Rotates the sentence subject (Time → Customers → Technology) on a calm,
- * premium interval, inspired by the OpenAI welcome pattern ("Let's invent…").
- * The active subject is the only blue emphasis; the rest stays navy.
+ * Rotates the product category (websites → mobile apps → SaaS platforms → AI systems)
+ * on a calm, premium interval. The rotating word is the only blue emphasis; surrounding
+ * lines stay navy — creating a clear focal anchor on each rotation.
  *
  * Accessibility:
  * - A single, crawlable sentence is exposed to assistive tech and search via
@@ -16,8 +16,14 @@
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useEffect, useState } from "react";
 
-const SUBJECTS = ["Time is", "Customers are", "Technology is"] as const;
-const ROTATE_MS = 3000;
+const PRODUCTS = [
+  "Websites",
+  "Mobile Apps",
+  "SaaS Platforms",
+  "AI Systems",
+] as const;
+
+const ROTATE_MS = 2800;
 
 export function HeroHeadline({ className }: { className?: string }) {
   const reduce = useReducedMotion();
@@ -26,39 +32,43 @@ export function HeroHeadline({ className }: { className?: string }) {
   useEffect(() => {
     if (reduce) return;
     const id = setInterval(
-      () => setIndex((i) => (i + 1) % SUBJECTS.length),
+      () => setIndex((i) => (i + 1) % PRODUCTS.length),
       ROTATE_MS,
     );
     return () => clearInterval(id);
   }, [reduce]);
 
-  const subject = reduce ? SUBJECTS[0] : SUBJECTS[index];
+  const product = reduce ? PRODUCTS[0] : PRODUCTS[index];
 
   return (
     <h1 id="home-hero-title" className={className}>
       <span className="sr-only">
-        Time, customers, and technology are not waiting. Why should you?
+        We build the digital products — Websites, Mobile Apps, SaaS Platforms,
+        and AI Systems — your business relies on.
       </span>
 
-      <span aria-hidden="true" className="block text-balance">
-        <span className="relative block min-h-[1.05em]">
+      <span aria-hidden="true" className="block">
+        <span className="block text-ktf-navy">We build</span>
+
+        <span className="relative block min-h-[1.1em] overflow-hidden">
           <AnimatePresence initial={false} mode="popLayout">
             <motion.span
-              key={subject}
+              key={product}
               className="block text-ktf-blue-deep"
-              initial={{ opacity: 0, y: reduce ? 0 : "0.5em" }}
+              initial={{ opacity: 0, y: reduce ? 0 : "0.45em" }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: reduce ? 0 : "-0.5em" }}
+              exit={{ opacity: 0, y: reduce ? 0 : "-0.45em" }}
               transition={{
-                duration: reduce ? 0.2 : 0.55,
+                duration: reduce ? 0.15 : 0.52,
                 ease: [0.22, 1, 0.36, 1],
               }}
             >
-              {subject}
+              {product}
             </motion.span>
           </AnimatePresence>
         </span>
-        <span className="block text-ktf-navy">not waiting, why should you?</span>
+
+        <span className="block text-ktf-navy">your business relies on.</span>
       </span>
     </h1>
   );
