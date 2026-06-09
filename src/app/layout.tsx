@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { WhatsappFab } from "@/components/marketing/whatsapp-fab";
+import { BespokeAILauncher } from "@/components/ai";
 import { InstallPrompt } from "@/components/pwa/install-prompt";
 import { ServiceWorkerRegistration } from "@/components/pwa/service-worker-registration";
 import {
@@ -84,6 +85,7 @@ export default function RootLayout({
         <main className="flex flex-col flex-1">{children}</main>
         <Footer />
         <WhatsappFab />
+        <BespokeAILauncher />
         <InstallPrompt />
         <ServiceWorkerRegistration />
       </body>

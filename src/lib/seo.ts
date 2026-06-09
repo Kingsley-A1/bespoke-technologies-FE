@@ -71,4 +71,10 @@ export const PUBLIC_SITEMAP_ROUTES = [
     changeFrequency: "monthly",
     priority: 0.7,
   },
+  {
+    path: "/bespoke-ai",
+    lastModified: "2026-06-09",
+    changeFrequency: "weekly",
+    priority: 0.8,
+  },
 ] satisfies SitemapRoute[];
