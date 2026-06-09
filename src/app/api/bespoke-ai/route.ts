@@ -8,7 +8,10 @@ import {
   type UIMessage,
 } from "ai";
 import { bespokeAITools } from "@/lib/ai/bespoke-ai-tools";
-import { buildBespokeAISystemPrompt } from "@/lib/ai/bespoke-ai-prompt";
+import {
+  buildBespokeAISystemPrompt,
+  type BespokeAIResponseDetail,
+} from "@/lib/ai/bespoke-ai-prompt";
 import {
   ensureAIConversation,
   getLastUserMessageText,
@@ -18,6 +21,10 @@ import {
 
 export const maxDuration = 30;
 
+const RESPONSE_DETAILS = new Set<BespokeAIResponseDetail>([
+  "concise",
+  "extended",
+]);
 const MAX_MESSAGES = 16;
 const MAX_MESSAGE_CHARS = 2000;
 const RATE_LIMIT_WINDOW_MS = 60_000;
@@ -25,7 +32,11 @@ const RATE_LIMIT_MAX_REQUESTS = 12;
 const requestBuckets = new Map<string, { count: number; resetAt: number }>();
 
 export async function POST(req: Request) {
-  let body: { messages?: UIMessage[]; conversationId?: string };
+  let body: {
+    messages?: UIMessage[];
+    conversationId?: string;
+    detailLevel?: string;
+  };
 
   try {
     body = await req.json();
@@ -53,6 +64,7 @@ export async function POST(req: Request) {
 
   const conversationId = body.conversationId;
   const lastUserText = getLastUserMessageText(messages);
+  const detailLevel = parseDetailLevel(body.detailLevel);
 
   void ensureAIConversation(conversationId).then(() =>
     persistAIMessage({
@@ -79,7 +91,7 @@ export async function POST(req: Request) {
   try {
     const result = streamText({
       model: google("gemini-2.5-flash"),
-      system: buildBespokeAISystemPrompt(),
+      system: buildBespokeAISystemPrompt({ detail: detailLevel }),
       messages: await convertToModelMessages(messages),
       tools: bespokeAITools,
       stopWhen: stepCountIs(4),
@@ -131,6 +143,13 @@ export async function POST(req: Request) {
       { status: 500 },
     );
   }
+}
+
+function parseDetailLevel(value?: string): BespokeAIResponseDetail {
+  if (!value) return "extended";
+  return RESPONSE_DETAILS.has(value as BespokeAIResponseDetail)
+    ? (value as BespokeAIResponseDetail)
+    : "extended";
 }
 
 function validateMessages(messages: UIMessage[], conversationId?: string) {

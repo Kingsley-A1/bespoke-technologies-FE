@@ -1,16 +1,22 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
+import { PanelLeft } from "lucide-react";
 import type { BespokeAIUIMessage } from "@/lib/ai/bespoke-ai-types";
 import { SITE_NAME } from "@/lib/constants";
 import { cn } from "@/lib/utils";
+import { BespokeAIHistorySidebar } from "./bespoke-ai-history-sidebar";
 import { BespokeAIIcon } from "./bespoke-ai-icon";
-import { BespokeAIInput } from "./bespoke-ai-input";
+import {
+  BespokeAIInput,
+  type BespokeAIResponseMode,
+} from "./bespoke-ai-input";
 import { BespokeAIMessage } from "./bespoke-ai-message";
 import { BespokeAISuggestions } from "./bespoke-ai-suggestions";
+import { useBespokeAIConversations } from "./use-bespoke-ai-conversations";
 
 type BespokeAIPanelProps = {
   mode?: "page" | "panel";
@@ -19,19 +25,34 @@ type BespokeAIPanelProps = {
 
 export function BespokeAIPanel({ mode = "page", onClose }: BespokeAIPanelProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const conversationId = useMemo(() => crypto.randomUUID(), []);
-  const { messages, sendMessage, status, stop, error } = useChat<BespokeAIUIMessage>({
-    id: conversationId,
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [responseMode, setResponseMode] =
+    useState<BespokeAIResponseMode>("extended");
+  const {
+    activeConversation,
+    activeConversationId,
+    conversations,
+    deleteConversation,
+    isLoaded,
+    selectConversation,
+    startNewConversation,
+    updateConversationMessages,
+  } = useBespokeAIConversations();
+  const { messages, sendMessage, status, stop, error } =
+    useChat<BespokeAIUIMessage>({
+      id: activeConversationId,
+      messages: activeConversation?.messages ?? [],
     transport: new DefaultChatTransport({
       api: "/api/bespoke-ai",
       prepareSendMessagesRequest: ({ id, messages }) => ({
         body: {
           conversationId: id,
+          detailLevel: responseMode,
           messages: messages.slice(-16),
         },
       }),
     }),
-  });
+    });
 
   const isStreaming = status === "streaming" || status === "submitted";
 
@@ -42,21 +63,64 @@ export function BespokeAIPanel({ mode = "page", onClose }: BespokeAIPanelProps) 
     });
   }, [messages, status]);
 
+  useEffect(() => {
+    if (!isLoaded) return;
+
+    updateConversationMessages(activeConversationId, messages);
+  }, [
+    activeConversationId,
+    isLoaded,
+    messages,
+    updateConversationMessages,
+  ]);
+
   const sendPrompt = (prompt: string) => {
     sendMessage({ text: prompt });
   };
 
-  return (
-    <section
-      className={cn(
-        "flex min-h-0 flex-1 flex-col bg-ktf-white",
-        mode === "page" && "min-h-[calc(100vh-4rem)]",
-        mode === "panel" && "h-full",
-      )}
-      aria-label="Bespoke AI assistant"
-    >
+  const handleStartNewConversation = () => {
+    if (isStreaming) stop();
+    startNewConversation();
+    setIsHistoryOpen(false);
+  };
+
+  const handleSelectConversation = (conversationId: string) => {
+    if (isStreaming) stop();
+    selectConversation(conversationId);
+    setIsHistoryOpen(false);
+  };
+
+  const handleDeleteConversation = (conversationId: string) => {
+    if (isStreaming && conversationId === activeConversationId) stop();
+    deleteConversation(conversationId);
+  };
+
+  const hasEmptyState = messages.length === 0;
+
+  const historySidebar = (
+    <BespokeAIHistorySidebar
+      activeConversationId={activeConversationId}
+      conversations={conversations}
+      onDeleteConversation={handleDeleteConversation}
+      onNewConversation={handleStartNewConversation}
+      onSelectConversation={handleSelectConversation}
+    />
+  );
+
+  const chatPanel = (
+    <div className="flex min-h-0 flex-1 flex-col bg-ktf-white">
       <header className="flex h-16 shrink-0 items-center justify-between border-b border-ktf-gray-200 px-4">
         <div className="flex min-w-0 items-center gap-3">
+          {mode === "page" ? (
+            <button
+              type="button"
+              onClick={() => setIsHistoryOpen(true)}
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-ktf-gray-600 hover:bg-ktf-surface hover:text-ktf-blue focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ktf-blue lg:hidden"
+              aria-label="Open conversation history"
+            >
+              <PanelLeft className="h-5 w-5" aria-hidden="true" />
+            </button>
+          ) : null}
           <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-ktf-blue/20 bg-ktf-blue/8 text-ktf-blue">
             <BespokeAIIcon className="h-6 w-6" />
           </span>
@@ -99,7 +163,7 @@ export function BespokeAIPanel({ mode = "page", onClose }: BespokeAIPanelProps) 
 
       <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto px-4 py-5">
         <div className="mx-auto flex w-full max-w-3xl flex-col gap-4">
-          {messages.length === 0 ? (
+          {hasEmptyState ? (
             <div className="rounded-xl border border-ktf-gray-200 bg-white p-5 shadow-card">
               <p className="text-sm font-semibold text-ktf-blue">
                 Hi, I am Bespoke AI.
@@ -136,19 +200,55 @@ export function BespokeAIPanel({ mode = "page", onClose }: BespokeAIPanelProps) 
 
       <div className="shrink-0 border-t border-ktf-gray-200 bg-white px-3 py-3 sm:px-4">
         <div className="mx-auto w-full max-w-3xl">
-          {messages.length > 0 ? (
-            <div className="mb-3">
-              <BespokeAISuggestions onSelect={sendPrompt} />
-            </div>
-          ) : null}
           <BespokeAIInput
             disabled={false}
             isStreaming={isStreaming}
+            responseMode={responseMode}
+            onResponseModeChange={setResponseMode}
             onSubmit={sendPrompt}
             onStop={stop}
           />
         </div>
       </div>
+    </div>
+  );
+
+  return (
+    <section
+      className={cn(
+        "flex min-h-0 flex-1 bg-ktf-white",
+        mode === "page" && "min-h-[calc(100vh-4rem)]",
+        mode === "panel" && "h-full",
+      )}
+      aria-label="Bespoke AI assistant"
+    >
+      {mode === "page" ? (
+        <div className="flex min-h-0 flex-1">
+          <div className="hidden lg:block">{historySidebar}</div>
+          {isHistoryOpen ? (
+            <div className="fixed inset-0 z-400 lg:hidden">
+              <button
+                type="button"
+                className="absolute inset-0 bg-ktf-obsidian/30"
+                aria-label="Close conversation history overlay"
+                onClick={() => setIsHistoryOpen(false)}
+              />
+              <BespokeAIHistorySidebar
+                activeConversationId={activeConversationId}
+                className="relative z-10"
+                conversations={conversations}
+                onClose={() => setIsHistoryOpen(false)}
+                onDeleteConversation={handleDeleteConversation}
+                onNewConversation={handleStartNewConversation}
+                onSelectConversation={handleSelectConversation}
+              />
+            </div>
+          ) : null}
+          {chatPanel}
+        </div>
+      ) : (
+        chatPanel
+      )}
     </section>
   );
 }
