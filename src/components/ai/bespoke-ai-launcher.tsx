@@ -1,29 +1,44 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Bot, GripVertical, X } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { GripVertical } from "lucide-react";
+import { BespokeAIIcon } from "./bespoke-ai-icon";
 import { BespokeAIPanel } from "./bespoke-ai-panel";
 
 const MIN_WIDTH = 380;
 const MAX_WIDTH = 560;
 
 export function BespokeAILauncher() {
+  const pathname = usePathname();
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [width, setWidth] = useState(420);
   const [resizing, setResizing] = useState(false);
-  const closeButtonRef = useRef<HTMLButtonElement>(null);
   const launcherRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLElement>(null);
+  const shouldHide = pathname === "/bespoke-ai";
 
   const closePanel = () => {
     setOpen(false);
     requestAnimationFrame(() => launcherRef.current?.focus());
   };
 
+  const handleOpen = () => {
+    if (window.matchMedia("(min-width: 1024px)").matches) {
+      setOpen(true);
+      return;
+    }
+
+    router.push("/bespoke-ai");
+  };
+
   useEffect(() => {
     if (!open) return;
 
-    closeButtonRef.current?.focus();
+    panelRef.current
+      ?.querySelector<HTMLButtonElement>("[data-bespoke-ai-close]")
+      ?.focus();
 
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") closePanel();
@@ -70,17 +85,21 @@ export function BespokeAILauncher() {
     };
   }, [resizing]);
 
+  if (shouldHide) return null;
+
   return (
     <>
       <button
         ref={launcherRef}
         type="button"
-        onClick={() => setOpen(true)}
-        className="fixed bottom-5 left-5 z-300 hidden min-h-12 items-center gap-2 rounded-lg bg-ktf-obsidian px-4 text-sm font-semibold text-white shadow-xl transition-colors hover:bg-ktf-blue lg:inline-flex"
-        aria-label="Open Bespoke AI"
+        onClick={handleOpen}
+        className="group fixed bottom-24 right-6 z-[250] flex h-14 w-14 items-center justify-center rounded-full border border-white/20 bg-ktf-navy text-white shadow-2xl transition-colors hover:bg-ktf-blue focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ktf-blue"
+        aria-label="Ask Bespoke AI"
       >
-        <Bot className="h-4 w-4" aria-hidden="true" />
-        Bespoke AI
+        <BespokeAIIcon inverse className="h-7 w-7 text-white" />
+        <span className="pointer-events-none absolute right-16 hidden whitespace-nowrap rounded-lg bg-ktf-obsidian px-3 py-2 text-xs font-semibold text-white opacity-0 shadow-xl transition-opacity group-hover:opacity-100 lg:block">
+          Ask Bespoke AI
+        </span>
       </button>
 
       {open ? (
@@ -118,16 +137,7 @@ export function BespokeAILauncher() {
             >
               <GripVertical className="h-4 w-4" aria-hidden="true" />
             </button>
-            <button
-              ref={closeButtonRef}
-              type="button"
-              className="absolute right-3 top-3 z-20 flex h-10 w-10 items-center justify-center rounded-md text-ktf-gray-600 hover:bg-ktf-surface hover:text-ktf-obsidian"
-              aria-label="Close Bespoke AI"
-              onClick={closePanel}
-            >
-              <X className="h-4 w-4" aria-hidden="true" />
-            </button>
-            <BespokeAIPanel mode="panel" />
+            <BespokeAIPanel mode="panel" onClose={closePanel} />
           </aside>
         </div>
       ) : null}

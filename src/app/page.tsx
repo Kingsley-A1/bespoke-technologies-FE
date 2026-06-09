@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { Bot, Braces, Cloud, Globe, Palette, Smartphone } from "lucide-react";
+import { BespokeAIIcon } from "@/components/ai/bespoke-ai-icon";
 import { Button } from "@/components/ui";
 import { Container } from "@/components/layout";
 import { HeroHeadline } from "@/components/marketing/hero-headline";
@@ -156,6 +157,15 @@ export default function HomePage() {
                   className="w-full border-ktf-gray-300 text-ktf-navy hover:border-ktf-gray-400 hover:bg-ktf-surface sm:w-auto"
                 >
                   See Delivered Work
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="lg"
+                  href="/bespoke-ai"
+                  className="w-full border border-ktf-blue/20 bg-white text-ktf-blue hover:bg-ktf-blue/8 sm:w-auto"
+                >
+                  <BespokeAIIcon className="mr-2 h-4 w-4" />
+                  Ask Bespoke AI
                 </Button>
               </div>
 
@@ -487,9 +497,20 @@ export default function HomePage() {
             Let&apos;s discuss your project. Our team is ready to transform your
             vision into a production-grade reality.
           </p>
-          <Button size="lg" href="/contact">
-            Get in Touch
-          </Button>
+          <div className="flex flex-col justify-center gap-3 sm:flex-row">
+            <Button size="lg" href="/contact">
+              Get in Touch
+            </Button>
+            <Button
+              size="lg"
+              variant="outline"
+              href="/bespoke-ai"
+              className="border-white/30 bg-white/5 text-white hover:border-white/50 hover:bg-white/10"
+            >
+              <BespokeAIIcon className="mr-2 h-4 w-4 text-white" inverse />
+              Ask Bespoke AI
+            </Button>
+          </div>
         </Container>
       </section>
     </>

@@ -19,27 +19,29 @@ export function Header() {
 
   return (
     <>
-      <header className="sticky top-0 z-100 border-b border-ktf-gray-200 bg-ktf-white shadow-xs">
+      <header className="sticky top-0 z-100 border-b border-ktf-blue/10 bg-ktf-white/92 shadow-xs backdrop-blur-xl">
         <nav
-          className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8"
+          className="mx-auto flex h-[4.25rem] max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8"
           aria-label="Main navigation"
         >
           {/* Logo */}
           <Link
             href="/"
-            className="flex min-w-0 items-center gap-2.5 font-bold tracking-tight text-ktf-obsidian transition-opacity hover:opacity-80"
+            className="flex min-w-0 items-center gap-2.5 rounded-xl font-bold tracking-tight text-ktf-obsidian transition-opacity hover:opacity-85"
             onClick={closeMobile}
           >
-            <Image
-              src={BRAND_ICON_SRC}
-              alt="Bespoke Technologies logo"
-              width={44}
-              height={44}
-              className="h-11 w-11 rounded-xl object-cover"
-              priority
-            />
+            <span className="flex h-11 w-11 items-center justify-center rounded-xl border border-ktf-blue/15 bg-white shadow-xs">
+              <Image
+                src={BRAND_ICON_SRC}
+                alt="Bespoke Technologies logo"
+                width={40}
+                height={40}
+                className="h-10 w-10 rounded-lg object-cover"
+                priority
+              />
+            </span>
             <span className="grid w-[6.25rem] shrink-0 grid-cols-1 justify-items-center leading-none sm:w-auto sm:flex sm:flex-row sm:items-baseline sm:gap-1.5">
-              <span className="block w-full text-left text-[1.02rem] font-extrabold tracking-[-0.035em] text-ktf-blue sm:w-auto sm:text-xl sm:tracking-tight">
+              <span className="block w-full text-left text-[1.02rem] font-extrabold text-ktf-blue sm:w-auto sm:text-xl">
                 BESPOKE
               </span>
               <span className="mt-0.5 block w-full text-left text-[0.5rem] font-extrabold tracking-[0.1em] text-ktf-obsidian sm:mt-0 sm:w-auto sm:text-xl sm:tracking-tight">
@@ -49,7 +51,10 @@ export function Header() {
           </Link>
 
           {/* Desktop Navigation */}
-          <ul className="hidden lg:flex items-center gap-1" role="list">
+          <ul
+            className="hidden items-center gap-0.5 rounded-xl border border-ktf-gray-200/80 bg-ktf-surface/70 p-1 shadow-xs lg:flex"
+            role="list"
+          >
             {NAV_LINKS.map((link) => {
               const isActive = pathname === link.href;
               return (
@@ -57,25 +62,14 @@ export function Header() {
                   <Link
                     href={link.href}
                     className={cn(
-                      "relative px-3.5 py-2 text-sm font-medium rounded-lg transition-colors duration-150",
+                      "relative rounded-lg px-2.5 py-2 text-[13px] font-semibold transition-colors duration-150 xl:px-3",
                       isActive
-                        ? "text-ktf-blue"
-                        : "text-ktf-gray-700 hover:text-ktf-obsidian hover:bg-ktf-surface",
+                        ? "bg-white text-ktf-blue shadow-xs"
+                        : "text-ktf-gray-700 hover:bg-white/80 hover:text-ktf-obsidian",
                     )}
                     aria-current={isActive ? "page" : undefined}
                   >
                     {link.label}
-                    {isActive && (
-                      <motion.span
-                        layoutId="active-nav-indicator"
-                        className="absolute inset-x-2 -bottom-4.25 h-0.5 bg-ktf-blue rounded-full"
-                        transition={{
-                          type: "spring",
-                          stiffness: 380,
-                          damping: 30,
-                        }}
-                      />
-                    )}
                   </Link>
                 </li>
               );
@@ -83,22 +77,22 @@ export function Header() {
           </ul>
 
           {/* Desktop CTA */}
-          <div className="hidden lg:flex items-center gap-3">
+          <div className="hidden items-center gap-3 lg:flex">
             <Link
               href="/terms"
-              className="text-sm text-ktf-gray-500 transition-colors hover:text-ktf-obsidian"
+              className="hidden text-sm font-medium text-ktf-gray-500 transition-colors hover:text-ktf-obsidian xl:inline"
             >
               Terms
             </Link>
             <Link
               href="/privacy"
-              className="text-sm text-ktf-gray-500 transition-colors hover:text-ktf-obsidian"
+              className="hidden text-sm font-medium text-ktf-gray-500 transition-colors hover:text-ktf-obsidian xl:inline"
             >
               Privacy
             </Link>
             <Link
               href="/contact"
-              className="inline-flex h-10 items-center justify-center rounded-lg bg-ktf-blue px-5 text-sm font-medium text-white transition-colors duration-150 hover:bg-ktf-blue-deep active:bg-ktf-blue-pressed"
+              className="inline-flex h-10 items-center justify-center rounded-lg bg-ktf-blue px-4 text-sm font-semibold text-white shadow-sm transition-colors duration-150 hover:bg-ktf-blue-deep active:bg-ktf-blue-pressed xl:px-5"
             >
               Get Started
             </Link>

@@ -1,13 +1,13 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useRef } from "react";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import type { BespokeAIUIMessage } from "@/lib/ai/bespoke-ai-types";
-import { BRAND_ICON_SRC, SITE_NAME } from "@/lib/constants";
+import { SITE_NAME } from "@/lib/constants";
 import { cn } from "@/lib/utils";
+import { BespokeAIIcon } from "./bespoke-ai-icon";
 import { BespokeAIInput } from "./bespoke-ai-input";
 import { BespokeAIMessage } from "./bespoke-ai-message";
 import { BespokeAISuggestions } from "./bespoke-ai-suggestions";
@@ -57,13 +57,9 @@ export function BespokeAIPanel({ mode = "page", onClose }: BespokeAIPanelProps) 
     >
       <header className="flex h-16 shrink-0 items-center justify-between border-b border-ktf-gray-200 px-4">
         <div className="flex min-w-0 items-center gap-3">
-          <Image
-            src={BRAND_ICON_SRC}
-            alt=""
-            width={40}
-            height={40}
-            className="h-10 w-10 rounded-lg object-cover"
-          />
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-ktf-blue/20 bg-ktf-blue/8 text-ktf-blue">
+            <BespokeAIIcon className="h-6 w-6" />
+          </span>
           <div className="min-w-0">
             <h1
               id="bespoke-ai-panel-title"
@@ -76,17 +72,18 @@ export function BespokeAIPanel({ mode = "page", onClose }: BespokeAIPanelProps) 
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           {mode === "panel" ? (
             <Link
               href="/bespoke-ai"
               className="hidden min-h-10 items-center rounded-md px-3 text-sm font-semibold text-ktf-blue hover:bg-ktf-blue/8 sm:inline-flex"
             >
-              Full page
+              Full Page
             </Link>
           ) : null}
           {onClose ? (
             <button
+              data-bespoke-ai-close="true"
               type="button"
               onClick={onClose}
               className="flex h-10 w-10 items-center justify-center rounded-md text-ktf-gray-600 hover:bg-ktf-surface hover:text-ktf-obsidian"
@@ -137,7 +134,7 @@ export function BespokeAIPanel({ mode = "page", onClose }: BespokeAIPanelProps) 
         </div>
       </div>
 
-      <div className="shrink-0 border-t border-ktf-gray-200 bg-white px-4 py-3">
+      <div className="shrink-0 border-t border-ktf-gray-200 bg-white px-3 py-3 sm:px-4">
         <div className="mx-auto w-full max-w-3xl">
           {messages.length > 0 ? (
             <div className="mb-3">

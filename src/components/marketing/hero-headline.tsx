@@ -68,7 +68,10 @@ export function HeroHeadline({ className }: { className?: string }) {
           </AnimatePresence>
         </span>
 
-        <span className="block text-ktf-navy">your business relies on.</span>
+        <span className="block text-ktf-navy">
+          <span className="block">your business</span>
+          <span className="block lg:whitespace-nowrap">relies on.</span>
+        </span>
       </span>
     </h1>
   );
