@@ -206,10 +206,26 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+@media (min-width: 1024px) {
+  body.bespoke-ai-dock-open {
+    padding-right: 40vw;
+    transition: padding-right var(--duration-base) var(--ease-default);
+  }
+
+  body.bespoke-ai-dock-open [data-whatsapp-fab="true"] {
+    right: calc(40vw + 1.5rem);
+  }
+}
+
 /* ---- Focus Ring Utility ---- */
 *:focus-visible {
   outline: 2px solid var(--ktf-blue-primary);
   outline-offset: 2px;
+}
+
+[data-bespoke-ai-chat-input="true"]:focus,
+[data-bespoke-ai-chat-input="true"]:focus-visible {
+  outline: none;
 }
 
 /* ---- Selection ---- */

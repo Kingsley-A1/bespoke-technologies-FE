@@ -95,6 +95,7 @@ export async function POST(req: Request) {
       messages: await convertToModelMessages(messages),
       tools: bespokeAITools,
       stopWhen: stepCountIs(4),
+      maxRetries: 0,
       maxOutputTokens: 800,
       experimental_transform: smoothStream(),
     });
@@ -124,7 +125,7 @@ export async function POST(req: Request) {
       },
       onError: (error) => {
         console.error("Bespoke AI stream failed", error);
-        return "Bespoke AI hit a server issue. Please try again or contact Bespoke Technologies on WhatsApp.";
+        return getBespokeAIErrorMessage(error);
       },
     });
   } catch (error) {
@@ -137,10 +138,9 @@ export async function POST(req: Request) {
 
     return Response.json(
       {
-        error:
-          "Bespoke AI is temporarily unavailable. Please try again or contact the team directly.",
+        error: getBespokeAIErrorMessage(error),
       },
-      { status: 500 },
+      { status: isQuotaError(error) ? 429 : 500 },
     );
   }
 }
@@ -205,6 +205,34 @@ function isRateLimited(key: string) {
 
   bucket.count += 1;
   return bucket.count > RATE_LIMIT_MAX_REQUESTS;
+}
+
+function getBespokeAIErrorMessage(error: unknown) {
+  if (isQuotaError(error)) {
+    return "Bespoke AI is temporarily rate-limited because the Gemini API quota was reached. Please try again shortly or contact Bespoke Technologies on WhatsApp.";
+  }
+
+  return "Bespoke AI hit a server issue. Please try again or contact Bespoke Technologies on WhatsApp.";
+}
+
+function isQuotaError(error: unknown) {
+  return /429|quota|resource_exhausted/i.test(getErrorText(error));
+}
+
+function getErrorText(error: unknown) {
+  if (error instanceof Error) {
+    return `${error.name} ${error.message} ${safeStringify(error)}`;
+  }
+
+  return String(error);
+}
+
+function safeStringify(value: unknown) {
+  try {
+    return JSON.stringify(value);
+  } catch {
+    return "";
+  }
 }
 
 function isUuid(value: string) {

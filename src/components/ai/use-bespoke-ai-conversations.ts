@@ -3,14 +3,23 @@
 import { useCallback, useEffect, useState } from "react";
 import type { BespokeAIUIMessage } from "@/lib/ai/bespoke-ai-types";
 
+type BespokeAIConversationTitleSource = "generated" | "manual";
+
 export type BespokeAIConversation = {
   id: string;
   title: string;
+  titleSource: BespokeAIConversationTitleSource;
   preview: string;
   createdAt: string;
   updatedAt: string;
   messageCount: number;
+  isPinned: boolean;
   messages: BespokeAIUIMessage[];
+};
+
+type ConversationState = {
+  activeConversationId: string;
+  conversations: BespokeAIConversation[];
 };
 
 const STORAGE_KEY = "bespoke-ai-conversations:v1";
@@ -18,8 +27,8 @@ const MAX_CONVERSATIONS = 24;
 const UNTITLED_CONVERSATION = "New conversation";
 
 export function useBespokeAIConversations() {
-  const [conversationState, setConversationState] = useState(() =>
-    createInitialConversationState(),
+  const [conversationState, setConversationState] = useState<ConversationState>(
+    () => createInitialConversationState(),
   );
   const { activeConversationId, conversations } = conversationState;
 
@@ -41,10 +50,10 @@ export function useBespokeAIConversations() {
 
     setConversationState((current) => ({
       activeConversationId: conversation.id,
-      conversations: [conversation, ...current.conversations].slice(
-        0,
-        MAX_CONVERSATIONS,
-      ),
+      conversations: sortConversations([
+        conversation,
+        ...current.conversations,
+      ]).slice(0, MAX_CONVERSATIONS),
     }));
   }, []);
 
@@ -55,34 +64,72 @@ export function useBespokeAIConversations() {
     }));
   }, []);
 
-  const deleteConversation = useCallback(
-    (conversationId: string) => {
-      setConversationState((current) => {
-        const nextConversations = current.conversations.filter(
-          (conversation) => conversation.id !== conversationId,
-        );
+  const deleteConversation = useCallback((conversationId: string) => {
+    setConversationState((current) => {
+      const nextConversations = current.conversations.filter(
+        (conversation) => conversation.id !== conversationId,
+      );
 
-        if (conversationId === current.activeConversationId) {
-          const nextActiveConversation =
-            nextConversations[0] ?? createConversation();
-
-          return {
-            activeConversationId: nextActiveConversation.id,
-            conversations:
-              nextConversations.length > 0
-                ? nextConversations
-                : [nextActiveConversation],
-          };
-        }
+      if (conversationId === current.activeConversationId) {
+        const nextActiveConversation =
+          nextConversations[0] ?? createConversation();
 
         return {
-          ...current,
-          conversations: nextConversations,
+          activeConversationId: nextActiveConversation.id,
+          conversations:
+            nextConversations.length > 0
+              ? nextConversations
+              : [nextActiveConversation],
         };
-      });
+      }
+
+      return {
+        ...current,
+        conversations: nextConversations,
+      };
+    });
+  }, []);
+
+  const renameConversation = useCallback(
+    (conversationId: string, title: string) => {
+      const nextTitle = clampText(title.trim(), 64);
+      if (!nextTitle) return;
+
+      setConversationState((current) => ({
+        ...current,
+        conversations: sortConversations(
+          current.conversations.map((conversation) =>
+            conversation.id === conversationId
+              ? {
+                  ...conversation,
+                  title: nextTitle,
+                  titleSource: "manual",
+                  updatedAt: new Date().toISOString(),
+                }
+              : conversation,
+          ),
+        ),
+      }));
     },
     [],
   );
+
+  const togglePinnedConversation = useCallback((conversationId: string) => {
+    setConversationState((current) => ({
+      ...current,
+      conversations: sortConversations(
+        current.conversations.map((conversation) =>
+          conversation.id === conversationId
+            ? {
+                ...conversation,
+                isPinned: !conversation.isPinned,
+                updatedAt: new Date().toISOString(),
+              }
+            : conversation,
+        ),
+      ),
+    }));
+  }, []);
 
   const updateConversationMessages = useCallback(
     (conversationId: string, messages: BespokeAIUIMessage[]) => {
@@ -95,8 +142,10 @@ export function useBespokeAIConversations() {
         const nextConversation = buildConversationFromMessages({
           conversationId,
           createdAt: existingConversation?.createdAt ?? now,
+          isPinned: existingConversation?.isPinned ?? false,
           messages,
           previousTitle: existingConversation?.title,
+          previousTitleSource: existingConversation?.titleSource,
           updatedAt: now,
         });
         const otherConversations = current.conversations.filter(
@@ -105,13 +154,10 @@ export function useBespokeAIConversations() {
 
         return {
           ...current,
-          conversations: [nextConversation, ...otherConversations]
-            .sort(
-              (first, second) =>
-                new Date(second.updatedAt).getTime() -
-                new Date(first.updatedAt).getTime(),
-            )
-            .slice(0, MAX_CONVERSATIONS),
+          conversations: sortConversations([
+            nextConversation,
+            ...otherConversations,
+          ]).slice(0, MAX_CONVERSATIONS),
         };
       });
     },
@@ -124,17 +170,19 @@ export function useBespokeAIConversations() {
     conversations,
     deleteConversation,
     isLoaded: true,
+    renameConversation,
     selectConversation,
     startNewConversation,
+    togglePinnedConversation,
     updateConversationMessages,
   };
 }
 
-function createInitialConversationState() {
+function createInitialConversationState(): ConversationState {
   const storedConversations = readStoredConversations();
   const conversations =
     storedConversations.length > 0
-      ? storedConversations
+      ? sortConversations(storedConversations)
       : [createConversation()];
 
   return {
@@ -149,10 +197,12 @@ function createConversation(conversationId = createConversationId()) {
   return {
     id: conversationId,
     title: UNTITLED_CONVERSATION,
+    titleSource: "generated",
     preview: "Start a new Bespoke AI conversation.",
     createdAt: now,
     updatedAt: now,
     messageCount: 0,
+    isPinned: false,
     messages: [],
   } satisfies BespokeAIConversation;
 }
@@ -160,33 +210,41 @@ function createConversation(conversationId = createConversationId()) {
 function buildConversationFromMessages({
   conversationId,
   createdAt,
+  isPinned,
   messages,
   previousTitle,
+  previousTitleSource,
   updatedAt,
 }: {
   conversationId: string;
   createdAt: string;
+  isPinned: boolean;
   messages: BespokeAIUIMessage[];
   previousTitle?: string;
+  previousTitleSource?: BespokeAIConversationTitleSource;
   updatedAt: string;
 }) {
   const firstUserMessage = messages.find((message) => message.role === "user");
   const latestMessage = messages[messages.length - 1];
   const title =
-    getMessageText(firstUserMessage) ||
-    (previousTitle && previousTitle !== UNTITLED_CONVERSATION
+    previousTitleSource === "manual" && previousTitle
       ? previousTitle
-      : UNTITLED_CONVERSATION);
+      : createConversationTopic(getMessageText(firstUserMessage));
   const preview =
     getMessageText(latestMessage) || "Start a new Bespoke AI conversation.";
 
   return {
     id: conversationId,
-    title: clampText(title, 54),
+    title,
+    titleSource:
+      previousTitleSource === "manual" && previousTitle
+        ? "manual"
+        : "generated",
     preview: clampText(preview, 82),
     createdAt,
     updatedAt,
     messageCount: messages.length,
+    isPinned,
     messages,
   } satisfies BespokeAIConversation;
 }
@@ -201,25 +259,56 @@ function readStoredConversations() {
     const parsedValue = JSON.parse(storedValue);
     if (!Array.isArray(parsedValue)) return [];
 
-    return parsedValue.filter(isStoredConversation).slice(0, MAX_CONVERSATIONS);
+    return parsedValue
+      .map(normalizeStoredConversation)
+      .filter((conversation): conversation is BespokeAIConversation =>
+        Boolean(conversation),
+      )
+      .slice(0, MAX_CONVERSATIONS);
   } catch {
     return [];
   }
 }
 
-function isStoredConversation(
-  value: unknown,
-): value is BespokeAIConversation {
-  if (!value || typeof value !== "object") return false;
+function normalizeStoredConversation(value: unknown) {
+  if (!value || typeof value !== "object") return undefined;
 
   const conversation = value as Partial<BespokeAIConversation>;
-  return Boolean(
-    conversation.id &&
-      conversation.title &&
-      conversation.createdAt &&
-      conversation.updatedAt &&
-      Array.isArray(conversation.messages),
-  );
+  if (
+    !conversation.id ||
+    !conversation.title ||
+    !conversation.createdAt ||
+    !conversation.updatedAt ||
+    !Array.isArray(conversation.messages)
+  ) {
+    return undefined;
+  }
+
+  return {
+    id: conversation.id,
+    title: clampText(conversation.title, 64),
+    titleSource:
+      conversation.titleSource === "manual" ? "manual" : "generated",
+    preview:
+      conversation.preview ||
+      getMessageText(conversation.messages[conversation.messages.length - 1]) ||
+      "Start a new Bespoke AI conversation.",
+    createdAt: conversation.createdAt,
+    updatedAt: conversation.updatedAt,
+    messageCount:
+      typeof conversation.messageCount === "number"
+        ? conversation.messageCount
+        : conversation.messages.length,
+    isPinned: Boolean(conversation.isPinned),
+    messages: conversation.messages,
+  } satisfies BespokeAIConversation;
+}
+
+function createConversationTopic(value: string) {
+  const topic = value.replace(/\s+/g, " ").replace(/[?.!]+$/g, "").trim();
+  if (!topic) return UNTITLED_CONVERSATION;
+
+  return clampText(topic, 64);
 }
 
 function getMessageText(message?: BespokeAIUIMessage) {
@@ -229,6 +318,17 @@ function getMessageText(message?: BespokeAIUIMessage) {
     .map((part) => (part.type === "text" ? part.text : ""))
     .join(" ")
     .trim();
+}
+
+function sortConversations(conversations: BespokeAIConversation[]) {
+  return [...conversations].sort((first, second) => {
+    if (first.isPinned !== second.isPinned) return first.isPinned ? -1 : 1;
+
+    return (
+      new Date(second.updatedAt).getTime() -
+      new Date(first.updatedAt).getTime()
+    );
+  });
 }
 
 function clampText(value: string, maxLength: number) {

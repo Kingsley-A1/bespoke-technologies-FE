@@ -16,6 +16,7 @@ export function WhatsappFab() {
 
   return (
     <motion.a
+      data-whatsapp-fab="true"
       href={href}
       target="_blank"
       rel="noopener noreferrer"

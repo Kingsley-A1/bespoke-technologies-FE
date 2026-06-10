@@ -176,7 +176,7 @@ export function BespokeAIInput({
       <label htmlFor={inputId} className="sr-only">
         Message Bespoke AI
       </label>
-      <div className="flex min-h-14 items-center gap-2 rounded-full border border-ktf-gray-200 bg-white py-1.5 pl-2 pr-1.5 shadow-[0_12px_34px_-26px_rgba(11,31,58,0.65)] transition-colors focus-within:border-ktf-blue/50 focus-within:ring-4 focus-within:ring-ktf-blue/10">
+      <div className="flex min-h-14 items-center gap-2 rounded-full border border-ktf-gray-200 bg-white py-1.5 pl-2 pr-1.5 shadow-[0_12px_34px_-26px_rgba(11,31,58,0.65)] transition-colors focus-within:border-ktf-gray-300">
         <button
           type="button"
           onClick={() => {
@@ -193,6 +193,7 @@ export function BespokeAIInput({
         <input
           ref={inputRef}
           id={inputId}
+          data-bespoke-ai-chat-input="true"
           value={input}
           onChange={(event) => handleInputChange(event.currentTarget.value)}
           onKeyDown={(event) => {
@@ -203,7 +204,7 @@ export function BespokeAIInput({
           }}
           autoComplete="off"
           placeholder="Ask Bespoke AI"
-          className="h-11 min-w-0 flex-1 border-0 bg-transparent text-base leading-none text-ktf-obsidian outline-none placeholder:text-ktf-gray-500 disabled:cursor-not-allowed disabled:opacity-60"
+          className="h-11 min-w-0 flex-1 appearance-none border-0 bg-transparent text-base leading-none text-ktf-obsidian outline-none ring-0 placeholder:text-ktf-gray-500 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 disabled:cursor-not-allowed disabled:opacity-60"
           disabled={disabled}
         />
 

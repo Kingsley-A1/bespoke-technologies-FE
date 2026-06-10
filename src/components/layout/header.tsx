@@ -52,7 +52,7 @@ export function Header() {
 
           {/* Desktop Navigation */}
           <ul
-            className="hidden items-center gap-0.5 rounded-xl border border-ktf-gray-200/80 bg-ktf-surface/70 p-1 shadow-xs lg:flex"
+            className="hidden items-center gap-5 lg:flex xl:gap-6"
             role="list"
           >
             {NAV_LINKS.map((link) => {
@@ -62,10 +62,10 @@ export function Header() {
                   <Link
                     href={link.href}
                     className={cn(
-                      "relative rounded-lg px-2.5 py-2 text-[13px] font-semibold transition-colors duration-150 xl:px-3",
+                      "relative py-2 text-[13px] font-semibold transition-colors duration-150 after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full after:origin-left after:scale-x-0 after:rounded-full after:bg-ktf-blue after:transition-transform after:duration-150",
                       isActive
-                        ? "bg-white text-ktf-blue shadow-xs"
-                        : "text-ktf-gray-700 hover:bg-white/80 hover:text-ktf-obsidian",
+                        ? "text-ktf-blue after:scale-x-100"
+                        : "text-ktf-gray-700 hover:text-ktf-obsidian",
                     )}
                     aria-current={isActive ? "page" : undefined}
                   >
@@ -203,10 +203,10 @@ export function Header() {
                           href={link.href}
                           onClick={closeMobile}
                           className={cn(
-                            "flex items-center justify-between rounded-xl px-4 py-3.5 text-[15px] font-semibold transition-all duration-150",
+                            "flex items-center justify-between border-l-2 px-4 py-3.5 text-[15px] font-semibold transition-colors duration-150",
                             isActive
-                              ? "bg-ktf-blue text-white shadow-sm"
-                              : "text-ktf-navy hover:text-ktf-blue hover:bg-ktf-blue/8",
+                              ? "border-ktf-blue text-ktf-blue"
+                              : "border-transparent text-ktf-navy hover:text-ktf-blue",
                           )}
                           aria-current={isActive ? "page" : undefined}
                         >
