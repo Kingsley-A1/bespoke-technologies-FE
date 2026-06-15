@@ -1,6 +1,6 @@
-import { Button, Badge } from "@/components/ui";
-import { TypingText } from "@/components/ui/typing-text";
+import { Button } from "@/components/ui";
 import { Container } from "@/components/layout";
+import { PageHero } from "@/components/marketing/page-hero";
 import { TESTIMONIALS, STATS, SITE_NAME } from "@/lib/constants";
 import type { Metadata } from "next";
 
@@ -18,25 +18,14 @@ export default function ReviewsPage() {
 
   return (
     <>
-      {/* ── Page Hero ─────────────────────────────────────────── */}
-      <section className="bg-ktf-navy py-16 sm:py-20">
-        <Container size="lg" className="text-center">
-          <Badge
-            variant="outline"
-            className="border-ktf-blue/40 text-ktf-blue bg-ktf-blue/10 mb-6"
-          >
-            Client Reviews
-          </Badge>
-          <h1 className="text-h1 font-bold leading-heading text-ktf-white max-w-3xl mx-auto mb-4">
-            Words from Those{" "}
-            <TypingText text="We Serve" className="text-ktf-blue" />
-          </h1>
-          <p className="text-body-lg text-ktf-gray-400 leading-body max-w-2xl mx-auto">
-            Our reputation is built on results. Here is what our clients say
-            about working with Bespoke Technologies.
-          </p>
-        </Container>
-      </section>
+      <PageHero
+        label="Client reviews"
+        title="Proof shaped by the work and the relationship."
+        description="Read how clients describe the product quality, technical depth, communication, and long-term value behind our delivery."
+        variant="reviews"
+        primaryAction={{ label: "Read Client Stories", href: "#client-reviews" }}
+        secondaryAction={{ label: "Start Your Project", href: "/contact" }}
+      />
 
       {/* ── Rating Summary ───────────────────────────────────── */}
       <section className="bg-ktf-obsidian py-16">
@@ -65,7 +54,10 @@ export default function ReviewsPage() {
       </section>
 
       {/* ── Reviews Grid ─────────────────────────────────────── */}
-      <section className="bg-ktf-surface py-24 sm:py-32">
+      <section
+        id="client-reviews"
+        className="bg-ktf-surface py-24 sm:py-32"
+      >
         <Container size="lg">
           <div className="grid grid-cols-1 gap-8 sm:grid-cols-2">
             {TESTIMONIALS.map((testimonial) => (

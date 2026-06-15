@@ -1,7 +1,6 @@
-import { Badge } from "@/components/ui";
-import { TypingText } from "@/components/ui/typing-text";
 import { Container } from "@/components/layout";
 import { ContactForm } from "@/components/marketing/contact-form";
+import { PageHero } from "@/components/marketing/page-hero";
 import {
   CONTACT_EMAIL,
   PHONE_NUMBER,
@@ -12,6 +11,7 @@ import {
   WHATSAPP_NUMBER,
   WHATSAPP_INQUIRY_MESSAGE,
 } from "@/lib/constants";
+import { absoluteUrl } from "@/lib/seo";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -19,6 +19,19 @@ export const metadata: Metadata = {
   description: `Get in touch with ${SITE_NAME}. Tell us about your project and we'll respond within one business day.`,
   alternates: {
     canonical: "/contact",
+  },
+  openGraph: {
+    images: [
+      {
+        url: absoluteUrl("/icons/og.png"),
+        width: 1200,
+        height: 630,
+        alt: `${SITE_NAME} — Contact`,
+      },
+    ],
+  },
+  twitter: {
+    images: [absoluteUrl("/icons/og.png")],
   },
 };
 
@@ -40,28 +53,16 @@ const contactDetails = [
 export default function ContactPage() {
   return (
     <>
-      {/* ── Page Hero ─────────────────────────────────────────── */}
-      <section className="bg-ktf-navy py-16 sm:py-20">
-        <Container size="lg" className="text-center">
-          <Badge
-            variant="outline"
-            className="border-ktf-blue/40 text-ktf-blue bg-ktf-blue/10 mb-6"
-          >
-            Get in Touch
-          </Badge>
-          <h1 className="text-h1 font-bold leading-heading text-ktf-white max-w-3xl mx-auto mb-4">
-            Let&apos;s Talk About{" "}
-            <TypingText text="Your Project" className="text-ktf-blue" />
-          </h1>
-          <p className="text-body-lg text-ktf-gray-400 leading-body max-w-2xl mx-auto">
-            Whether you have a clear brief or an early idea, we&apos;re here to
-            listen, advise, and help you build something exceptional.
-          </p>
-        </Container>
-      </section>
+      <PageHero
+        label="Start a project"
+        title="Turn the right idea into a production system."
+        description="Tell us what you are building, where the risk is, and what success needs to look like. We will help define the clearest route forward."
+        variant="contact"
+        primaryAction={{ label: "Share Your Brief", href: "#contact-form" }}
+      />
 
       {/* ── Contact Split ─────────────────────────────────────── */}
-      <section className="bg-ktf-white py-24 sm:py-32">
+      <section id="contact-form" className="bg-ktf-white py-24 sm:py-32">
         <Container size="lg">
           <div className="grid grid-cols-1 gap-16 lg:grid-cols-[1fr_420px] lg:items-start">
             {/* Form column */}

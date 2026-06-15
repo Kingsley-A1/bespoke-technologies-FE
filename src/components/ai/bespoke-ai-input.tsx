@@ -82,7 +82,7 @@ export function BespokeAIInput({
 }: BespokeAIInputProps) {
   const inputId = useId();
   const actionMenuRef = useRef<HTMLFormElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
   const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
   const [isActionMenuOpen, setIsActionMenuOpen] = useState(false);
   const [isModeMenuOpen, setIsModeMenuOpen] = useState(false);
@@ -190,22 +190,23 @@ export function BespokeAIInput({
           <Plus className="h-5 w-5" aria-hidden="true" />
         </button>
 
-        <input
-          ref={inputRef}
-          id={inputId}
-          data-bespoke-ai-chat-input="true"
-          value={input}
-          onChange={(event) => handleInputChange(event.currentTarget.value)}
-          onKeyDown={(event) => {
-            if (event.key === "Enter" && !event.shiftKey) {
-              event.preventDefault();
-              handleSubmit();
-            }
-          }}
-          autoComplete="off"
-          placeholder="Ask Bespoke AI"
-          className="h-11 min-w-0 flex-1 appearance-none border-0 bg-transparent text-base leading-none text-ktf-obsidian outline-none ring-0 placeholder:text-ktf-gray-500 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 disabled:cursor-not-allowed disabled:opacity-60"
-          disabled={disabled}
+<textarea
+            ref={inputRef}
+            id={inputId}
+            data-bespoke-ai-chat-input="true"
+            value={input}
+            onChange={(event) => handleInputChange(event.currentTarget.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" && !event.shiftKey) {
+                event.preventDefault();
+                handleSubmit();
+              }
+            }}
+            autoComplete="off"
+            placeholder="Ask Bespoke AI"
+            className="min-h-[44px] max-h-28 min-w-0 flex-1 resize-none appearance-none border-0 bg-transparent text-base leading-6 text-ktf-obsidian outline-none ring-0 placeholder:text-ktf-gray-500 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 disabled:cursor-not-allowed disabled:opacity-60"
+            disabled={disabled}
+            rows={1}
         />
 
         <div className="relative hidden shrink-0 sm:block">

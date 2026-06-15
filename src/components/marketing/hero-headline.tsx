@@ -1,29 +1,11 @@
 "use client";
 
-/**
- * Bespoke Technologies — Hero Headline
- *
- * Rotates the product category (websites → mobile apps → SaaS platforms → AI systems)
- * on a calm, premium interval. The rotating word is the only blue emphasis; surrounding
- * lines stay navy — creating a clear focal anchor on each rotation.
- *
- * Accessibility:
- * - A single, crawlable sentence is exposed to assistive tech and search via
- *   the `sr-only` span; the animated visual is `aria-hidden`.
- * - Rotation and motion are fully disabled under `prefers-reduced-motion`.
- */
-
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useEffect, useState } from "react";
+import { LockKeyhole } from "lucide-react";
+import { PRODUCT_TYPES } from "@/lib/constants";
 
-const PRODUCTS = [
-  "Websites",
-  "Mobile Apps",
-  "SaaS Platforms",
-  "AI Systems",
-] as const;
-
-const ROTATE_MS = 2800;
+const ROTATE_MS = 2600;
 
 export function HeroHeadline({ className }: { className?: string }) {
   const reduce = useReducedMotion();
@@ -32,45 +14,55 @@ export function HeroHeadline({ className }: { className?: string }) {
   useEffect(() => {
     if (reduce) return;
     const id = setInterval(
-      () => setIndex((i) => (i + 1) % PRODUCTS.length),
+      () => setIndex((i) => (i + 1) % PRODUCT_TYPES.length),
       ROTATE_MS,
     );
     return () => clearInterval(id);
   }, [reduce]);
 
-  const product = reduce ? PRODUCTS[0] : PRODUCTS[index];
+  const product = reduce ? PRODUCT_TYPES[0] : PRODUCT_TYPES[index];
 
   return (
     <h1 id="home-hero-title" className={className}>
       <span className="sr-only">
-        We build the digital products — Websites, Mobile Apps, SaaS Platforms,
-        and AI Systems — your business relies on.
+        Ship your SaaS product, website, mobile app, business software, AI app,
+        or social platform faster. Own the system from day one, secured.
       </span>
 
-      <span aria-hidden="true" className="block">
-        <span className="block text-ktf-navy">We build</span>
-
-        <span className="relative block min-h-[1.1em] overflow-hidden">
-          <AnimatePresence initial={false} mode="popLayout">
-            <motion.span
-              key={product}
-              className="block text-ktf-blue-deep"
-              initial={{ opacity: 0, y: reduce ? 0 : "0.45em" }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: reduce ? 0 : "-0.45em" }}
-              transition={{
-                duration: reduce ? 0.15 : 0.52,
-                ease: [0.22, 1, 0.36, 1],
-              }}
-            >
-              {product}
-            </motion.span>
-          </AnimatePresence>
+      <span aria-hidden="true" className="block text-ktf-navy">
+        <span className="block">Ship your</span>
+        <span className="relative block min-h-[1.08em] overflow-hidden text-[0.78em] leading-[1.08] sm:text-[1em]">
+          <span className="invisible block whitespace-nowrap">
+            Social Platforms
+          </span>
+          <span className="absolute inset-0">
+            <AnimatePresence initial={false} mode="popLayout">
+              <motion.span
+                key={product}
+                className="block whitespace-nowrap text-ktf-blue-deep"
+                initial={{ opacity: 0, y: reduce ? 0 : "0.52em" }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: reduce ? 0 : "-0.42em" }}
+                transition={{
+                  duration: reduce ? 0 : 0.46,
+                  ease: [0.22, 1, 0.36, 1],
+                }}
+              >
+                {product}
+              </motion.span>
+            </AnimatePresence>
+          </span>
         </span>
-
-        <span className="block text-ktf-navy">
-          <span className="block">your business</span>
-          <span className="block lg:whitespace-nowrap">relies on.</span>
+        <span className="block">Fast & Secured.</span>
+        <span className="mt-5 block max-w-xl text-[0.42em] font-semibold leading-[1.35] tracking-[-0.02em] text-ktf-gray-700 sm:mt-6 sm:text-[0.38em]">
+          Own the system from day one,{" "}
+          {/* <span className="inline-flex items-center gap-[0.28em] text-ktf-blue-deep">
+            <LockKeyhole
+              className="h-[0.92em] w-[0.92em]"
+              strokeWidth={2.2}
+            />
+            Secured.
+          </span> */}
         </span>
       </span>
     </h1>

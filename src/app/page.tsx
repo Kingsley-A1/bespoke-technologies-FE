@@ -1,23 +1,41 @@
 import Image from "next/image";
-import { Bot, Braces, Cloud, Globe, Palette, Smartphone } from "lucide-react";
+import Link from "next/link";
+import type { Metadata } from "next";
+import {
+  ArrowRight,
+  Bot,
+  Braces,
+  Check,
+  Cloud,
+  Globe,
+  Palette,
+  ShieldCheck,
+  Smartphone,
+} from "lucide-react";
 import { BespokeAIIcon } from "@/components/ai/bespoke-ai-icon";
-import { Button } from "@/components/ui";
-import { Container } from "@/components/layout";
+import { Button } from "@/components/ui/button";
+import { Container } from "@/components/layout/container";
+import { AnimatedStats } from "@/components/marketing/animated-stats";
+import { ClientStory } from "@/components/marketing/client-story";
 import { HeroHeadline } from "@/components/marketing/hero-headline";
-import { DeliveryConsole } from "@/components/marketing/delivery-console";
+import {
+  Reveal,
+  StaggerGroup,
+  StaggerItem,
+} from "@/components/marketing/motion-reveal";
+import { ProductCommandCenter } from "@/components/marketing/product-command-center";
 import { ProjectCard } from "@/components/marketing/projects-grid";
 import {
-  STATS,
-  SERVICES,
-  VALUES,
-  TESTIMONIALS,
+  DELIVERY_PROCESS,
+  ENGAGEMENT_PATHS,
   PARTNERS,
+  PRODUCT_OUTCOMES,
   PROJECTS,
+  SERVICES,
   SITE_DESCRIPTION,
   SITE_NAME,
   SITE_TAGLINE,
 } from "@/lib/constants";
-import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: {
@@ -41,7 +59,7 @@ interface ServiceIconProps {
 function ServiceIcon({ id }: ServiceIconProps) {
   const iconProps = {
     "aria-hidden": true,
-    className: "h-6 w-6",
+    className: "h-5 w-5",
     strokeWidth: 1.9,
   } as const;
 
@@ -64,222 +82,212 @@ function ServiceIcon({ id }: ServiceIconProps) {
 export default function HomePage() {
   return (
     <>
-      {/* ── Hero ─────────────────────────────────────────────── */}
       <section
         aria-labelledby="home-hero-title"
-        className="relative overflow-hidden border-b border-ktf-gray-200 bg-ktf-white pt-10 pb-16 sm:pt-14 sm:pb-20 lg:pt-16 lg:pb-24"
+        className="relative overflow-hidden border-b border-ktf-gray-200 bg-white pt-12 pb-16 sm:pt-16 sm:pb-20 lg:pt-20 lg:pb-24"
       >
-        {/* Vercel-style line grid: visible structure without visual weight */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0"
-          style={{
-            background:
-              "linear-gradient(to right, rgba(11,31,58,0.04) 1px, transparent 1px), linear-gradient(to bottom, rgba(11,31,58,0.035) 1px, transparent 1px)",
-            backgroundSize: "56px 56px",
-            maskImage:
-              "linear-gradient(to bottom, black 0%, black 62%, transparent 100%)",
-            WebkitMaskImage:
-              "linear-gradient(to bottom, black 0%, black 62%, transparent 100%)",
-          }}
-        />
-
-        {/* Fine blue guide lines for the hero focal area */}
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 top-0 h-80 opacity-[0.22]"
+          className="pointer-events-none absolute inset-0 opacity-75"
           style={{
             backgroundImage:
-              "linear-gradient(to right, rgba(10,132,255,0.055) 1px, transparent 1px), linear-gradient(to bottom, rgba(10,132,255,0.045) 1px, transparent 1px)",
-            backgroundSize: "112px 112px",
+              "linear-gradient(to right, rgba(10,132,255,0.045) 1px, transparent 1px), linear-gradient(to bottom, rgba(11,31,58,0.035) 1px, transparent 1px)",
+            backgroundSize: "64px 64px",
             maskImage:
-              "linear-gradient(to bottom, black 0%, transparent 82%)",
+              "linear-gradient(to bottom, black 0%, black 58%, transparent 100%)",
             WebkitMaskImage:
-              "linear-gradient(to bottom, black 0%, transparent 82%)",
+              "linear-gradient(to bottom, black 0%, black 58%, transparent 100%)",
           }}
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute top-0 right-0 h-[520px] w-[52vw] bg-[radial-gradient(circle_at_52%_35%,rgba(10,132,255,0.12),transparent_46%),radial-gradient(circle_at_85%_5%,rgba(145,110,255,0.12),transparent_34%)]"
         />
 
         <Container size="xl" className="relative">
-          <div
-            id="delivery-system"
-            className="grid min-w-0 gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(400px,0.82fr)] lg:items-start lg:gap-16"
-          >
-            {/* ── Left: Copy column ── */}
-            <div className="w-full min-w-0 max-w-[calc(100vw-2rem)] sm:max-w-2xl">
+          <div className="grid min-w-0 gap-12 lg:grid-cols-[minmax(0,0.94fr)_minmax(440px,0.92fr)] lg:items-center lg:gap-16">
+            <Reveal className="min-w-0 overflow-hidden">
+              <HeroHeadline className="max-w-[13ch] text-[2.75rem] font-bold leading-[0.99] tracking-[-0.055em] sm:text-[4rem] lg:text-[4.55rem] xl:text-[5rem]" />
 
-              {/* Eyebrow: live availability signal */}
-              <div className="mb-8">
-                <span className="inline-flex items-center gap-2.5 rounded-full border border-ktf-success/30 bg-ktf-success/8 px-4 py-1.5 text-caption font-semibold text-ktf-success">
-                  <span
-                    aria-hidden="true"
-                    className="relative flex h-2 w-2 shrink-0"
-                  >
-                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-ktf-success opacity-60" />
-                    <span className="relative inline-flex h-2 w-2 rounded-full bg-ktf-success" />
-                  </span>
-                  Accepting new projects · 3–4 week delivery
-                </span>
-              </div>
-
-              {/* Headline — rotates through product category */}
-              <HeroHeadline className="max-w-full text-[2rem] font-bold leading-[1.08] tracking-tight break-words sm:text-display sm:leading-[1.06] lg:text-[4.25rem]" />
-
-              {/* Sub-copy */}
-              <p className="mt-6 max-w-full text-balance text-body leading-body text-ktf-gray-600 sm:mt-7 sm:max-w-lg sm:text-body-lg">
-                From strategy to launch, we design, build, and ship
-                production-grade digital products with the discipline and craft
-                serious businesses demand.
+              <p className="mt-7 max-w-xl text-body leading-body text-ktf-gray-600 sm:text-body-lg">
+                From product strategy to production, we design and engineer
+                secure SaaS platforms, websites, mobile apps, business
+                software, AI apps, and social platforms with one accountable
+                team.
               </p>
 
-              {/* CTAs */}
-              <div className="mt-8 flex flex-col gap-3 sm:mt-9 sm:flex-row sm:items-center">
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Button
                   size="lg"
                   href="/contact"
                   className="w-full bg-ktf-blue-deep hover:bg-ktf-blue-pressed sm:w-auto"
                 >
-                  Start a Project
-                  <svg
-                    aria-hidden="true"
-                    viewBox="0 0 16 16"
-                    className="ml-2 h-4 w-4 shrink-0"
-                  >
-                    <path
-                      fill="currentColor"
-                      d="M8.9 3.2 13.6 8l-4.7 4.8-1.1-1.1 2.7-2.8H2.4V7.1h8.1L7.8 4.3z"
-                    />
-                  </svg>
+                  Plan Your Product
+                  <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
                 <Button
                   variant="outline"
                   size="lg"
                   href="/projects"
-                  className="w-full border-ktf-gray-300 text-ktf-navy hover:border-ktf-gray-400 hover:bg-ktf-surface sm:w-auto"
+                  className="w-full border-ktf-gray-300 sm:w-auto"
                 >
                   See Delivered Work
                 </Button>
-                <Button
-                  variant="ghost"
-                  size="lg"
+              </div>
+
+              <div className="mt-7 flex flex-col gap-4 border-t border-ktf-gray-200 pt-5 sm:flex-row sm:items-center sm:justify-between">
+                <p className="text-body-sm font-medium text-ktf-gray-500">
+                  Strategy · UX · Engineering · Security · Launch
+                </p>
+                <Link
                   href="/bespoke-ai"
-                  className="w-full border border-ktf-blue/20 bg-white text-ktf-blue hover:bg-ktf-blue/8 sm:w-auto"
+                  className="inline-flex min-h-11 items-center gap-2 text-body-sm font-semibold text-ktf-blue-deep hover:text-ktf-blue-pressed"
                 >
-                  <BespokeAIIcon className="mr-2 h-4 w-4" />
+                  <BespokeAIIcon className="h-4 w-4" />
                   Ask Bespoke AI
-                </Button>
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </Link>
               </div>
+            </Reveal>
 
-              {/* Social proof strip — always visible */}
-              <div
-                aria-label="Client satisfaction summary"
-                className="mt-8 flex max-w-full flex-wrap items-center gap-x-4 gap-y-2.5 overflow-hidden sm:mt-9"
-              >
-                <div className="flex min-w-0 flex-wrap items-center gap-1.5">
-                  <span className="flex gap-0.5" aria-hidden="true">
-                    {[0, 1, 2, 3, 4].map((i) => (
-                      <svg
-                        key={i}
-                        viewBox="0 0 16 16"
-                        className="h-3.5 w-3.5 fill-ktf-warning"
-                        aria-hidden="true"
-                      >
-                        <path d="M8 1.1l1.75 3.55 3.92.57-2.84 2.77.67 3.9L8 9.77l-3.5 1.13.67-3.9L2.33 5.22l3.92-.57z" />
-                      </svg>
-                    ))}
-                  </span>
-                  <span className="text-body-sm font-semibold text-ktf-navy">
-                    5.0
-                  </span>
-                  <span className="text-body-sm text-ktf-gray-500">
-                    · rated by every client
-                  </span>
-                </div>
-
-                <span
-                  aria-hidden="true"
-                  className="hidden h-4 w-px bg-ktf-gray-200 sm:block"
-                />
-
-                <span className="w-full text-body-sm text-ktf-gray-500 sm:w-auto">
-                  <strong className="font-semibold text-ktf-navy">14+</strong>{" "}
-                  projects shipped
-                </span>
-
-                <span
-                  aria-hidden="true"
-                  className="hidden h-4 w-px bg-ktf-gray-200 sm:block"
-                />
-
-                <span className="w-full text-body-sm text-ktf-gray-500 sm:w-auto">
-                  <strong className="font-semibold text-ktf-navy">99%</strong>{" "}
-                  client satisfaction
-                </span>
-              </div>
-
-              {/* Process signature — single line, confident */}
-              <p className="mt-5 max-w-[20rem] text-body-sm text-ktf-gray-400 sm:max-w-full">
-                Strategy · UX · Build · Launch · Handover — full ownership, start to finish.
-              </p>
-            </div>
-
-            {/* ── Right: Delivery console (desktop) ── */}
-            <DeliveryConsole className="hidden lg:block" />
-          </div>
-
-          {/* ── Mobile: Console below copy ── */}
-          <div className="mt-10 max-w-[calc(100vw-2rem)] overflow-hidden lg:hidden">
-            <DeliveryConsole />
+            <ProductCommandCenter />
           </div>
         </Container>
       </section>
-      {/* ── Accomplished Works ───────────────────────────────── */}
-      <section
-        id="home-projects"
-        className="relative overflow-hidden bg-white py-24 sm:py-32"
-      >
-        {/* Straight-line grid */}
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 opacity-[0.28]"
-          style={{
-            backgroundImage:
-              "linear-gradient(to right, rgba(10,132,255,0.045) 1px, transparent 1px), linear-gradient(to bottom, rgba(10,132,255,0.04) 1px, transparent 1px)",
-            backgroundSize: "48px 48px",
-            maskImage:
-              "linear-gradient(to bottom, black 0%, black 58%, transparent 100%)",
-            WebkitMaskImage:
-              "linear-gradient(to bottom, black 0%, black 58%, transparent 100%)",
-          }}
-        />
 
-        <Container size="lg" className="relative">
-          {/* Section header */}
-          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
-            <div>
-              <p className="text-overline font-bold uppercase tracking-[0.2em] mb-3 text-ktf-blue">
-                Our Projects
-              </p>
-              <h2 className="text-h2 sm:text-h1 font-bold leading-display text-ktf-navy">
-                Accomplished
-                <br />
-                <span className="text-ktf-blue">Works.</span>
-              </h2>
-              <p className="mt-4 text-body-lg text-ktf-gray-600 leading-body max-w-md">
-                Products shipped. Startups launched. Problems solved. This is
-                what engineering excellence looks like.
-              </p>
+      <section className="relative overflow-hidden bg-ktf-surface py-20 sm:py-28">
+        <Container size="lg">
+          <Reveal className="max-w-3xl">
+            <p className="text-overline font-bold uppercase tracking-[0.2em] text-ktf-blue-deep">
+              Product outcome
+            </p>
+            <h2 className="mt-4 text-[2.2rem] font-bold leading-[1.08] tracking-[-0.04em] text-ktf-navy sm:text-h1">
+              From product brief to production-ready.
+            </h2>
+            <p className="mt-5 max-w-2xl text-body-lg leading-body text-ktf-gray-600">
+              One accountable team turns the right idea into a secure system
+              your business can launch, operate, and own.
+            </p>
+          </Reveal>
+
+          <div className="mt-12 overflow-hidden rounded-[1.5rem] border border-ktf-gray-200 bg-white shadow-[0_24px_70px_-56px_rgba(11,31,58,0.48)]">
+            <div className="grid lg:grid-cols-[0.84fr_1.16fr]">
+              <Reveal className="border-b border-ktf-gray-200 bg-ktf-navy p-7 text-white sm:p-9 lg:border-r lg:border-b-0">
+                <div className="flex h-full flex-col justify-between">
+                  <div>
+                    <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/10 text-ktf-blue">
+                      <ShieldCheck className="h-6 w-6" />
+                    </span>
+                    <h3 className="mt-7 text-h3 font-bold leading-tight">
+                      Built for launch.
+                      <br />
+                      Structured for ownership.
+                    </h3>
+                    <p className="mt-4 max-w-md text-body-sm leading-body text-ktf-gray-400">
+                      Product judgment, UX, engineering, security, and
+                      deployment move through one connected delivery system.
+                    </p>
+                  </div>
+
+                  <div className="mt-10 border-t border-white/10 pt-5">
+                    <p className="text-caption font-semibold uppercase tracking-[0.16em] text-ktf-gray-500">
+                      Handover standard
+                    </p>
+                    <p className="mt-2 text-body-sm font-semibold text-white">
+                      Codebase · Documentation · Deployment
+                    </p>
+                  </div>
+                </div>
+              </Reveal>
+
+              <StaggerGroup className="divide-y divide-ktf-gray-200">
+                {PRODUCT_OUTCOMES.map((outcome, index) => (
+                  <StaggerItem key={outcome.id}>
+                    <div className="group flex gap-5 p-6 sm:gap-7 sm:p-8">
+                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-ktf-blue/20 bg-ktf-blue/5 text-caption font-bold text-ktf-blue-deep">
+                        0{index + 1}
+                      </span>
+                      <div>
+                        <h3 className="text-h5 font-semibold text-ktf-navy">
+                          {outcome.title}
+                        </h3>
+                        <p className="mt-2 max-w-xl text-body-sm leading-body text-ktf-gray-600">
+                          {outcome.description}
+                        </p>
+                      </div>
+                    </div>
+                  </StaggerItem>
+                ))}
+              </StaggerGroup>
             </div>
-            <Button
-              href="/projects"
-              variant="outline"
-              className="border-ktf-blue/30 text-ktf-blue hover:bg-ktf-blue/10 hover:border-ktf-blue/50 shrink-0"
-            >
-              View Full Projects →
-            </Button>
+          </div>
+
+          <div className="mt-20 sm:mt-24">
+            <Reveal className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p className="text-overline font-bold uppercase tracking-[0.2em] text-ktf-blue-deep">
+                  How we work
+                </p>
+                <h2 className="mt-3 text-h2 font-bold tracking-tight text-ktf-navy">
+                  Three steps. One route to production.
+                </h2>
+              </div>
+              <Button variant="outline" href="/services">
+                See Our Delivery Process
+              </Button>
+            </Reveal>
+
+            <StaggerGroup className="relative mt-10 grid gap-8 md:grid-cols-3">
+              <span
+                aria-hidden="true"
+                className="absolute top-5 right-[16%] left-[16%] hidden h-px bg-ktf-blue/25 md:block"
+              />
+              {DELIVERY_PROCESS.map((phase) => (
+                <StaggerItem key={phase.step}>
+                  <article className="relative border-t border-ktf-gray-300 pt-6 md:border-t-0 md:pt-0">
+                    <span className="relative z-10 flex h-10 w-10 items-center justify-center rounded-full border border-ktf-blue/25 bg-white text-caption font-bold text-ktf-blue-deep shadow-xs">
+                      {phase.step}
+                    </span>
+                    <h3 className="mt-5 text-h5 font-semibold text-ktf-navy">
+                      {phase.title}
+                    </h3>
+                    <p className="mt-2 text-body-sm leading-body text-ktf-gray-600">
+                      {phase.description}
+                    </p>
+                  </article>
+                </StaggerItem>
+              ))}
+            </StaggerGroup>
           </div>
         </Container>
+      </section>
 
+      <section
+        id="home-projects"
+        className="relative overflow-hidden bg-white py-20 sm:py-28"
+      >
         <Container size="lg">
+          <Reveal className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-overline font-bold uppercase tracking-[0.2em] text-ktf-blue-deep">
+                Delivered work
+              </p>
+              <h2 className="mt-4 text-h2 font-bold tracking-tight text-ktf-navy sm:text-h1">
+                Products shipped.
+                <br />
+                Problems solved.
+              </h2>
+              <p className="mt-4 max-w-xl text-body-lg leading-body text-ktf-gray-600">
+                Explore customer experiences, business systems, and digital
+                products built to move from idea to dependable operation.
+              </p>
+            </div>
+            <Button href="/projects" variant="outline">
+              View All Projects
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+          </Reveal>
+
           <div className="mt-12 grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-3 lg:gap-8">
             {homeProjects.map((project) => (
               <ProjectCard key={project.id} project={project} compact />
@@ -287,124 +295,168 @@ export default function HomePage() {
           </div>
         </Container>
       </section>
-      {/* ── Stats Strip ──────────────────────────────────────── */}{" "}
-      <section className="bg-ktf-navy py-16">
+
+      <section className="bg-ktf-navy py-14 sm:py-16">
         <Container size="lg">
-          <dl className="grid grid-cols-2 gap-8 lg:grid-cols-4">
-            {STATS.map((stat) => (
-              <div key={stat.label} className="text-center">
-                <dt className="text-body-sm font-medium text-ktf-gray-500 uppercase tracking-widest">
-                  {stat.label}
-                </dt>
-                <dd className="mt-2 text-h2 font-bold text-ktf-white leading-none">
-                  {stat.value}
-                </dd>
-              </div>
-            ))}
-          </dl>
+          <AnimatedStats />
         </Container>
       </section>
-      {/* ── Services Overview ─────────────────────────────────── */}
-      <section className="bg-ktf-white py-24 sm:py-32">
-        <Container size="lg">
-          <div className="text-center mb-16">
-            <p className="text-overline font-semibold uppercase tracking-widest text-ktf-blue mb-3">
-              Our Expertise
-            </p>
-            <h2 className="text-h2 font-bold leading-heading text-ktf-navy">
-              Full-Spectrum Digital Engineering
-            </h2>
-            <p className="mt-4 text-body-lg text-ktf-gray-600 max-w-xl mx-auto">
-              From concept to deployment, we cover every layer of the modern
-              technology stack.
-            </p>
-          </div>
 
-          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+      <section className="bg-white py-20 sm:py-28">
+        <Container size="lg">
+          <Reveal className="max-w-3xl">
+            <p className="text-overline font-bold uppercase tracking-[0.2em] text-ktf-blue-deep">
+              Engineering capabilities
+            </p>
+            <h2 className="mt-4 text-h2 font-bold tracking-tight text-ktf-navy sm:text-h1">
+              The disciplines required to ship the whole product.
+            </h2>
+            <p className="mt-5 max-w-2xl text-body-lg leading-body text-ktf-gray-600">
+              Strategy, design, software engineering, cloud, and AI work as one
+              delivery system instead of disconnected vendor handoffs.
+            </p>
+          </Reveal>
+
+          <StaggerGroup className="mt-12 grid gap-px overflow-hidden rounded-[1.4rem] border border-ktf-gray-200 bg-ktf-gray-200 sm:grid-cols-2 lg:grid-cols-3">
             {SERVICES.map((service) => (
-                <a
-                  key={service.id}
+              <StaggerItem key={service.id} className="h-full">
+                <Link
                   href={`/services#${service.id}`}
-                  className="group block rounded-2xl border border-ktf-blue-300 bg-ktf-surface p-8 transition-all duration-200 hover:border-ktf-blue/40 hover:shadow-card-hover"
+                  className="group flex h-full min-h-[250px] flex-col bg-white p-6 transition-colors duration-200 hover:bg-ktf-blue/4 sm:p-7"
                 >
-                  <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-ktf-blue/10 text-ktf-blue">
-                    <ServiceIcon id={service.id} />
+                  <div className="flex items-center justify-between">
+                    <span className="flex h-11 w-11 items-center justify-center rounded-xl border border-ktf-blue/15 bg-ktf-blue/5 text-ktf-blue-deep transition-transform duration-200 group-hover:-translate-y-0.5">
+                      <ServiceIcon id={service.id} />
+                    </span>
+                    <ArrowRight className="h-4 w-4 text-ktf-gray-400 transition-all duration-200 group-hover:translate-x-1 group-hover:text-ktf-blue-deep" />
                   </div>
-                  <h3 className="text-h5 font-semibold text-ktf-navy mb-2">
+                  <h3 className="mt-7 text-h5 font-semibold text-ktf-navy">
                     {service.title}
                   </h3>
-                  <p className="text-body-sm text-ktf-gray-600 leading-body mb-4">
+                  <p className="mt-2 text-body-sm leading-body text-ktf-gray-600">
                     {service.tagline}
                   </p>
-                  <div className="flex flex-wrap gap-2">
-                    {service.tech.slice(0, 3).map((t) => (
-                      <span
-                        key={t}
-                        className="rounded-full border border-ktf-gray-200 px-3 py-0.5 text-caption font-medium text-ktf-gray-600"
-                      >
-                        {t}
-                      </span>
+                  <div className="mt-auto flex flex-wrap gap-x-3 gap-y-1 pt-6 text-caption font-medium text-ktf-gray-500">
+                    {service.tech.slice(0, 3).map((technology) => (
+                      <span key={technology}>{technology}</span>
                     ))}
                   </div>
-                </a>
-              ))}
-          </div>
+                </Link>
+              </StaggerItem>
+            ))}
+          </StaggerGroup>
+        </Container>
+      </section>
 
-          <div className="mt-12 text-center">
-            <Button variant="outline" href="/services">
-              View All Services
-            </Button>
-          </div>
+      <section className="bg-ktf-surface py-20 sm:py-28">
+        <Container size="lg">
+          <Reveal className="max-w-3xl">
+            <p className="text-overline font-bold uppercase tracking-[0.2em] text-ktf-blue-deep">
+              Progressive proof
+            </p>
+            <h2 className="mt-4 text-h2 font-bold tracking-tight text-ktf-navy sm:text-h1">
+              Proof through the product journey.
+            </h2>
+            <p className="mt-5 max-w-2xl text-body-lg leading-body text-ktf-gray-600">
+              The strongest client stories connect the original challenge to
+              the product delivered and the relationship built around it.
+            </p>
+          </Reveal>
+
+          <Reveal className="mt-12" delay={0.08}>
+            <ClientStory />
+          </Reveal>
         </Container>
       </section>
-      {/* ── Why Bespoke Technologies ─────────────────────────── */}
-      <section className="bg-ktf-surface py-24 sm:py-32">
+
+      <section className="bg-white py-20 sm:py-28">
         <Container size="lg">
-          <div className="grid grid-cols-1 gap-16 lg:grid-cols-2 lg:items-center">
-            <div>
-              <p className="text-overline font-semibold uppercase tracking-widest text-ktf-blue mb-3">
-                Why Bespoke Technologies
+          <Reveal className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+            <div className="max-w-3xl">
+              <p className="text-overline font-bold uppercase tracking-[0.2em] text-ktf-blue-deep">
+                Engagement paths
               </p>
-              <h2 className="text-h2 font-bold leading-heading text-ktf-navy mb-6">
-                Built on Principle. Delivered with Precision.
+              <h2 className="mt-4 text-h2 font-bold tracking-tight text-ktf-navy sm:text-h1">
+                Choose the right way to build.
               </h2>
-              <p className="text-body-lg text-ktf-gray-600 leading-body mb-8">
-                We are not a vendor. We are a partner. Every engagement starts
-                with understanding your vision and ends with software that
-                lasts.
+              <p className="mt-5 max-w-2xl text-body-lg leading-body text-ktf-gray-600">
+                Start with the engagement that matches your product stage.
+                Every path is scoped around outcomes, ownership, and a clear
+                route to production.
               </p>
-              <Button href="/about">Learn About Our Values</Button>
             </div>
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-              {VALUES.slice(0, 4).map((value) => (
-                <div
-                  key={value.id}
-                  className="rounded-xl border border-ktf-gray-200 bg-ktf-white p-6"
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <Button href="/contact">
+                Discuss Your Product
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+              <Button href="/services" variant="outline">
+                Compare Services
+              </Button>
+            </div>
+          </Reveal>
+
+          <StaggerGroup className="mt-12 grid border-y border-ktf-gray-200 lg:grid-cols-3">
+            {ENGAGEMENT_PATHS.map((engagement, index) => (
+              <StaggerItem key={engagement.id} className="h-full">
+                <article
+                  className={`flex h-full flex-col py-8 lg:px-8 ${
+                    index > 0
+                      ? "border-t border-ktf-gray-200 lg:border-t-0 lg:border-l"
+                      : ""
+                  }`}
                 >
-                  <div className="text-h4 mb-3">{value.icon}</div>
-                  <h3 className="text-h5 font-semibold text-ktf-navy mb-1">
-                    {value.title}
+                  <span className="text-caption font-bold text-ktf-blue-deep">
+                    0{index + 1}
+                  </span>
+                  <h3 className="mt-4 text-h4 font-semibold text-ktf-navy">
+                    {engagement.title}
                   </h3>
-                  <p className="text-body-sm text-ktf-gray-600 leading-body">
-                    {value.description}
+                  <p className="mt-3 text-body-sm leading-body text-ktf-gray-600">
+                    {engagement.description}
                   </p>
-                </div>
-              ))}
-            </div>
-          </div>
+                  <dl className="mt-8 space-y-4">
+                    <div>
+                      <dt className="text-[11px] font-bold uppercase tracking-[0.16em] text-ktf-gray-500">
+                        Best for
+                      </dt>
+                      <dd className="mt-1 text-body-sm font-medium text-ktf-navy">
+                        {engagement.bestFor}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="text-[11px] font-bold uppercase tracking-[0.16em] text-ktf-gray-500">
+                        Typical path
+                      </dt>
+                      <dd className="mt-1 text-body-sm font-medium text-ktf-navy">
+                        {engagement.path}
+                      </dd>
+                    </div>
+                  </dl>
+                  <Link
+                    href="/contact"
+                    className="mt-8 inline-flex min-h-11 items-center gap-2 text-body-sm font-semibold text-ktf-blue-deep hover:text-ktf-blue-pressed"
+                  >
+                    Scope this engagement
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </article>
+              </StaggerItem>
+            ))}
+          </StaggerGroup>
         </Container>
       </section>
-      {/* ── Partners ─────────────────────────────────────────── */}
-      <section className="bg-ktf-white py-20">
+
+      <section className="border-y border-ktf-gray-200 bg-ktf-surface py-14">
         <Container size="lg">
-          <p className="text-center text-body-sm font-medium uppercase tracking-widest text-ktf-gray-400 mb-10">
-            Trusted by &amp; built on world-class technology
+          <p className="text-center text-caption font-semibold uppercase tracking-[0.18em] text-ktf-gray-500">
+            Built on dependable technology
           </p>
-          <div className="flex flex-wrap items-center justify-center gap-x-12 gap-y-8">
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-x-10 gap-y-5 sm:gap-x-12">
             {PARTNERS.map((partner) => (
               <span
                 key={partner.name}
-                className="text-h5 font-semibold text-ktf-gray-400 transition-colors duration-150 hover:text-ktf-gray-600"
+                className="text-body font-semibold text-ktf-gray-500"
               >
                 {partner.name}
               </span>
@@ -412,105 +464,89 @@ export default function HomePage() {
           </div>
         </Container>
       </section>
-      {/* ── Testimonials ─────────────────────────────────────── */}
-      <section className="bg-ktf-surface py-24 sm:py-32">
+
+      <section className="bg-white py-20 sm:py-24">
         <Container size="lg">
-          <div className="text-center mb-16">
-            <p className="text-overline font-semibold uppercase tracking-widest text-ktf-blue mb-3">
-              Client Stories
-            </p>
-            <h2 className="text-h2 font-bold leading-heading text-ktf-navy">
-              What Our Clients Say
-            </h2>
-          </div>
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {TESTIMONIALS.map((t) => (
-              <figure
-                key={t.author}
-                className="flex flex-col rounded-2xl border border-ktf-gray-200 bg-ktf-white p-6 shadow-card"
-              >
-                <div
-                  className="flex gap-1 mb-4"
-                  aria-label={`${t.rating} out of 5 stars`}
-                >
-                  {Array.from({ length: t.rating }).map((_, i) => (
-                    <span key={i} className="text-ktf-warning text-body-sm">
-                      ★
+          <div className="grid gap-10 lg:grid-cols-[0.62fr_1.38fr] lg:items-center">
+            <Reveal>
+              <p className="text-overline font-bold uppercase tracking-[0.2em] text-ktf-blue-deep">
+                The team
+              </p>
+              <h2 className="mt-4 text-h2 font-bold tracking-tight text-ktf-navy">
+                The people accountable for the product.
+              </h2>
+              <p className="mt-4 text-body leading-body text-ktf-gray-600">
+                A focused engineering and product team working across strategy,
+                experience, systems, and launch.
+              </p>
+              <ul className="mt-6 space-y-3">
+                {[
+                  "Direct communication",
+                  "Production-minded decisions",
+                  "Clear ownership from start to handover",
+                ].map((item) => (
+                  <li
+                    key={item}
+                    className="flex items-center gap-3 text-body-sm font-medium text-ktf-navy"
+                  >
+                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-ktf-success/10 text-ktf-success">
+                      <Check className="h-3.5 w-3.5" strokeWidth={2.5} />
                     </span>
-                  ))}
-                </div>
-                <blockquote className="flex-1 text-body-sm text-ktf-gray-700 leading-body mb-6">
-                  &ldquo;{t.quote}&rdquo;
-                </blockquote>
-                <figcaption className="flex items-center gap-3">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-ktf-blue text-caption font-bold text-ktf-white">
-                    {t.initials}
-                  </div>
-                  <div>
-                    <p className="text-body-sm font-semibold text-ktf-navy">
-                      {t.author}
-                    </p>
-                    <p className="text-caption text-ktf-gray-500">
-                      {t.role}, {t.company}
-                    </p>
-                  </div>
-                </figcaption>
-              </figure>
-            ))}
-          </div>
-          <div className="mt-12 text-center">
-            <Button variant="outline" href="/reviews">
-              Read All Reviews
-            </Button>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </Reveal>
+            <Reveal delay={0.08}>
+              <div className="relative overflow-hidden rounded-[1.4rem] border border-ktf-gray-200 shadow-xl">
+                <Image
+                  src="/Team/team.png"
+                  alt="The Bespoke Technologies product and engineering team"
+                  width={1200}
+                  height={600}
+                  className="aspect-[2/1] w-full object-cover"
+                />
+              </div>
+            </Reveal>
           </div>
         </Container>
       </section>
-      {/* ── The Powers Behind the Engine ──────────────────── */}
-      <section className="bg-ktf-surface py-20 sm:py-24">
-        <Container size="lg">
-          <div className="text-center mb-10">
-            <p className="text-overline font-semibold uppercase tracking-widest text-ktf-blue mb-3">
-              Our Team
-            </p>
-            <h2 className="text-h2 font-bold leading-heading text-ktf-navy">
-              The Powers Behind the Engine
+
+      <section className="relative overflow-hidden bg-ktf-navy py-20 sm:py-24">
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 bg-[radial-gradient(circle_at_72%_30%,rgba(10,132,255,0.2),transparent_34%),radial-gradient(circle_at_20%_100%,rgba(145,110,255,0.1),transparent_30%)]"
+        />
+        <Container size="md" className="relative text-center">
+          <Reveal>
+            <h2 className="text-h2 font-bold tracking-tight text-white sm:text-h1">
+              Ready to move from idea to production?
             </h2>
-          </div>
-          <div className="relative overflow-hidden rounded-2xl shadow-xl">
-            <Image
-              src="/Team/team.png"
-              alt="The Bespoke Technologies team - The Powers Behind the Engine"
-              width={1200}
-              height={600}
-              className="w-full object-cover"
-            />
-          </div>
-        </Container>
-      </section>
-      {/* ── CTA ──────────────────────────────────────────────── */}
-      <section className="bg-ktf-navy py-24 sm:py-32">
-        <Container size="md" className="text-center">
-          <h2 className="text-h2 font-bold leading-heading text-ktf-white mb-4">
-            Ready to Build Something Exceptional?
-          </h2>
-          <p className="text-body-lg text-ktf-gray-400 leading-body max-w-xl mx-auto mb-10">
-            Let&apos;s discuss your project. Our team is ready to transform your
-            vision into a production-grade reality.
-          </p>
-          <div className="flex flex-col justify-center gap-3 sm:flex-row">
-            <Button size="lg" href="/contact">
-              Get in Touch
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              href="/bespoke-ai"
-              className="border-white/30 bg-white/5 text-white hover:border-white/50 hover:bg-white/10"
-            >
-              <BespokeAIIcon className="mr-2 h-4 w-4 text-white" inverse />
-              Ask Bespoke AI
-            </Button>
-          </div>
+            <p className="mx-auto mt-5 max-w-2xl text-body-lg leading-body text-ktf-gray-400">
+              Bring the product vision, business problem, or existing system.
+              We will help define the clearest route to a secure, launch-ready
+              product.
+            </p>
+            <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+              <Button
+                size="lg"
+                href="/contact"
+                className="bg-white text-ktf-navy hover:bg-ktf-gray-100"
+              >
+                Plan Your Product
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                href="/bespoke-ai"
+                className="border-white/25 text-white hover:border-white/40 hover:bg-white/10"
+              >
+                <BespokeAIIcon className="mr-2 h-4 w-4 text-white" inverse />
+                Ask Bespoke AI
+              </Button>
+            </div>
+          </Reveal>
         </Container>
       </section>
     </>

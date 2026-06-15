@@ -9,7 +9,7 @@ export const SITE_TAGLINE =
 export const SITE_CREED =
   "For Honor and For Excellence. Engineering the solutions for this, and The Next Generations_";
 export const SITE_DESCRIPTION =
-  "Bespoke Technologies engineers websites, mobile apps, SaaS platforms, AI systems, automation, and business software with production discipline.";
+  "Bespoke Technologies - Perfectionist engineers, building websites, mobile apps, SaaS platforms, AI systems, automation, and business software with production discipline.";
 export const SITE_DOMAIN = "www.bespoketech.com.ng";
 export const SITE_URL = `https://${SITE_DOMAIN}`;
 export const API_URL =
@@ -43,6 +43,84 @@ export const STATS = [
   { value: "3–4 Wks", label: "Est. Delivery" },
   { value: "2+", label: "Years of Excellence" },
   { value: "99%", label: "Client Satisfaction" },
+] as const;
+
+export const PRODUCT_TYPES = [
+  "SaaS Products",
+  "Websites",
+  "Mobile Apps",
+  "Business Software",
+  "AI Apps",
+  "Social Platforms",
+] as const;
+
+export const PRODUCT_OUTCOMES = [
+  {
+    id: "validate",
+    title: "Validate before overbuilding",
+    description:
+      "Clarify scope, users, and the highest-value release before engineering expands.",
+  },
+  {
+    id: "launch",
+    title: "Launch on production foundations",
+    description:
+      "Security, testing, deployment, and operational visibility are built into delivery.",
+  },
+  {
+    id: "own",
+    title: "Operate without technical lock-in",
+    description:
+      "Receive the codebase, documentation, and a system your team can confidently own.",
+  },
+] as const;
+
+export const DELIVERY_PROCESS = [
+  {
+    step: "01",
+    title: "Discover & Scope",
+    description:
+      "Align the business outcome, users, constraints, and release plan.",
+  },
+  {
+    step: "02",
+    title: "Design & Validate",
+    description:
+      "Prototype the critical journey and resolve product risk before build.",
+  },
+  {
+    step: "03",
+    title: "Build & Launch",
+    description:
+      "Engineer, test, secure, deploy, and hand over the complete system.",
+  },
+] as const;
+
+export const ENGAGEMENT_PATHS = [
+  {
+    id: "launch-sprint",
+    title: "SaaS Launch Sprint",
+    description:
+      "For validated ideas that need a focused, production-minded first release.",
+    bestFor: "MVP definition and launch",
+    path: "Scope → Prototype → Build",
+  },
+  {
+    id: "product-build",
+    title: "Product Build",
+    description:
+      "For businesses ready to engineer a complete production system.",
+    bestFor: "Full platforms and business software",
+    path: "Architecture → Delivery → Handover",
+  },
+  {
+    id: "product-partnership",
+    title: "Product Partnership",
+    description:
+      "For teams that need ongoing product and engineering capacity.",
+    bestFor: "Iteration, growth, and scale",
+    path: "Roadmap → Releases → Optimisation",
+  },
 ] as const;
 
 // ── Services ───────────────────────────────────────────────────────────────
@@ -232,6 +310,36 @@ export const TESTIMONIALS = [
   },
 ] as const;
 
+export const CLIENT_STORIES = TESTIMONIALS.map((testimonial, index) => {
+  const storyDetails = [
+    {
+      challenge: "Rethink the product's digital infrastructure",
+      delivery: "Product strategy and platform engineering",
+      outcome: "A stronger, more considered technical foundation",
+    },
+    {
+      challenge: "Move from startup ambition to a launch-ready SaaS product",
+      delivery: "End-to-end product and engineering execution",
+      outcome: "A production-ready platform delivered at startup speed",
+    },
+    {
+      challenge: "Build dependable long-term engineering capacity",
+      delivery: "Embedded product partnership and technical delivery",
+      outcome: "A trusted engineering relationship beyond one release",
+    },
+    {
+      challenge: "Create a design system that would remain useful over time",
+      delivery: "Product design and production-ready component architecture",
+      outcome: "A durable system still supporting the product years later",
+    },
+  ] as const;
+
+  return {
+    ...testimonial,
+    ...storyDetails[index],
+  };
+});
+
 // ── Partners ───────────────────────────────────────────────────────────────
 
 export const PARTNERS = [
@@ -357,6 +465,20 @@ export const PROJECTS = [
     featured: true,
   },
   {
+    id: "savemi",
+    name: "SAVEMI",
+    type: "web" as ProjectType,
+    category: "Religion and Doctrinal Mentorship",
+    description:
+      " SAVEMI — Sabbath Vesper Ministry website built to demostrate teh beauty and goodness in the seventh-day sabbath.",
+    image: "/projects/savemi.jpg",
+    liveUrl: "https://www.savemi-five.vercel.app",
+    tags: ["Religion", "Sabbath Rest", "Repose", "Reflection", "Restoration"],
+    year: "2026",
+    comingSoon: false,
+    featured: true,
+  },
+  {
     id: "graviloch-finishing",
     name: "Graviloch Finishing Ltd",
     type: "web" as ProjectType,
@@ -366,7 +488,7 @@ export const PROJECTS = [
     image: "/projects/graviloch-finishing.png",
     liveUrl: "https://graviloch-finishing.vercel.app",
     tags: ["Next.js", "Tailwind CSS", "Vercel"],
-    year: "2024",
+    year: "2025",
     comingSoon: false,
     featured: true,
   },
@@ -380,9 +502,23 @@ export const PROJECTS = [
     image: "/projects/swift-type.png",
     liveUrl: "https://swift-type.com.ng",
     tags: ["React", "TypeScript", "Real-time"],
-    year: "2024",
+    year: "2026",
     comingSoon: false,
     featured: true,
+  },
+    {
+    id: "chris-ekong",
+    name: "Barr. Chris Ekong & Co",
+    type: "web" as ProjectType,
+    category: "Legal Services",
+    description:
+      "A distinguished professional web presence for a leading law practice, featuring case portfolio, service listings, and online consultation booking.",
+    image: "/projects/barr-chris-ekong-and-co.png",
+    liveUrl: "https://kingsley-a1.github.io/Chris-Ekong/",
+    tags: ["HTML/CSS", "JavaScript", "Responsive"],
+    year: "2023",
+    comingSoon: false,
+    featured: false,
   },
   {
     id: "sonic-piano",
@@ -394,7 +530,7 @@ export const PROJECTS = [
     image: "/projects/sonic-piano.jpg",
     liveUrl: "https://kingsley-a1.github.io/Sonic-Pro/index.html",
     tags: ["JavaScript", "Web Audio API", "Canvas"],
-    year: "2024",
+    year: "2025",
     comingSoon: false,
     featured: true,
   },
@@ -441,6 +577,34 @@ export const PROJECTS = [
     featured: false,
   },
   {
+    id: "luminary-college",
+    name: "Luminary College",
+    type: "web" as ProjectType,
+    category: "Education Platform",
+    description:
+      "A modern education website for Luminary College, showcasing programs, admissions guidance, campus life, and student success stories with a polished, inspiring experience.",
+    image: "/projects/luminary-college.png",
+    liveUrl: "https://luminary-colledge.vercel.app/",
+    tags: ["Next.js", "Education", "Admissions"],
+    year: "2026",
+    comingSoon: false,
+    featured: true,
+  },
+  {
+    id: "scents-by-cherry",
+    name: "Scents by Cherry",
+    type: "web" as ProjectType,
+    category: "E-commerce & Lifestyle",
+    description:
+      "A refined online storefront for Scents by Cherry, highlighting luxury candles, fragrance collections, and a seamless shopping experience for discerning customers.",
+    image: "/projects/scents-by-cherry.png",
+    liveUrl: "https://scents-by-cherry.vercel.app/",
+    tags: ["Next.js", "E-commerce", "Lifestyle"],
+    year: "2026",
+    comingSoon: false,
+    featured: true,
+  },
+  {
     id: "coolest",
     name: "Coolest",
     type: "web" as ProjectType,
@@ -464,20 +628,6 @@ export const PROJECTS = [
     image: "/projects/val-link.svg",
     liveUrl: "https://val-link.vercel.app",
     tags: ["Next.js", "Analytics", "Redis"],
-    year: "2023",
-    comingSoon: false,
-    featured: false,
-  },
-  {
-    id: "chris-ekong",
-    name: "Barr. Chris Ekong & Co",
-    type: "web" as ProjectType,
-    category: "Legal Services",
-    description:
-      "A distinguished professional web presence for a leading law practice, featuring case portfolio, service listings, and online consultation booking.",
-    image: "/projects/barr-chris-ekong-and-co.png",
-    liveUrl: "https://kingsley-a1.github.io/Chris-Ekong/",
-    tags: ["HTML/CSS", "JavaScript", "Responsive"],
     year: "2023",
     comingSoon: false,
     featured: false,

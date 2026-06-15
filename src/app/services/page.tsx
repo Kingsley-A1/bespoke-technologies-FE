@@ -1,7 +1,8 @@
-import { Button, Badge } from "@/components/ui";
-import { TypingText } from "@/components/ui/typing-text";
+import { Button } from "@/components/ui";
 import { Container } from "@/components/layout";
-import { SERVICES } from "@/lib/constants";
+import { PageHero } from "@/components/marketing/page-hero";
+import { SERVICES, SITE_NAME } from "@/lib/constants";
+import { absoluteUrl } from "@/lib/seo";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -11,34 +12,38 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "/services",
   },
+  openGraph: {
+    title: "Services",
+    description:
+      "End-to-end digital engineering services: web applications, mobile, cloud infrastructure, AI/ML, API platforms, and design systems.",
+    images: [
+      {
+        url: absoluteUrl("/icons/og.png"),
+        width: 1200,
+        height: 630,
+        alt: `${SITE_NAME} — Services`,
+      },
+    ],
+  },
+  twitter: {
+    images: [absoluteUrl("/icons/og.png")],
+  },
 };
 
 export default function ServicesPage() {
   return (
     <>
-      {/* ── Page Hero ─────────────────────────────────────────── */}
-      <section className="bg-ktf-navy py-16 sm:py-20">
-        <Container size="lg" className="text-center">
-          <Badge
-            variant="outline"
-            className="border-ktf-blue/40 text-ktf-blue bg-ktf-blue/10 mb-6"
-          >
-            What We Build
-          </Badge>
-          <h1 className="text-h1 font-bold leading-heading text-ktf-white max-w-3xl mx-auto mb-4">
-            Full-Spectrum{" "}
-            <TypingText text="Engineering" className="text-ktf-blue" /> Services
-          </h1>
-          <p className="text-body-lg text-ktf-gray-400 leading-body max-w-2xl mx-auto">
-            Every service we offer is delivered with the same standard:
-            production-grade code, rigorous testing, and a relentless focus on
-            your outcome.
-          </p>
-        </Container>
-      </section>
+      <PageHero
+        label="Services"
+        title="Engineering systems built for the outcome."
+        description="From SaaS platforms and business software to mobile and AI products, every engagement is designed around launch, ownership, and long-term operation."
+        variant="services"
+        primaryAction={{ label: "Explore Services", href: "#service-catalog" }}
+        secondaryAction={{ label: "Start a Project", href: "/contact" }}
+      />
 
       {/* ── Services Detail Grid ──────────────────────────────── */}
-      <section className="bg-ktf-white py-24 sm:py-32">
+      <section id="service-catalog" className="bg-ktf-white py-24 sm:py-32">
         <Container size="lg">
           <div className="flex flex-col gap-16">
             {SERVICES.map((service, index) => (

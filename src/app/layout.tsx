@@ -24,7 +24,10 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_ORIGIN),
   manifest: "/manifest.webmanifest",
   icons: {
-    icon: [{ url: BRAND_ICON_SRC, sizes: "512x512", type: "image/png" }],
+    icon: [
+      { url: BRAND_ICON_SRC, sizes: "512x512", type: "image/png" },
+      { url: "/favicon.ico", sizes: "16x16 32x32 48x48", type: "image/x-icon" },
+    ],
     apple: [{ url: BRAND_ICON_SRC, sizes: "512x512", type: "image/png" }],
     shortcut: BRAND_ICON_SRC,
   },
@@ -34,11 +37,20 @@ export const metadata: Metadata = {
     siteName: SITE_NAME,
     title: SITE_NAME,
     description: SITE_DESCRIPTION,
+    images: [
+      {
+        url: absoluteUrl("/icons/og.png"),
+        width: 1200,
+        height: 630,
+        alt: SITE_NAME,
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: SITE_NAME,
     description: SITE_DESCRIPTION,
+    images: [absoluteUrl("/icons/og.png")],
   },
   robots: {
     index: true,

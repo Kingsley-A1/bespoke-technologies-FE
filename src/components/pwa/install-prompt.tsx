@@ -11,6 +11,8 @@ interface BeforeInstallPromptEvent extends Event {
   prompt(): Promise<void>;
 }
 
+const PROMPT_DELAY_MS = 30_000;
+
 export function InstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] =
     useState<BeforeInstallPromptEvent | null>(null);
@@ -36,22 +38,29 @@ export function InstallPrompt() {
       /iphone|ipad|ipod/i.test(navigator.userAgent) &&
       !(window.navigator as Navigator & { standalone?: boolean }).standalone;
     if (isIOSDevice) {
-      setTimeout(() => {
+      const timeout = window.setTimeout(() => {
         setIsIOS(true);
         setShow(true);
-      }, 3000);
-      return;
+      }, PROMPT_DELAY_MS);
+      return () => window.clearTimeout(timeout);
     }
 
     // Android/Chrome — listen for native prompt
+    let promptTimeout: number | undefined;
     const handler = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
-      setTimeout(() => setShow(true), 2000);
+      promptTimeout = window.setTimeout(
+        () => setShow(true),
+        PROMPT_DELAY_MS,
+      );
     };
 
     window.addEventListener("beforeinstallprompt", handler);
-    return () => window.removeEventListener("beforeinstallprompt", handler);
+    return () => {
+      window.removeEventListener("beforeinstallprompt", handler);
+      if (promptTimeout) window.clearTimeout(promptTimeout);
+    };
   }, []);
 
   const handleInstall = async () => {

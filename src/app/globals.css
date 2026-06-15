@@ -275,6 +275,73 @@ body {
   }
 }
 
+@keyframes ktfReveal {
+  from {
+    opacity: 0;
+    transform: translateY(var(--ktf-reveal-y, 18px));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.ktf-reveal,
+.ktf-hero-console {
+  animation: ktfReveal 0.62s var(--ease-out) both;
+  animation-delay: var(--ktf-reveal-delay, 0s);
+}
+
+.ktf-hero-console {
+  --ktf-reveal-delay: 0.14s;
+  --ktf-reveal-y: 24px;
+}
+
+.ktf-stagger > * {
+  animation: ktfReveal 0.55s var(--ease-out) both;
+  animation-delay: calc(
+    var(--ktf-reveal-delay, 0s) + (var(--ktf-stagger-index, 0) * 70ms)
+  );
+}
+
+.ktf-stagger > :nth-child(1) {
+  --ktf-stagger-index: 0;
+}
+
+.ktf-stagger > :nth-child(2) {
+  --ktf-stagger-index: 1;
+}
+
+.ktf-stagger > :nth-child(3) {
+  --ktf-stagger-index: 2;
+}
+
+.ktf-stagger > :nth-child(4) {
+  --ktf-stagger-index: 3;
+}
+
+.ktf-stagger > :nth-child(5) {
+  --ktf-stagger-index: 4;
+}
+
+.ktf-stagger > :nth-child(6) {
+  --ktf-stagger-index: 5;
+}
+
+@supports (animation-timeline: view()) {
+  .ktf-reveal,
+  .ktf-stagger > * {
+    animation-timeline: view();
+    animation-range: entry 0% cover 26%;
+    animation-delay: 0s;
+  }
+
+  .ktf-hero-console {
+    animation-timeline: auto;
+    animation-range: normal;
+  }
+}
+
 .animate-blink {
   animation: var(--animate-blink);
 }
@@ -299,6 +366,12 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .ktf-reveal,
+  .ktf-hero-console,
+  .ktf-stagger > * {
+    animation: none;
+  }
+
   .ktf-hex-pulse {
     animation: none;
     opacity: 0.1;

@@ -1,6 +1,6 @@
-import { Button, Badge } from "@/components/ui";
-import { TypingText } from "@/components/ui/typing-text";
+import { Button } from "@/components/ui";
 import { Container } from "@/components/layout";
+import { PageHero } from "@/components/marketing/page-hero";
 import {
   SITE_CREED,
   SITE_NAME,
@@ -8,6 +8,7 @@ import {
   VALUES,
   STATS,
 } from "@/lib/constants";
+import { absoluteUrl } from "@/lib/seo";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -16,33 +17,35 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "/about",
   },
+  openGraph: {
+    images: [
+      {
+        url: absoluteUrl("/icons/og.png"),
+        width: 1200,
+        height: 630,
+        alt: `${SITE_NAME} — About`,
+      },
+    ],
+  },
+  twitter: {
+    images: [absoluteUrl("/icons/og.png")],
+  },
 };
 
 export default function AboutPage() {
   return (
     <>
-      {/* ── Page Hero ─────────────────────────────────────────── */}
-      <section className="bg-ktf-navy py-16 sm:py-20">
-        <Container size="lg" className="text-center">
-          <Badge
-            variant="outline"
-            className="border-ktf-blue/40 text-ktf-blue bg-ktf-blue/10 mb-6"
-          >
-            Our Foundation
-          </Badge>
-          <h1 className="text-h1 font-bold leading-heading text-ktf-white max-w-3xl mx-auto mb-4">
-            Who <TypingText text="We Are" className="text-ktf-blue" />
-          </h1>
-          <p className="text-body-lg text-ktf-gray-400 leading-body max-w-2xl mx-auto">
-            Bespoke Technologies was built on a simple conviction: that great
-            software changes lives, and that it should be crafted with the same
-            care a craftsman brings to any lasting work.
-          </p>
-        </Container>
-      </section>
+      <PageHero
+        label="About"
+        title="Principled engineering. Accountable delivery."
+        description="We combine product judgment, design discipline, and production engineering to build systems our clients can confidently own."
+        variant="about"
+        primaryAction={{ label: "Our Standards", href: "#our-mission" }}
+        secondaryAction={{ label: "Work With Us", href: "/contact" }}
+      />
 
       {/* ── Mission ──────────────────────────────────────────── */}
-      <section className="bg-ktf-white py-24 sm:py-32">
+      <section id="our-mission" className="bg-ktf-white py-24 sm:py-32">
         <Container size="lg">
           <div className="grid grid-cols-1 gap-16 lg:grid-cols-2 lg:items-center">
             <div>

@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { Badge } from "@/components/ui";
-import { TypingText } from "@/components/ui/typing-text";
 import { Container } from "@/components/layout";
+import { PageHero } from "@/components/marketing/page-hero";
 import { ProjectsGrid } from "@/components/marketing/projects-grid";
 import { PROJECTS, SITE_NAME } from "@/lib/constants";
+import { absoluteUrl } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "Projects",
@@ -15,6 +15,14 @@ export const metadata: Metadata = {
     title: `Our Projects — ${SITE_NAME}`,
     description:
       "From government portals to fashion platforms, explore the portfolio of engineering excellence we have delivered.",
+    images: [
+      {
+        url: absoluteUrl("/icons/og.png"),
+        width: 1200,
+        height: 630,
+        alt: `${SITE_NAME} — Projects`,
+      },
+    ],
   },
 };
 
@@ -37,48 +45,32 @@ const stats = [
 export default function ProjectsPage() {
   return (
     <>
-      {/* ── Page Hero ─────────────────────────────────────────── */}
-      <section className="bg-ktf-navy py-16 sm:py-20">
-        <Container size="lg">
-          <div className="max-w-3xl">
-            <Badge
-              variant="outline"
-              className="border-ktf-gold/40 text-ktf-gold bg-ktf-gold/10 mb-6"
-            >
-              Accomplished Works
-            </Badge>
-            <h1 className="text-display font-bold leading-heading text-ktf-white mb-6">
-              Built With Precision.{" "}
-              <TypingText
-                text="Deployed With Purpose."
-                className="text-ktf-blue"
-              />
-            </h1>
-            <p className="text-body-lg text-ktf-gray-400 leading-body max-w-2xl">
-              Every project here is a testament to our commitment to engineering
-              excellence. From rapid MVPs to enterprise platforms — built to
-              last.
-            </p>
-          </div>
+      <PageHero
+        label="Projects"
+        title="Products shipped with purpose."
+        description="Explore production systems, customer experiences, and digital products engineered to solve real business problems."
+        variant="projects"
+        primaryAction={{ label: "View the Work", href: "#project-grid" }}
+        secondaryAction={{ label: "Start a Project", href: "/contact" }}
+      />
 
-          {/* Stats strip */}
-          <div className="mt-16 grid grid-cols-2 gap-6 sm:grid-cols-4">
+      <section className="border-b border-ktf-gray-200 bg-ktf-surface py-10">
+        <Container size="lg">
+          <dl className="grid grid-cols-2 gap-6 sm:grid-cols-4">
             {stats.map((stat) => (
-              <div key={stat.label} className="flex flex-col gap-1">
-                <span className="text-h2 font-bold text-ktf-white leading-none">
-                  {stat.value}
-                </span>
-                <span className="text-caption text-ktf-gray-500 uppercase tracking-widest">
+              <div key={stat.label} className="border-l border-ktf-gray-300 pl-4">
+                <dd className="text-h4 font-bold text-ktf-navy">{stat.value}</dd>
+                <dt className="mt-1 text-caption uppercase tracking-widest text-ktf-gray-500">
                   {stat.label}
-                </span>
+                </dt>
               </div>
             ))}
-          </div>
+          </dl>
         </Container>
       </section>
 
       {/* ── Projects grid ─────────────────────────────────────── */}
-      <section className="bg-ktf-white py-20 sm:py-28">
+      <section id="project-grid" className="bg-ktf-white py-20 sm:py-28">
         <Container size="lg">
           <div className="mb-12">
             <h2 className="text-h2 font-bold text-ktf-navy mb-3">
