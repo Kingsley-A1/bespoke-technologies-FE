@@ -499,7 +499,7 @@ export const PROJECTS = [
     category: "Auto and Renting",
     description:
       "A premium car renting platform built to be fast, effecient and user freindly, with no suprises, except from the ones they get from Maxit for  renting 5 cars in 1 month..",
-    image: "/projects/maxit.jpg",
+    image: "/projects/maxit.png",
     liveUrl:"https://maxit-autos.vercel.app/",
     tags: ["Next.js", "React Native", "Stripe"],
     year: "2026",
