@@ -492,6 +492,20 @@ export const PROJECTS = [
     comingSoon: false,
     featured: true,
   },
+    {
+    id: "maxit-autos",
+    name: "Maxit Autos",
+    type: "web+mobile" as ProjectType,
+    category: "Auto and Renting",
+    description:
+      "A premium car renting platform built to be fast, effecient and user freindly, with no suprises, except from the ones they get from Maxit for  renting 5 cars in 1 month..",
+    image: "/projects/maxit.jpg",
+    liveUrl:"https://maxit-autos.vercel.app/",
+    tags: ["Next.js", "React Native", "Stripe"],
+    year: "2026",
+    comingSoon: false,
+    featured: true,
+  },
   {
     id: "swift-type",
     name: "Swift Type",
