@@ -10,25 +10,45 @@ type BespokeAIMessageProps = {
 
 export function BespokeAIMessage({ message }: BespokeAIMessageProps) {
   const isUser = message.role === "user";
+  const textParts = message.parts.filter((part) => part.type === "text");
+  const toolParts = message.parts.filter((part) => part.type.startsWith("tool-"));
 
   return (
-    <article className={cn("flex w-full", isUser ? "justify-end" : "justify-start")}>
-      <div
-        className={cn(
-          "max-w-[88%] rounded-lg px-4 py-3 text-sm leading-relaxed shadow-xs",
-          isUser
-            ? "bg-ktf-blue text-white"
-            : "border border-ktf-gray-200 bg-white text-ktf-obsidian",
-        )}
-      >
-        <div className="grid gap-2">
-          {message.parts.map((part, index) => {
-            if (part.type === "text") {
+    <article
+      className={cn(
+        "flex w-full flex-col gap-2",
+        isUser ? "items-end" : "items-start",
+      )}
+      aria-label={isUser ? "Your message" : "Bespoke AI message"}
+    >
+      {textParts.length > 0 ? (
+        <div
+          className={cn(
+            "max-w-[88%] rounded-lg px-4 py-3 text-sm leading-relaxed shadow-xs",
+            isUser
+              ? "bg-ktf-blue text-white"
+              : "border border-ktf-gray-200 bg-white text-ktf-obsidian",
+          )}
+        >
+          <div className="grid gap-2">
+            {textParts.map((part, index) => {
+              if (part.type !== "text") return null;
+
               return (
                 <p key={`${message.id}-${index}`} className="whitespace-pre-wrap">
                   {part.text}
                 </p>
               );
+            })}
+          </div>
+        </div>
+      ) : null}
+
+      {toolParts.length > 0 ? (
+        <div className="w-full">
+          {toolParts.map((part, index) => {
+            if (part.type === "text") {
+              return null;
             }
 
             if (part.type.startsWith("tool-")) {
@@ -47,7 +67,7 @@ export function BespokeAIMessage({ message }: BespokeAIMessageProps) {
             return null;
           })}
         </div>
-      </div>
+      ) : null}
     </article>
   );
 }

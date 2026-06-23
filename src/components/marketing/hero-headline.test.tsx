@@ -8,15 +8,16 @@ describe("HeroHeadline", () => {
 
     expect(
       screen.getByRole("heading", {
-        name: /ship your saas product, website, mobile app, business software, ai app, or social platform faster/i,
+        name: /launch secure, production-ready software your business can own/i,
       }),
     ).toBeInTheDocument();
   });
 
-  it("renders the secured ownership statement", () => {
+  it("renders the visual product promise without motion-dependent text", () => {
     render(<HeroHeadline />);
 
-    expect(screen.getAllByText(/own the system from day one/i)).toHaveLength(2);
-    expect(screen.getByText("Secured.")).toBeInTheDocument();
+    expect(screen.getByText("Launch secure,")).toBeInTheDocument();
+    expect(screen.getByText("production-ready software")).toBeInTheDocument();
+    expect(screen.getByText("your business can own.")).toBeInTheDocument();
   });
 });

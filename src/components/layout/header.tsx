@@ -79,22 +79,10 @@ export function Header() {
           {/* Desktop CTA */}
           <div className="hidden items-center gap-3 lg:flex">
             <Link
-              href="/terms"
-              className="hidden text-sm font-medium text-ktf-gray-500 transition-colors hover:text-ktf-obsidian xl:inline"
-            >
-              Terms
-            </Link>
-            <Link
-              href="/privacy"
-              className="hidden text-sm font-medium text-ktf-gray-500 transition-colors hover:text-ktf-obsidian xl:inline"
-            >
-              Privacy
-            </Link>
-            <Link
               href="/contact"
               className="inline-flex h-10 items-center justify-center rounded-lg bg-ktf-blue px-4 text-sm font-semibold text-white shadow-sm transition-colors duration-150 hover:bg-ktf-blue-deep active:bg-ktf-blue-pressed xl:px-5"
             >
-              Get Started
+              Book Scope Call
             </Link>
           </div>
 
@@ -260,7 +248,7 @@ export function Header() {
                   onClick={closeMobile}
                   className="flex h-12 w-full items-center justify-center rounded-xl bg-ktf-blue text-[15px] font-semibold text-white transition-colors duration-150 hover:bg-ktf-blue-deep active:bg-ktf-blue-pressed"
                 >
-                  Get Started
+                  Book Scope Call
                 </Link>
               </div>
             </motion.div>

@@ -62,7 +62,10 @@ export function BespokeAIActionCard({ result }: BespokeAIActionCardProps) {
     );
   }
 
-  if (result.type === "project-list" || result.type === "project-recommendations") {
+  if (
+    result.type === "project-list" ||
+    result.type === "project-recommendations"
+  ) {
     return (
       <ActionShell
         eyebrow="Projects"
@@ -78,7 +81,7 @@ export function BespokeAIActionCard({ result }: BespokeAIActionCardProps) {
             Matched to: {result.need}
           </p>
         ) : null}
-        <div className="mt-3 grid gap-3">
+        <div className="mt-3 grid gap-3 sm:grid-cols-2">
           {result.projects.map((project) => (
             <article
               key={project.id}
@@ -141,7 +144,7 @@ export function BespokeAIActionCard({ result }: BespokeAIActionCardProps) {
         icon={<ShieldCheck aria-hidden="true" />}
         title="Client review highlights"
       >
-        <div className="mt-3 grid gap-3">
+        <div className="mt-3 grid gap-3 sm:grid-cols-2">
           {result.testimonials.map((item) => (
             <blockquote
               key={`${item.author}-${item.company}`}
@@ -170,7 +173,7 @@ export function BespokeAIActionCard({ result }: BespokeAIActionCardProps) {
       <p className="text-sm leading-relaxed text-ktf-gray-700">
         For: {result.need}
       </p>
-      <div className="mt-3 grid gap-3">
+      <div className="mt-3 grid gap-3 sm:grid-cols-2">
         {result.services.map((service) => (
           <article
             key={service.id}

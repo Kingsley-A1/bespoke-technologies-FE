@@ -26,13 +26,10 @@ export const WHATSAPP_INQUIRY_MESSAGE =
   "Hello Bespoke Technologies, I'd like to enquire about your engineering services. Please can you help me?";
 
 export const NAV_LINKS = [
-  { label: "Home", href: "/" },
   { label: "Services", href: "/services" },
   { label: "Projects", href: "/projects" },
-  { label: "Bespoke AI", href: "/bespoke-ai" },
-  { label: "About", href: "/about" },
-  { label: "Partnerships", href: "/partnerships" },
   { label: "Reviews", href: "/reviews" },
+  { label: "About", href: "/about" },
   { label: "Contact", href: "/contact" },
 ] as const;
 
@@ -43,15 +40,6 @@ export const STATS = [
   { value: "3–4 Wks", label: "Est. Delivery" },
   { value: "2+", label: "Years of Excellence" },
   { value: "99%", label: "Client Satisfaction" },
-] as const;
-
-export const PRODUCT_TYPES = [
-  "SaaS Products",
-  "Websites",
-  "Mobile Apps",
-  "Business Software",
-  "AI Apps",
-  "Social Platforms",
 ] as const;
 
 export const PRODUCT_OUTCOMES = [

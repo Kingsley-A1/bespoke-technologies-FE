@@ -4,7 +4,13 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
-import { PanelLeft, PanelLeftClose, X } from "lucide-react";
+import {
+  ArrowRight,
+  CheckCircle2,
+  PanelLeft,
+  PanelLeftClose,
+  X,
+} from "lucide-react";
 import { useMediaQuery } from "@/hooks";
 import type { BespokeAIUIMessage } from "@/lib/ai/bespoke-ai-types";
 import { SITE_NAME } from "@/lib/constants";
@@ -24,13 +30,19 @@ type BespokeAIPanelProps = {
   onClose?: () => void;
 };
 
+const AI_PROOF_POINTS = [
+  "Choose the right service path",
+  "Review relevant proof and projects",
+  "Prepare a cleaner scope conversation",
+] as const;
+
 export function BespokeAIPanel({
   mode = "page",
   onClose,
 }: BespokeAIPanelProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const isDesktop = useMediaQuery("(min-width: 1024px)");
-  const [isHistoryDockOpen, setIsHistoryDockOpen] = useState(mode === "page");
+  const [isHistoryDockOpen, setIsHistoryDockOpen] = useState(false);
   const [isHistoryDrawerOpen, setIsHistoryDrawerOpen] = useState(false);
   const [responseMode, setResponseMode] =
     useState<BespokeAIResponseMode>("extended");
@@ -172,7 +184,7 @@ export function BespokeAIPanel({
         mode === "page" && "min-h-[calc(100vh-4rem)]",
         mode === "panel" && "h-full",
       )}
-      aria-label="Bespoke AI assistant"
+      aria-labelledby="bespoke-ai-panel-title"
     >
       <div className="flex min-h-0 flex-1">
         {isDesktop && isHistoryDockOpen ? historySidebar : null}
@@ -210,7 +222,7 @@ export function BespokeAIPanel({
                   Bespoke AI
                 </h1>
                 <p className="truncate text-xs font-medium text-ktf-gray-600">
-                  Company assistant for {SITE_NAME}
+                  Build guidance for {SITE_NAME}
                 </p>
               </div>
             </div>
@@ -220,7 +232,7 @@ export function BespokeAIPanel({
                   href="/bespoke-ai"
                   className="hidden min-h-10 items-center rounded-md px-3 text-sm font-semibold text-ktf-blue hover:bg-ktf-blue/8 sm:inline-flex"
                 >
-                  Full Page
+                  Open full page
                 </Link>
               ) : null}
               {onClose ? (
@@ -243,15 +255,53 @@ export function BespokeAIPanel({
           >
             <div className="mx-auto flex w-full max-w-3xl flex-col gap-4">
               {hasEmptyState ? (
-                <div className="rounded-xl border border-ktf-gray-200 bg-white p-5 shadow-card">
-                  <p className="text-sm font-semibold text-ktf-blue">
-                    Hi, I am Bespoke AI.
-                  </p>
-                  <p className="mt-2 text-base leading-relaxed text-ktf-obsidian">
-                    What would you like to build or understand today?
-                  </p>
-                  <div className="mt-4">
-                    <BespokeAISuggestions onSelect={sendPrompt} />
+                <div className="overflow-hidden rounded-2xl border border-ktf-gray-200 bg-white shadow-card">
+                  <div className="border-b border-ktf-gray-100 bg-ktf-surface/70 p-5 sm:p-6">
+                    <p className="text-xs font-bold uppercase tracking-[0.16em] text-ktf-blue-deep">
+                      Product build assistant
+                    </p>
+                    <h2 className="mt-3 max-w-2xl text-2xl font-bold leading-tight text-ktf-obsidian sm:text-3xl">
+                      Find the clearest route from idea to shipped product.
+                    </h2>
+                    <p className="mt-3 max-w-2xl text-sm leading-relaxed text-ktf-gray-700 sm:text-base">
+                      Ask Bespoke AI to recommend a build path, surface relevant
+                      work, clarify scope, or help you prepare for a product
+                      call.
+                    </p>
+                  </div>
+
+                  <div className="p-5 sm:p-6">
+                    <ul className="grid gap-2 sm:grid-cols-3" role="list">
+                      {AI_PROOF_POINTS.map((point) => (
+                        <li
+                          key={point}
+                          className="flex items-start gap-2 rounded-lg border border-ktf-gray-200 bg-white px-3 py-3 text-sm font-semibold leading-snug text-ktf-navy"
+                        >
+                          <CheckCircle2
+                            className="mt-0.5 h-4 w-4 shrink-0 text-ktf-success"
+                            aria-hidden="true"
+                          />
+                          {point}
+                        </li>
+                      ))}
+                    </ul>
+
+                    <div className="mt-5">
+                      <BespokeAISuggestions onSelect={sendPrompt} />
+                    </div>
+
+                    <div className="mt-5 flex flex-col gap-3 border-t border-ktf-gray-200 pt-5 sm:flex-row sm:items-center sm:justify-between">
+                      <p className="text-sm font-medium text-ktf-gray-600">
+                        Prefer a human conversation?
+                      </p>
+                      <Link
+                        href="/contact"
+                        className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-ktf-blue px-4 text-sm font-bold text-white transition-colors hover:bg-ktf-blue-deep focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ktf-blue"
+                      >
+                        Book a scope call
+                        <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                      </Link>
+                    </div>
                   </div>
                 </div>
               ) : (
@@ -260,14 +310,22 @@ export function BespokeAIPanel({
                 ))
               )}
               {isStreaming ? (
-                <div className="flex justify-start">
+                <div
+                  className="flex justify-start"
+                  role="status"
+                  aria-live="polite"
+                  aria-atomic="true"
+                >
                   <div className="rounded-lg border border-ktf-gray-200 bg-white px-4 py-3 text-sm text-ktf-gray-600 shadow-xs">
-                    Bespoke AI is thinking...
+                    Bespoke AI is preparing a useful response...
                   </div>
                 </div>
               ) : null}
               {error ? (
-                <div className="rounded-lg border border-ktf-error/20 bg-ktf-error/5 px-4 py-3 text-sm text-ktf-gray-800">
+                <div
+                  className="rounded-lg border border-ktf-error/20 bg-ktf-error/5 px-4 py-3 text-sm text-ktf-gray-800"
+                  role="alert"
+                >
                   {error.message || "Bespoke AI is temporarily unavailable."}
                   <Link
                     href="/contact"

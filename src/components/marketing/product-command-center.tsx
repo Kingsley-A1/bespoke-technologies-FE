@@ -15,15 +15,15 @@ import { cn } from "@/lib/utils";
 
 const phases = [
   { label: "Scope", icon: GitBranch },
-  { label: "Design", icon: Code2 },
-  { label: "Secure", icon: ShieldCheck },
+  { label: "Prototype", icon: Code2 },
+  { label: "Build", icon: ShieldCheck },
   { label: "Launch", icon: Rocket },
 ] as const;
 
 const deliverables = [
-  "Production codebase",
-  "Deployment pipeline",
-  "System documentation",
+  "Validated build plan",
+  "Source code and documentation",
+  "Deployment handover",
 ] as const;
 
 export function ProductCommandCenter({ className }: { className?: string }) {
@@ -52,7 +52,7 @@ export function ProductCommandCenter({ className }: { className?: string }) {
               <span className="h-2.5 w-2.5 rounded-full bg-ktf-blue/50" />
             </span>
             <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-ktf-gray-500">
-              Product delivery system
+              Client build console
             </span>
           </div>
           <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-ktf-success">
@@ -66,10 +66,10 @@ export function ProductCommandCenter({ className }: { className?: string }) {
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-caption font-semibold uppercase tracking-[0.16em] text-ktf-blue-deep">
-                  Build path
+                  Recommended path
                 </p>
                 <h2 className="mt-2 text-h5 font-bold text-ktf-navy">
-                  From decision to deployment
+                  From product idea to owned system
                 </h2>
               </div>
               <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-ktf-blue/15 bg-white text-ktf-blue-deep shadow-xs">
@@ -105,14 +105,14 @@ export function ProductCommandCenter({ className }: { className?: string }) {
             <div className="mt-6 overflow-hidden rounded-xl border border-ktf-gray-200 bg-white">
               <div className="flex items-center justify-between border-b border-ktf-gray-100 px-3.5 py-2.5">
                 <span className="text-caption font-semibold text-ktf-navy">
-                  Release readiness
+                  Scope readiness
                 </span>
                 <span className="text-[11px] font-semibold text-ktf-success">
                   Verified
                 </span>
               </div>
               <div className="grid grid-cols-3 gap-px bg-ktf-gray-100">
-                {["UX", "Engineering", "Security"].map((item) => (
+                {["Users", "Risk", "Launch"].map((item) => (
                   <div
                     key={item}
                     className="flex items-center justify-center gap-1 bg-white px-2 py-3 text-[10px] font-medium text-ktf-gray-600 sm:text-[11px]"
@@ -133,10 +133,10 @@ export function ProductCommandCenter({ className }: { className?: string }) {
                 </span>
                 <div>
                   <p className="text-body-sm font-semibold text-ktf-navy">
-                    Security baseline
+                    Production baseline
                   </p>
                   <p className="text-caption text-ktf-gray-600">
-                    Applied throughout delivery
+                    Security, testing, and deployment included
                   </p>
                 </div>
               </div>
@@ -158,7 +158,7 @@ export function ProductCommandCenter({ className }: { className?: string }) {
             <div className="flex-1 rounded-2xl border border-ktf-gray-200 bg-white p-4">
               <div className="flex items-center gap-2 text-ktf-navy">
                 <FileKey2 className="h-4 w-4 text-ktf-blue-deep" />
-                <p className="text-body-sm font-semibold">You own the system</p>
+                <p className="text-body-sm font-semibold">Handover standard</p>
               </div>
               <ul className="mt-4 space-y-3">
                 {deliverables.map((deliverable) => (
@@ -179,7 +179,7 @@ export function ProductCommandCenter({ className }: { className?: string }) {
 
         <div className="flex items-center justify-between border-t border-ktf-gray-200 bg-ktf-surface px-4 py-3 sm:px-5">
           <span className="text-[11px] text-ktf-gray-500">
-            Strategy · UX · Engineering · Launch
+            Scope · UX · Engineering · Launch
           </span>
           <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-ktf-blue-deep">
             <span className="h-1.5 w-1.5 rounded-full bg-ktf-blue-deep" />

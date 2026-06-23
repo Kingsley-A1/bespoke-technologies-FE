@@ -52,6 +52,13 @@ const homeProjects = PROJECTS.filter((project) => !project.comingSoon).slice(
   6,
 );
 
+const HERO_PROOF_POINTS = [
+  { value: "16+", label: "projects delivered" },
+  { value: "3-4 wks", label: "focused launch paths" },
+  { value: "99%", label: "client satisfaction" },
+  { value: "Own it", label: "code, docs, deployment" },
+] as const;
+
 interface ServiceIconProps {
   id: (typeof SERVICES)[number]["id"];
 }
@@ -107,13 +114,12 @@ export default function HomePage() {
         <Container size="xl" className="relative">
           <div className="grid min-w-0 gap-12 lg:grid-cols-[minmax(0,0.94fr)_minmax(440px,0.92fr)] lg:items-center lg:gap-16">
             <Reveal className="min-w-0 overflow-hidden">
-              <HeroHeadline className="max-w-[13ch] text-[2.75rem] font-bold leading-[0.99] tracking-[-0.055em] sm:text-[4rem] lg:text-[4.55rem] xl:text-[5rem]" />
+              <HeroHeadline className="max-w-[15ch] text-[2.65rem] font-bold leading-[1.04] tracking-normal sm:text-[3.9rem] lg:text-[4.45rem] xl:text-[4.9rem]" />
 
               <p className="mt-7 max-w-xl text-body leading-body text-ktf-gray-600 sm:text-body-lg">
-                From product strategy to production, we design and engineer
-                secure SaaS platforms, websites, mobile apps, business
-                software, AI apps, and social platforms with one accountable
-                team.
+                Strategy, UX, engineering, security, and launch in one
+                accountable team for SaaS platforms, websites, mobile apps, AI
+                systems, and business software.
               </p>
 
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -122,7 +128,7 @@ export default function HomePage() {
                   href="/contact"
                   className="w-full bg-ktf-blue-deep hover:bg-ktf-blue-pressed sm:w-auto"
                 >
-                  Plan Your Product
+                  Book a Product Scope Call
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
                 <Button
@@ -131,20 +137,36 @@ export default function HomePage() {
                   href="/projects"
                   className="w-full border-ktf-gray-300 sm:w-auto"
                 >
-                  See Delivered Work
+                  See Relevant Work
                 </Button>
               </div>
 
+              <dl className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
+                {HERO_PROOF_POINTS.map((point) => (
+                  <div
+                    key={point.label}
+                    className="rounded-lg border border-ktf-gray-200 bg-white/85 px-3 py-3 shadow-xs"
+                  >
+                    <dt className="text-[11px] font-semibold uppercase leading-tight text-ktf-gray-500">
+                      {point.label}
+                    </dt>
+                    <dd className="mt-1 text-base font-bold leading-none text-ktf-navy">
+                      {point.value}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+
               <div className="mt-7 flex flex-col gap-4 border-t border-ktf-gray-200 pt-5 sm:flex-row sm:items-center sm:justify-between">
                 <p className="text-body-sm font-medium text-ktf-gray-500">
-                  Strategy · UX · Engineering · Security · Launch
+                  Clear scope. Production foundations. No technical lock-in.
                 </p>
                 <Link
                   href="/bespoke-ai"
                   className="inline-flex min-h-11 items-center gap-2 text-body-sm font-semibold text-ktf-blue-deep hover:text-ktf-blue-pressed"
                 >
                   <BespokeAIIcon className="h-4 w-4" />
-                  Ask Bespoke AI
+                  Get a build-path recommendation
                   <ArrowRight className="h-3.5 w-3.5" />
                 </Link>
               </div>
@@ -533,7 +555,7 @@ export default function HomePage() {
                 href="/contact"
                 className="bg-white text-ktf-navy hover:bg-ktf-gray-100"
               >
-                Plan Your Product
+                Book a Product Scope Call
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
               <Button

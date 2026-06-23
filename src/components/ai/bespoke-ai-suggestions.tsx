@@ -9,23 +9,24 @@ import {
 
 export const BESPOKE_AI_SUGGESTIONS = [
   {
-    label: "Business build",
-    prompt: "What can Bespoke Technologies build for my business?",
+    label: "Choose my build path",
+    prompt:
+      "Help me choose the right build path for my product or business idea.",
     icon: Sparkles,
   },
   {
-    label: "SaaS examples",
-    prompt: "Show me projects like a SaaS platform.",
+    label: "Show relevant proof",
+    prompt: "Show me relevant projects and proof for a serious product build.",
     icon: BriefcaseBusiness,
   },
   {
-    label: "Contact",
-    prompt: "How do I contact the team?",
+    label: "Plan an MVP",
+    prompt: "Help me scope a production-ready MVP without overbuilding.",
     icon: MessageCircle,
   },
   {
-    label: "Trust",
-    prompt: "Why should I trust Bespoke Technologies?",
+    label: "Why trust Bespoke?",
+    prompt: "Why should I trust Bespoke Technologies with my product?",
     icon: ShieldCheck,
   },
 ] as const;
@@ -44,7 +45,7 @@ export function BespokeAISuggestions({ onSelect }: BespokeAISuggestionsProps) {
             key={item.prompt}
             type="button"
             onClick={() => onSelect(item.prompt)}
-            className="flex min-h-11 items-center gap-2 rounded-lg border border-ktf-gray-200 bg-white px-3 py-2 text-left text-sm font-semibold text-ktf-navy shadow-xs transition-colors hover:border-ktf-blue/40 hover:text-ktf-blue"
+            className="flex min-h-11 items-center gap-2 rounded-lg border border-ktf-gray-200 bg-white px-3 py-2 text-left text-sm font-semibold text-ktf-navy shadow-xs transition-colors hover:border-ktf-blue/40 hover:text-ktf-blue focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ktf-blue"
           >
             <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
             <span>{item.label}</span>

@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import { MessageCircle } from "lucide-react";
+import { WHATSAPP_INQUIRY_MESSAGE, WHATSAPP_NUMBER } from "@/lib/constants";
 import { BespokeAIIcon } from "./bespoke-ai-icon";
 import { BespokeAIPanel } from "./bespoke-ai-panel";
 
@@ -12,7 +14,11 @@ export function BespokeAILauncher() {
   const launcherRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLElement>(null);
   const previousPathnameRef = useRef(pathname);
-  const shouldHide = pathname === "/bespoke-ai";
+  const shouldHideAI = pathname === "/bespoke-ai";
+  const shouldHideWhatsapp = pathname === "/contact";
+  const whatsappHref = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
+    WHATSAPP_INQUIRY_MESSAGE,
+  )}`;
 
   const closePanel = () => {
     setOpen(false);
@@ -57,29 +63,46 @@ export function BespokeAILauncher() {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [open]);
 
-  if (shouldHide) return null;
+  if (shouldHideAI && shouldHideWhatsapp) return null;
 
   return (
     <>
       {!open ? (
-        <button
-          ref={launcherRef}
-          type="button"
-          onClick={handleOpen}
-          className="group fixed bottom-24 right-6 z-[250] flex h-14 w-14 items-center justify-center rounded-full border border-white/20 bg-ktf-navy text-white shadow-2xl transition-colors hover:bg-ktf-blue focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ktf-blue"
-          aria-label="Ask Bespoke AI"
+        <div
+          data-bespoke-contact-dock="true"
+          className="fixed bottom-6 right-6 z-[250] flex items-center gap-1.5 rounded-full border border-ktf-gray-200 bg-white/95 p-1.5 shadow-2xl backdrop-blur-xl transition-all duration-200"
         >
-          <BespokeAIIcon inverse className="h-7 w-7 text-white" />
-          <span className="pointer-events-none absolute right-16 hidden whitespace-nowrap rounded-lg bg-ktf-obsidian px-3 py-2 text-xs font-semibold text-white opacity-0 shadow-xl transition-opacity group-hover:opacity-100 lg:block">
-            Ask Bespoke AI
-          </span>
-        </button>
+          {!shouldHideAI ? (
+            <button
+              ref={launcherRef}
+              type="button"
+              onClick={handleOpen}
+              className="group flex h-11 items-center justify-center gap-2 rounded-full bg-ktf-navy px-3.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-ktf-blue focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ktf-blue sm:px-4"
+              aria-label="Ask Bespoke AI for a build recommendation"
+            >
+              <BespokeAIIcon inverse className="h-5 w-5 text-white" />
+              <span className="hidden sm:inline">Ask AI</span>
+            </button>
+          ) : null}
+
+          {!shouldHideWhatsapp ? (
+            <a
+              href={whatsappHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex h-11 w-11 items-center justify-center rounded-full bg-[#25d366] text-white shadow-sm transition-transform hover:scale-[1.03] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#25d366]"
+              aria-label="Chat with Bespoke Technologies on WhatsApp"
+            >
+              <MessageCircle className="h-5 w-5" aria-hidden="true" />
+            </a>
+          ) : null}
+        </div>
       ) : null}
 
       {open ? (
         <aside
           ref={panelRef}
-          className="fixed inset-y-0 right-0 z-300 hidden w-[40vw] min-w-[410px] flex-col border-l border-ktf-gray-200 bg-white shadow-2xl lg:flex"
+          className="fixed inset-y-0 right-0 z-300 hidden w-[min(43rem,42vw)] min-w-[410px] flex-col border-l border-ktf-gray-200 bg-white shadow-2xl lg:flex"
           aria-label="Bespoke AI side panel"
         >
           <BespokeAIPanel mode="panel" onClose={closePanel} />

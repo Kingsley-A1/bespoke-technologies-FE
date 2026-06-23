@@ -34,18 +34,19 @@ const RESPONSE_MODES: Array<{
 
 const INPUT_ACTIONS = [
   {
-    label: "Explain services",
-    prompt: "What can Bespoke Technologies build for my business?",
+    label: "Choose build path",
+    prompt:
+      "Help me choose the right build path for my product or business idea.",
     icon: Sparkles,
   },
   {
-    label: "Show projects",
-    prompt: "Show me projects like a SaaS platform.",
+    label: "Show proof",
+    prompt: "Show me relevant projects and proof for a serious product build.",
     icon: BriefcaseBusiness,
   },
   {
-    label: "Contact team",
-    prompt: "How do I contact the team?",
+    label: "Prepare contact",
+    prompt: "Help me prepare a clear scope summary before contacting the team.",
     icon: MessageCircle,
   },
 ] as const;
@@ -81,6 +82,8 @@ export function BespokeAIInput({
   onStop,
 }: BespokeAIInputProps) {
   const inputId = useId();
+  const actionMenuId = `${inputId}-actions`;
+  const modeMenuId = `${inputId}-response-mode`;
   const actionMenuRef = useRef<HTMLFormElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
@@ -168,6 +171,12 @@ export function BespokeAIInput({
     <form
       ref={actionMenuRef}
       className="relative"
+      onKeyDown={(event) => {
+        if (event.key === "Escape") {
+          setIsActionMenuOpen(false);
+          setIsModeMenuOpen(false);
+        }
+      }}
       onSubmit={(event) => {
         event.preventDefault();
         handleSubmit();
@@ -186,27 +195,29 @@ export function BespokeAIInput({
           className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-ktf-obsidian transition-colors hover:bg-ktf-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ktf-blue"
           aria-label="Open Bespoke AI actions"
           aria-expanded={isActionMenuOpen}
+          aria-controls={actionMenuId}
+          aria-haspopup="menu"
         >
           <Plus className="h-5 w-5" aria-hidden="true" />
         </button>
 
-<textarea
-            ref={inputRef}
-            id={inputId}
-            data-bespoke-ai-chat-input="true"
-            value={input}
-            onChange={(event) => handleInputChange(event.currentTarget.value)}
-            onKeyDown={(event) => {
-              if (event.key === "Enter" && !event.shiftKey) {
-                event.preventDefault();
-                handleSubmit();
-              }
-            }}
-            autoComplete="off"
-            placeholder="Ask Bespoke AI"
-            className="min-h-[44px] max-h-28 min-w-0 flex-1 resize-none appearance-none border-0 bg-transparent text-base leading-6 text-ktf-obsidian outline-none ring-0 placeholder:text-ktf-gray-500 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 disabled:cursor-not-allowed disabled:opacity-60"
-            disabled={disabled}
-            rows={1}
+        <textarea
+          ref={inputRef}
+          id={inputId}
+          data-bespoke-ai-chat-input="true"
+          value={input}
+          onChange={(event) => handleInputChange(event.currentTarget.value)}
+          onKeyDown={(event) => {
+            if (event.key === "Enter" && !event.shiftKey) {
+              event.preventDefault();
+              handleSubmit();
+            }
+          }}
+          autoComplete="off"
+          placeholder="Describe what you want to build"
+          className="min-h-[44px] max-h-28 min-w-0 flex-1 resize-none appearance-none border-0 bg-transparent text-base leading-6 text-ktf-obsidian outline-none ring-0 placeholder:text-ktf-gray-500 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 disabled:cursor-not-allowed disabled:opacity-60"
+          disabled={disabled}
+          rows={1}
         />
 
         <div className="relative hidden shrink-0 sm:block">
@@ -219,19 +230,28 @@ export function BespokeAIInput({
             className="flex h-10 items-center gap-1 rounded-full px-3 text-xs font-medium text-ktf-gray-600 transition-colors hover:bg-ktf-surface hover:text-ktf-obsidian focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ktf-blue"
             aria-label="Set Bespoke AI response length"
             aria-expanded={isModeMenuOpen}
+            aria-controls={modeMenuId}
+            aria-haspopup="listbox"
           >
             {selectedMode.label}
             <ChevronDown className="h-3.5 w-3.5" aria-hidden="true" />
           </button>
           {isModeMenuOpen ? (
-            <div className="absolute bottom-12 right-0 z-20 w-36 rounded-xl border border-ktf-gray-200 bg-white p-1 shadow-xl">
+            <div
+              id={modeMenuId}
+              role="listbox"
+              aria-label="Bespoke AI response length"
+              className="absolute bottom-12 right-0 z-20 w-36 rounded-xl border border-ktf-gray-200 bg-white p-1 shadow-xl"
+            >
               {RESPONSE_MODES.map((mode) => (
                 <button
                   key={mode.value}
                   type="button"
+                  role="option"
+                  aria-selected={mode.value === responseMode}
                   onClick={() => handleModeSelect(mode.value)}
                   className={cn(
-                    "flex min-h-10 w-full items-center rounded-lg px-3 text-left text-sm font-semibold transition-colors",
+                    "flex min-h-10 w-full items-center rounded-lg px-3 text-left text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ktf-blue",
                     mode.value === responseMode
                       ? "bg-ktf-blue/8 text-ktf-blue"
                       : "text-ktf-gray-700 hover:bg-ktf-surface hover:text-ktf-obsidian",
@@ -280,15 +300,21 @@ export function BespokeAIInput({
       </div>
 
       {isActionMenuOpen ? (
-        <div className="absolute bottom-16 left-0 z-20 w-64 rounded-xl border border-ktf-gray-200 bg-white p-2 shadow-xl">
+        <div
+          id={actionMenuId}
+          role="menu"
+          aria-label="Bespoke AI quick actions"
+          className="absolute bottom-16 left-0 z-20 w-72 rounded-xl border border-ktf-gray-200 bg-white p-2 shadow-xl"
+        >
           {INPUT_ACTIONS.map((item) => {
             const Icon = item.icon;
             return (
               <button
                 key={item.prompt}
                 type="button"
+                role="menuitem"
                 onClick={() => handleActionSelect(item.prompt)}
-                className="flex min-h-11 w-full items-center gap-3 rounded-lg px-3 text-left text-sm font-semibold text-ktf-gray-700 transition-colors hover:bg-ktf-surface hover:text-ktf-blue"
+                className="flex min-h-11 w-full items-center gap-3 rounded-lg px-3 text-left text-sm font-semibold text-ktf-gray-700 transition-colors hover:bg-ktf-surface hover:text-ktf-blue focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ktf-blue"
               >
                 <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
                 <span>{item.label}</span>
