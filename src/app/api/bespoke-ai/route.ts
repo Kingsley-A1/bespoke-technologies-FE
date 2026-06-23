@@ -13,6 +13,11 @@ import {
   type BespokeAIResponseDetail,
 } from "@/lib/ai/bespoke-ai-prompt";
 import {
+  createBespokeAIError,
+  getBespokeAIErrorPayload,
+  serializeBespokeAIError,
+} from "@/lib/ai/bespoke-ai-errors";
+import {
   ensureAIConversation,
   getLastUserMessageText,
   persistAIEvent,
@@ -41,25 +46,50 @@ export async function POST(req: Request) {
   try {
     body = await req.json();
   } catch {
-    return Response.json({ error: "Invalid request body." }, { status: 400 });
+    return Response.json(
+      {
+        error: createBespokeAIError("invalid-request", {
+          message: "Invalid request body.",
+        }),
+      },
+      { status: 400 },
+    );
   }
 
   const messages = body.messages ?? [];
   if (!Array.isArray(messages)) {
-    return Response.json({ error: "Messages must be an array." }, { status: 400 });
+    return Response.json(
+      {
+        error: createBespokeAIError("invalid-request", {
+          message: "Messages must be an array.",
+        }),
+      },
+      { status: 400 },
+    );
   }
 
   const clientIp = getClientIp(req);
   if (isRateLimited(clientIp)) {
     return Response.json(
-      { error: "Bespoke AI is receiving too many requests. Please try again shortly." },
+      {
+        error: createBespokeAIError("rate-limit", {
+          retryAfterSeconds: 60,
+        }),
+      },
       { status: 429 },
     );
   }
 
   const validationError = validateMessages(messages, body.conversationId);
   if (validationError) {
-    return Response.json({ error: validationError }, { status: 400 });
+    return Response.json(
+      {
+        error: createBespokeAIError("invalid-request", {
+          message: validationError,
+        }),
+      },
+      { status: 400 },
+    );
   }
 
   const conversationId = body.conversationId;
@@ -82,7 +112,7 @@ export async function POST(req: Request) {
 
     return Response.json(
       {
-        error: "Bespoke AI is not connected yet. Please contact the team directly.",
+        error: createBespokeAIError("not-configured"),
       },
       { status: 503 },
     );
@@ -95,7 +125,7 @@ export async function POST(req: Request) {
       messages: await convertToModelMessages(messages),
       tools: bespokeAITools,
       stopWhen: stepCountIs(4),
-      maxRetries: 0,
+      maxRetries: 1,
       maxOutputTokens: 800,
       experimental_transform: smoothStream(),
     });
@@ -124,23 +154,41 @@ export async function POST(req: Request) {
         });
       },
       onError: (error) => {
+        const aiError = getBespokeAIErrorPayload(error);
+
         console.error("Bespoke AI stream failed", error);
-        return getBespokeAIErrorMessage(error);
+        void persistAIEvent({
+          conversationId,
+          eventName: "ai_stream_failed",
+          payload: {
+            type: aiError.type,
+            statusCode: aiError.statusCode,
+            message: aiError.message,
+          },
+        });
+
+        return serializeBespokeAIError(aiError);
       },
     });
   } catch (error) {
+    const aiError = getBespokeAIErrorPayload(error);
+
     console.error("Bespoke AI request failed", error);
     void persistAIEvent({
       conversationId,
       eventName: "ai_request_failed",
-      payload: { error: error instanceof Error ? error.message : String(error) },
+      payload: {
+        type: aiError.type,
+        statusCode: aiError.statusCode,
+        error: error instanceof Error ? error.message : String(error),
+      },
     });
 
     return Response.json(
       {
-        error: getBespokeAIErrorMessage(error),
+        error: aiError,
       },
-      { status: isQuotaError(error) ? 429 : 500 },
+      { status: aiError.statusCode },
     );
   }
 }
@@ -205,34 +253,6 @@ function isRateLimited(key: string) {
 
   bucket.count += 1;
   return bucket.count > RATE_LIMIT_MAX_REQUESTS;
-}
-
-function getBespokeAIErrorMessage(error: unknown) {
-  if (isQuotaError(error)) {
-    return "Bespoke AI is temporarily rate-limited because the Gemini API quota was reached. Please try again shortly or contact Bespoke Technologies on WhatsApp.";
-  }
-
-  return "Bespoke AI hit a server issue. Please try again or contact Bespoke Technologies on WhatsApp.";
-}
-
-function isQuotaError(error: unknown) {
-  return /429|quota|resource_exhausted/i.test(getErrorText(error));
-}
-
-function getErrorText(error: unknown) {
-  if (error instanceof Error) {
-    return `${error.name} ${error.message} ${safeStringify(error)}`;
-  }
-
-  return String(error);
-}
-
-function safeStringify(value: unknown) {
-  try {
-    return JSON.stringify(value);
-  } catch {
-    return "";
-  }
 }
 
 function isUuid(value: string) {

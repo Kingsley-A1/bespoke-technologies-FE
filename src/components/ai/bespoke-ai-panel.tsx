@@ -12,9 +12,11 @@ import {
   X,
 } from "lucide-react";
 import { useMediaQuery } from "@/hooks";
+import { getBespokeAIErrorPayload } from "@/lib/ai/bespoke-ai-errors";
 import type { BespokeAIUIMessage } from "@/lib/ai/bespoke-ai-types";
 import { SITE_NAME } from "@/lib/constants";
 import { cn } from "@/lib/utils";
+import { BespokeAIErrorState } from "./bespoke-ai-error-state";
 import { BespokeAIHistorySidebar } from "./bespoke-ai-history-sidebar";
 import { BespokeAIIcon } from "./bespoke-ai-icon";
 import {
@@ -58,7 +60,7 @@ export function BespokeAIPanel({
     togglePinnedConversation,
     updateConversationMessages,
   } = useBespokeAIConversations();
-  const { messages, sendMessage, status, stop, error } =
+  const { messages, sendMessage, status, stop, error, regenerate, clearError } =
     useChat<BespokeAIUIMessage>({
       id: activeConversationId,
       messages: activeConversation?.messages ?? [],
@@ -76,6 +78,7 @@ export function BespokeAIPanel({
 
   const isStreaming = status === "streaming" || status === "submitted";
   const hasEmptyState = messages.length === 0;
+  const aiError = error ? getBespokeAIErrorPayload(error) : null;
 
   useEffect(() => {
     scrollRef.current?.scrollTo({
@@ -97,6 +100,11 @@ export function BespokeAIPanel({
 
   const sendPrompt = (prompt: string) => {
     sendMessage({ text: prompt });
+  };
+
+  const handleRetry = () => {
+    clearError();
+    void regenerate();
   };
 
   const handleToggleHistory = () => {
@@ -322,18 +330,10 @@ export function BespokeAIPanel({
                 </div>
               ) : null}
               {error ? (
-                <div
-                  className="rounded-lg border border-ktf-error/20 bg-ktf-error/5 px-4 py-3 text-sm text-ktf-gray-800"
-                  role="alert"
-                >
-                  {error.message || "Bespoke AI is temporarily unavailable."}
-                  <Link
-                    href="/contact"
-                    className="ml-1 font-semibold text-ktf-blue"
-                  >
-                    Contact the team
-                  </Link>
-                </div>
+                <BespokeAIErrorState
+                  error={error}
+                  onRetry={aiError?.canRetry ? handleRetry : undefined}
+                />
               ) : null}
             </div>
           </div>
@@ -341,7 +341,7 @@ export function BespokeAIPanel({
           <div className="shrink-0 border-t border-ktf-gray-200 bg-white px-3 py-3 sm:px-4">
             <div className="mx-auto w-full max-w-3xl">
               <BespokeAIInput
-                disabled={false}
+                disabled={Boolean(aiError?.shouldDisableInput)}
                 isStreaming={isStreaming}
                 responseMode={responseMode}
                 onResponseModeChange={setResponseMode}
