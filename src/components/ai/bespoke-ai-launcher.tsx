@@ -2,8 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { MessageCircle } from "lucide-react";
 import { WHATSAPP_INQUIRY_MESSAGE, WHATSAPP_NUMBER } from "@/lib/constants";
+import { WhatsAppIcon } from "@/components/icons/whatsapp-icon";
 import { BespokeAIIcon } from "./bespoke-ai-icon";
 import { BespokeAIPanel } from "./bespoke-ai-panel";
 
@@ -15,7 +15,8 @@ export function BespokeAILauncher() {
   const panelRef = useRef<HTMLElement>(null);
   const previousPathnameRef = useRef(pathname);
   const shouldHideAI = pathname === "/bespoke-ai";
-  const shouldHideWhatsapp = pathname === "/contact";
+  const shouldHideWhatsapp =
+    pathname === "/contact" || pathname === "/bespoke-ai";
   const whatsappHref = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
     WHATSAPP_INQUIRY_MESSAGE,
   )}`;
@@ -93,7 +94,7 @@ export function BespokeAILauncher() {
               className="flex h-11 w-11 items-center justify-center rounded-full bg-[#25d366] text-white shadow-sm transition-transform hover:scale-[1.03] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#25d366]"
               aria-label="Chat with Bespoke Technologies on WhatsApp"
             >
-              <MessageCircle className="h-5 w-5" aria-hidden="true" />
+              <WhatsAppIcon className="h-5 w-5" />
             </a>
           ) : null}
         </div>

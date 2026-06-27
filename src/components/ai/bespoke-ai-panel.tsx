@@ -189,7 +189,7 @@ export function BespokeAIPanel({
     <section
       className={cn(
         "flex min-h-0 flex-1 bg-ktf-white",
-        mode === "page" && "min-h-[calc(100vh-4rem)]",
+        mode === "page" && "min-h-[calc(100vh-4.25rem)]",
         mode === "panel" && "h-full",
       )}
       aria-labelledby="bespoke-ai-panel-title"
@@ -219,7 +219,7 @@ export function BespokeAIPanel({
                   <PanelLeft className="h-5 w-5" aria-hidden="true" />
                 )}
               </button>
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-ktf-blue/20 bg-ktf-blue/8 text-ktf-blue">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-ktf-blue/15 bg-gradient-to-br from-ktf-blue/12 to-white text-ktf-blue shadow-xs">
                 <BespokeAIIcon className="h-6 w-6" />
               </span>
               <div className="min-w-0">
@@ -263,53 +263,52 @@ export function BespokeAIPanel({
           >
             <div className="mx-auto flex w-full max-w-3xl flex-col gap-4">
               {hasEmptyState ? (
-                <div className="overflow-hidden rounded-2xl border border-ktf-gray-200 bg-white shadow-card">
-                  <div className="border-b border-ktf-gray-100 bg-ktf-surface/70 p-5 sm:p-6">
-                    <p className="text-xs font-bold uppercase tracking-[0.16em] text-ktf-blue-deep">
-                      Product build assistant
-                    </p>
-                    <h2 className="mt-3 max-w-2xl text-2xl font-bold leading-tight text-ktf-obsidian sm:text-3xl">
-                      Find the clearest route from idea to shipped product.
-                    </h2>
-                    <p className="mt-3 max-w-2xl text-sm leading-relaxed text-ktf-gray-700 sm:text-base">
-                      Ask Bespoke AI to recommend a build path, surface relevant
-                      work, clarify scope, or help you prepare for a product
-                      call.
-                    </p>
+                <div className="mx-auto flex w-full max-w-2xl flex-col items-center px-1 pt-6 pb-2 text-center sm:pt-10">
+                  <span className="flex h-14 w-14 items-center justify-center rounded-xl border border-ktf-blue/15 bg-gradient-to-br from-ktf-blue/12 to-white text-ktf-blue shadow-xs">
+                    <BespokeAIIcon className="h-7 w-7" />
+                  </span>
+                  <p className="mt-5 text-xs font-bold uppercase tracking-[0.16em] text-ktf-blue-deep">
+                    Product build assistant
+                  </p>
+                  <h2 className="mt-2 text-2xl font-bold leading-tight tracking-tight text-ktf-obsidian sm:text-[1.95rem]">
+                    Find the clearest route from idea to shipped product.
+                  </h2>
+                  <p className="mt-3 max-w-xl text-sm leading-relaxed text-ktf-gray-600 sm:text-base">
+                    Ask Bespoke AI to recommend a build path, surface relevant
+                    work, clarify scope, or prepare for a product call.
+                  </p>
+
+                  <div className="mt-7 w-full text-left">
+                    <BespokeAISuggestions onSelect={sendPrompt} />
                   </div>
 
-                  <div className="p-5 sm:p-6">
-                    <ul className="grid gap-2 sm:grid-cols-3" role="list">
-                      {AI_PROOF_POINTS.map((point) => (
-                        <li
-                          key={point}
-                          className="flex items-start gap-2 rounded-lg border border-ktf-gray-200 bg-white px-3 py-3 text-sm font-semibold leading-snug text-ktf-navy"
-                        >
-                          <CheckCircle2
-                            className="mt-0.5 h-4 w-4 shrink-0 text-ktf-success"
-                            aria-hidden="true"
-                          />
-                          {point}
-                        </li>
-                      ))}
-                    </ul>
-
-                    <div className="mt-5">
-                      <BespokeAISuggestions onSelect={sendPrompt} />
-                    </div>
-
-                    <div className="mt-5 flex flex-col gap-3 border-t border-ktf-gray-200 pt-5 sm:flex-row sm:items-center sm:justify-between">
-                      <p className="text-sm font-medium text-ktf-gray-600">
-                        Prefer a human conversation?
-                      </p>
-                      <Link
-                        href="/contact"
-                        className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-ktf-blue px-4 text-sm font-bold text-white transition-colors hover:bg-ktf-blue-deep focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ktf-blue"
+                  <ul
+                    className="mt-6 flex flex-wrap items-center justify-center gap-x-4 gap-y-2"
+                    role="list"
+                  >
+                    {AI_PROOF_POINTS.map((point) => (
+                      <li
+                        key={point}
+                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-ktf-gray-600"
                       >
-                        Book a scope call
-                        <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                      </Link>
-                    </div>
+                        <CheckCircle2
+                          className="h-3.5 w-3.5 shrink-0 text-ktf-success"
+                          aria-hidden="true"
+                        />
+                        {point}
+                      </li>
+                    ))}
+                  </ul>
+
+                  <div className="mt-7 inline-flex flex-wrap items-center justify-center gap-1.5 text-sm text-ktf-gray-500">
+                    Prefer a human conversation?
+                    <Link
+                      href="/contact"
+                      className="inline-flex items-center gap-1 font-semibold text-ktf-blue hover:text-ktf-blue-deep"
+                    >
+                      Book a scope call
+                      <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+                    </Link>
                   </div>
                 </div>
               ) : (

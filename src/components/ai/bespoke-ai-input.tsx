@@ -185,7 +185,7 @@ export function BespokeAIInput({
       <label htmlFor={inputId} className="sr-only">
         Message Bespoke AI
       </label>
-      <div className="flex min-h-14 items-center gap-2 rounded-full border border-ktf-gray-200 bg-white py-1.5 pl-2 pr-1.5 shadow-[0_12px_34px_-26px_rgba(11,31,58,0.65)] transition-colors focus-within:border-ktf-gray-300">
+      <div className="flex min-h-14 items-center gap-2 rounded-full border border-ktf-gray-200 bg-white py-1.5 pl-2 pr-1.5 shadow-sm transition-colors focus-within:border-ktf-blue/40 focus-within:ring-2 focus-within:ring-ktf-blue/10">
         <button
           type="button"
           onClick={() => {
@@ -241,7 +241,7 @@ export function BespokeAIInput({
               id={modeMenuId}
               role="listbox"
               aria-label="Bespoke AI response length"
-              className="absolute bottom-12 right-0 z-20 w-36 rounded-xl border border-ktf-gray-200 bg-white p-1 shadow-xl"
+              className="absolute bottom-12 right-0 z-20 w-36 rounded-lg border border-ktf-gray-200 bg-white p-1 shadow-xl"
             >
               {RESPONSE_MODES.map((mode) => (
                 <button
@@ -304,7 +304,7 @@ export function BespokeAIInput({
           id={actionMenuId}
           role="menu"
           aria-label="Bespoke AI quick actions"
-          className="absolute bottom-16 left-0 z-20 w-72 rounded-xl border border-ktf-gray-200 bg-white p-2 shadow-xl"
+          className="absolute bottom-16 left-0 z-20 w-72 rounded-lg border border-ktf-gray-200 bg-white p-2 shadow-xl"
         >
           {INPUT_ACTIONS.map((item) => {
             const Icon = item.icon;
