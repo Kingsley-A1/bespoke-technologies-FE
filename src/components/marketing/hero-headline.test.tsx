@@ -8,16 +8,18 @@ describe("HeroHeadline", () => {
 
     expect(
       screen.getByRole("heading", {
-        name: /launch secure, production-ready software your business can own/i,
+        name: /launch secure, production-ready software your business can own/i, 
       }),
     ).toBeInTheDocument();
   });
 
-  it("renders the visual product promise without motion-dependent text", () => {
+  it("renders the visual product promise around the rotating product word", () => {
     render(<HeroHeadline />);
 
     expect(screen.getByText("Launch secure,")).toBeInTheDocument();
-    expect(screen.getByText("production-ready software")).toBeInTheDocument();
+    expect(screen.getByText("production-ready")).toBeInTheDocument();
     expect(screen.getByText("your business can own.")).toBeInTheDocument();
+    // First product in the rotation is shown on initial render.
+    expect(screen.getByText("Website")).toBeInTheDocument();
   });
 });
