@@ -23,10 +23,11 @@ import {
   StaggerGroup,
   StaggerItem,
 } from "@/components/marketing/motion-reveal";
+import { DeliverySteps } from "@/components/marketing/delivery-steps";
 import { ProductCommandCenter } from "@/components/marketing/product-command-center";
 import { ProjectCard } from "@/components/marketing/projects-grid";
+import { ShowcaseCarousel } from "@/components/marketing/showcase-carousel";
 import {
-  DELIVERY_PROCESS,
   ENGAGEMENT_PATHS,
   PARTNERS,
   PRODUCT_OUTCOMES,
@@ -145,7 +146,7 @@ export default function HomePage() {
                 {HERO_PROOF_POINTS.map((point) => (
                   <div
                     key={point.label}
-                    className="rounded-lg border border-ktf-gray-200 bg-white/85 px-3 py-3 shadow-xs"
+                    className="rounded-md border border-ktf-gray-200 bg-white/85 px-3 py-3 shadow-xs"
                   >
                     <dt className="text-[11px] font-semibold uppercase leading-tight text-ktf-gray-500">
                       {point.label}
@@ -157,7 +158,7 @@ export default function HomePage() {
                 ))}
               </dl>
 
-              <div className="mt-7 flex flex-col gap-4 border-t border-ktf-gray-200 pt-5 sm:flex-row sm:items-center sm:justify-between">
+              {/* <div className="mt-7 flex flex-col gap-4 border-t border-ktf-gray-200 pt-5 sm:flex-row sm:items-center sm:justify-between">
                 <p className="text-body-sm font-medium text-ktf-gray-500">
                   Clear scope. Production foundations. No technical lock-in.
                 </p>
@@ -169,11 +170,38 @@ export default function HomePage() {
                   Get a build-path recommendation
                   <ArrowRight className="h-3.5 w-3.5" />
                 </Link>
-              </div>
+              </div> */}
             </Reveal>
 
             <ProductCommandCenter />
           </div>
+        </Container>
+      </section>
+
+      <section
+        aria-labelledby="home-showcase-title"
+        className="bg-white py-16 sm:py-20"
+      >
+        <Container size="lg">
+          <Reveal className="mx-auto max-w-2xl text-center">
+            <p className="text-overline font-bold uppercase tracking-[0.2em] text-ktf-blue-deep">
+              In focus
+            </p>
+            <h2
+              id="home-showcase-title"
+              className="mt-3 text-h3 font-bold tracking-tight text-ktf-navy"
+            >
+              Built across every product surface.
+            </h2>
+            <p className="mt-3 text-body leading-body text-ktf-gray-600">
+              Websites, mobile apps, AI, cloud, and business systems — delivered
+              with the same production discipline.
+            </p>
+          </Reveal>
+
+          <Reveal className="mx-auto mt-10 max-w-4xl" delay={0.06}>
+            <ShowcaseCarousel />
+          </Reveal>
         </Container>
       </section>
 
@@ -192,12 +220,12 @@ export default function HomePage() {
             </p>
           </Reveal>
 
-          <div className="mt-12 overflow-hidden rounded-[1.5rem] border border-ktf-gray-200 bg-white shadow-[0_24px_70px_-56px_rgba(11,31,58,0.48)]">
+          <div className="mt-12 overflow-hidden rounded-xl border border-ktf-gray-200 bg-white shadow-[0_12px_28px_-20px_rgba(11,31,58,0.3)]">
             <div className="grid lg:grid-cols-[0.84fr_1.16fr]">
               <Reveal className="border-b border-ktf-gray-200 bg-ktf-navy p-7 text-white sm:p-9 lg:border-r lg:border-b-0">
                 <div className="flex h-full flex-col justify-between">
                   <div>
-                    <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/10 text-ktf-blue">
+                    <span className="flex h-12 w-12 items-center justify-center rounded-md bg-white/10 text-ktf-blue">
                       <ShieldCheck className="h-6 w-6" />
                     </span>
                     <h3 className="mt-7 text-h3 font-bold leading-tight">
@@ -259,27 +287,7 @@ export default function HomePage() {
               </Button>
             </Reveal>
 
-            <StaggerGroup className="relative mt-10 grid gap-8 md:grid-cols-3">
-              <span
-                aria-hidden="true"
-                className="absolute top-5 right-[16%] left-[16%] hidden h-px bg-ktf-blue/25 md:block"
-              />
-              {DELIVERY_PROCESS.map((phase) => (
-                <StaggerItem key={phase.step}>
-                  <article className="relative border-t border-ktf-gray-300 pt-6 md:border-t-0 md:pt-0">
-                    <span className="relative z-10 flex h-10 w-10 items-center justify-center rounded-full border border-ktf-blue/25 bg-white text-caption font-bold text-ktf-blue-deep shadow-xs">
-                      {phase.step}
-                    </span>
-                    <h3 className="mt-5 text-h5 font-semibold text-ktf-navy">
-                      {phase.title}
-                    </h3>
-                    <p className="mt-2 text-body-sm leading-body text-ktf-gray-600">
-                      {phase.description}
-                    </p>
-                  </article>
-                </StaggerItem>
-              ))}
-            </StaggerGroup>
+            <DeliverySteps />
           </div>
         </Container>
       </section>
@@ -289,25 +297,19 @@ export default function HomePage() {
         className="relative overflow-hidden bg-white py-20 sm:py-28"
       >
         <Container size="lg">
-          <Reveal className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <p className="text-overline font-bold uppercase tracking-[0.2em] text-ktf-blue-deep">
-                Delivered work
-              </p>
-              <h2 className="mt-4 text-h2 font-bold tracking-tight text-ktf-navy sm:text-h1">
-                Products shipped.
-                <br />
-                Problems solved.
-              </h2>
-              <p className="mt-4 max-w-xl text-body-lg leading-body text-ktf-gray-600">
-                Explore customer experiences, business systems, and digital
-                products built to move from idea to dependable operation.
-              </p>
-            </div>
-            <Button href="/projects" variant="outline">
-              View All Projects
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
+          <Reveal className="max-w-2xl">
+            <p className="text-overline font-bold uppercase tracking-[0.2em] text-ktf-blue-deep">
+              Delivered work
+            </p>
+            <h2 className="mt-4 text-h2 font-bold tracking-tight text-ktf-navy sm:text-h1">
+              Products shipped.
+              <br />
+              Problems solved.
+            </h2>
+            <p className="mt-4 max-w-xl text-body-lg leading-body text-ktf-gray-600">
+              Explore customer experiences, business systems, and digital
+              products built to move from idea to dependable operation.
+            </p>
           </Reveal>
 
           <div className="mt-12 grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-3 lg:gap-8">
@@ -315,6 +317,17 @@ export default function HomePage() {
               <ProjectCard key={project.id} project={project} compact />
             ))}
           </div>
+
+          <Reveal className="mt-12 flex justify-center">
+            <Button
+              size="lg"
+              href="/projects"
+              className="w-full bg-ktf-blue-deep hover:bg-ktf-blue-pressed sm:w-auto"
+            >
+              View All Projects
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+          </Reveal>
         </Container>
       </section>
 
@@ -339,7 +352,7 @@ export default function HomePage() {
             </p>
           </Reveal>
 
-          <StaggerGroup className="mt-12 grid gap-px overflow-hidden rounded-[1.4rem] border border-ktf-gray-200 bg-ktf-gray-200 sm:grid-cols-2 lg:grid-cols-3">
+          <StaggerGroup className="mt-12 grid gap-px overflow-hidden rounded-xl border border-ktf-gray-200 bg-ktf-gray-200 sm:grid-cols-2 lg:grid-cols-3">
             {SERVICES.map((service) => (
               <StaggerItem key={service.id} className="h-full">
                 <Link
@@ -347,7 +360,7 @@ export default function HomePage() {
                   className="group flex h-full min-h-[250px] flex-col bg-white p-6 transition-colors duration-200 hover:bg-ktf-blue/4 sm:p-7"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="flex h-11 w-11 items-center justify-center rounded-xl border border-ktf-blue/15 bg-ktf-blue/5 text-ktf-blue-deep transition-transform duration-200 group-hover:-translate-y-0.5">
+                    <span className="flex h-11 w-11 items-center justify-center rounded-md border border-ktf-blue/15 bg-ktf-blue/5 text-ktf-blue-deep transition-transform duration-200 group-hover:-translate-y-0.5">
                       <ServiceIcon id={service.id} />
                     </span>
                     <ArrowRight className="h-4 w-4 text-ktf-gray-400 transition-all duration-200 group-hover:translate-x-1 group-hover:text-ktf-blue-deep" />
@@ -474,11 +487,11 @@ export default function HomePage() {
           <p className="text-center text-caption font-semibold uppercase tracking-[0.18em] text-ktf-gray-500">
             Built on dependable technology
           </p>
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-x-10 gap-y-5 sm:gap-x-12">
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-x-3 gap-y-3 sm:gap-x-4">
             {PARTNERS.map((partner) => (
               <span
                 key={partner.name}
-                className="text-body font-semibold text-ktf-gray-500"
+                className="rounded-md border border-ktf-gray-200 bg-white px-4 py-2 text-body-sm font-semibold text-ktf-gray-500 shadow-xs transition-colors hover:text-ktf-navy"
               >
                 {partner.name}
               </span>
@@ -520,7 +533,7 @@ export default function HomePage() {
               </ul>
             </Reveal>
             <Reveal delay={0.08}>
-              <div className="relative overflow-hidden rounded-[1.4rem] border border-ktf-gray-200 shadow-xl">
+              <div className="relative overflow-hidden rounded-xl border border-ktf-gray-200 shadow-xl">
                 <Image
                   src="/Team/team.png"
                   alt="The Bespoke Technologies product and engineering team"
