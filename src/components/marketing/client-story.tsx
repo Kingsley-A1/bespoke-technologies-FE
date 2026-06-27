@@ -37,7 +37,7 @@ export function ClientStory() {
 
   return (
     <div
-      className="overflow-hidden rounded-[1.5rem] border border-ktf-gray-200 bg-white shadow-[0_24px_70px_-54px_rgba(11,31,58,0.5)]"
+      className="overflow-hidden rounded-xl border border-ktf-gray-200 bg-white shadow-[0_12px_28px_-20px_rgba(11,31,58,0.32)]"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       onFocusCapture={() => setHovered(true)}
@@ -135,7 +135,7 @@ export function ClientStory() {
                 ))}
               </div>
 
-              <div className="mt-8 flex flex-1 flex-col justify-between rounded-2xl bg-ktf-surface p-5 sm:p-7">
+              <div className="mt-8 flex flex-1 flex-col justify-between rounded-lg bg-ktf-surface p-5 sm:p-7">
                 <Quote className="h-7 w-7 text-ktf-blue-deep" aria-hidden="true" />
                 <blockquote className="mt-5 max-w-3xl text-xl font-semibold leading-[1.45] tracking-tight text-ktf-navy sm:text-2xl">
                   “{story.quote}”

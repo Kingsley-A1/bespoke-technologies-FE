@@ -73,63 +73,41 @@ function PageHeroVisual({ variant }: { variant: PageHeroVariant }) {
   const visual = visualContent[variant];
 
   return (
-    <div className="relative mx-auto w-full max-w-[520px]">
-      <div
-        aria-hidden="true"
-        className="absolute -inset-8 -z-10 rounded-[2.5rem] bg-[radial-gradient(circle_at_45%_45%,rgba(10,132,255,0.16),transparent_44%),radial-gradient(circle_at_86%_8%,rgba(155,126,255,0.16),transparent_34%)] blur-2xl"
-      />
-      <div className="overflow-hidden rounded-[1.4rem] border border-ktf-gray-200 bg-white shadow-[0_26px_70px_-52px_rgba(11,31,58,0.5)]">
-        <div className="flex items-center justify-between border-b border-ktf-gray-200 px-4 py-3">
-          <div className="flex items-center gap-2">
-            <span className="h-2.5 w-2.5 rounded-full bg-ktf-gray-300" />
-            <span className="h-2.5 w-2.5 rounded-full bg-ktf-gray-300" />
-            <span className="h-2.5 w-2.5 rounded-full bg-ktf-blue/55" />
-          </div>
+    <div className="mx-auto w-full max-w-[460px]">
+      <div className="rounded-xl border border-ktf-gray-200 bg-white p-6 sm:p-7">
+        <div className="flex items-center gap-2.5">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-ktf-blue-deep text-white">
+            <Boxes className="h-5 w-5" />
+          </span>
           <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-ktf-gray-500">
             Bespoke system
           </span>
         </div>
 
-        <div className="p-5 sm:p-6">
-          <div className="flex items-start justify-between gap-5">
-            <div>
-              <p className="text-h5 font-bold text-ktf-navy">{visual.title}</p>
-              <p className="mt-2 text-caption leading-relaxed text-ktf-gray-600">
-                {visual.detail}
-              </p>
-            </div>
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-ktf-blue-deep text-white">
-              <Boxes className="h-5 w-5" />
-            </span>
-          </div>
+        <p className="mt-5 text-h5 font-bold text-ktf-navy">{visual.title}</p>
+        <p className="mt-2 text-body-sm leading-body text-ktf-gray-600">
+          {visual.detail}
+        </p>
 
-          <div className="relative mt-7 grid grid-cols-3 gap-3">
-            <span
-              aria-hidden="true"
-              className="absolute top-5 right-[16%] left-[16%] h-px bg-ktf-blue/25"
-            />
-            {visual.icons.map((Icon, index) => (
-              <div
-                key={`${variant}-${index}`}
-                className="relative flex min-w-0 flex-col items-center rounded-xl border border-ktf-gray-200 bg-ktf-surface px-2 py-4 text-center"
-              >
-                <span className="relative z-10 flex h-9 w-9 items-center justify-center rounded-full border border-ktf-blue/20 bg-white text-ktf-blue-deep">
-                  <Icon className="h-4 w-4" strokeWidth={2} />
-                </span>
-                <span className="mt-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-ktf-gray-600">
-                  Stage {index + 1}
-                </span>
-              </div>
-            ))}
-          </div>
+        <div className="mt-6 grid grid-cols-3 gap-3">
+          {visual.icons.map((Icon, index) => (
+            <div
+              key={`${variant}-${index}`}
+              className="flex min-w-0 flex-col items-center gap-2.5 rounded-md border border-ktf-gray-200 bg-ktf-surface px-2 py-4 text-center"
+            >
+              <span className="flex h-9 w-9 items-center justify-center rounded-md border border-ktf-blue/15 bg-white text-ktf-blue-deep">
+                <Icon className="h-4 w-4" strokeWidth={2} />
+              </span>
+              <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-ktf-gray-600">
+                Stage {index + 1}
+              </span>
+            </div>
+          ))}
         </div>
 
-        <div className="flex items-center justify-between border-t border-ktf-gray-200 bg-ktf-surface px-4 py-3">
-          <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-ktf-success">
-            <CheckCircle2 className="h-3.5 w-3.5" />
-            Production-minded
-          </span>
-          <ArrowRight className="h-4 w-4 text-ktf-blue-deep" />
+        <div className="mt-5 flex items-center gap-1.5 border-t border-ktf-gray-100 pt-4 text-[11px] font-semibold text-ktf-success">
+          <CheckCircle2 className="h-3.5 w-3.5" />
+          Production-minded delivery
         </div>
       </div>
     </div>

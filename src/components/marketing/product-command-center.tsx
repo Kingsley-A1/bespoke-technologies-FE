@@ -43,7 +43,7 @@ export function ProductCommandCenter({ className }: { className?: string }) {
         className="absolute -inset-6 -z-10 rounded-[2.5rem] bg-[radial-gradient(circle_at_55%_42%,rgba(10,132,255,0.18),transparent_42%),radial-gradient(circle_at_85%_12%,rgba(148,111,255,0.18),transparent_34%)] blur-2xl"
       />
 
-      <div className="overflow-hidden rounded-[1.4rem] border border-ktf-gray-200 bg-white shadow-[0_30px_80px_-45px_rgba(11,31,58,0.52)]">
+      <div className="overflow-hidden rounded-xl border border-ktf-gray-200 bg-white shadow-[0_14px_30px_-20px_rgba(11,31,58,0.32)]">
         <div className="flex items-center justify-between border-b border-ktf-gray-200 px-4 py-3 sm:px-5">
           <div className="flex items-center gap-2.5">
             <span className="flex gap-1.5" aria-hidden="true">
@@ -62,7 +62,7 @@ export function ProductCommandCenter({ className }: { className?: string }) {
         </div>
 
         <div className="grid gap-4 p-4 sm:p-5 lg:grid-cols-[1.16fr_0.84fr]">
-          <div className="rounded-2xl border border-ktf-gray-200 bg-ktf-surface p-4 sm:p-5">
+          <div className="rounded-lg border border-ktf-gray-200 bg-ktf-surface p-4 sm:p-5">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-caption font-semibold uppercase tracking-[0.16em] text-ktf-blue-deep">
@@ -72,7 +72,7 @@ export function ProductCommandCenter({ className }: { className?: string }) {
                   From product idea to owned system
                 </h2>
               </div>
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-ktf-blue/15 bg-white text-ktf-blue-deep shadow-xs">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-ktf-blue/15 bg-white text-ktf-blue-deep shadow-xs">
                 <Rocket className="h-5 w-5" />
               </span>
             </div>
@@ -102,7 +102,7 @@ export function ProductCommandCenter({ className }: { className?: string }) {
               })}
             </ol>
 
-            <div className="mt-6 overflow-hidden rounded-xl border border-ktf-gray-200 bg-white">
+            <div className="mt-6 overflow-hidden rounded-md border border-ktf-gray-200 bg-white">
               <div className="flex items-center justify-between border-b border-ktf-gray-100 px-3.5 py-2.5">
                 <span className="text-caption font-semibold text-ktf-navy">
                   Scope readiness
@@ -126,9 +126,9 @@ export function ProductCommandCenter({ className }: { className?: string }) {
           </div>
 
           <div className="flex flex-col gap-4">
-            <div className="rounded-2xl border border-ktf-blue/15 bg-ktf-blue/5 p-4">
+            <div className="rounded-lg border border-ktf-blue/15 bg-ktf-blue/5 p-4">
               <div className="flex items-center gap-3">
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-ktf-blue-deep text-white">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-ktf-blue-deep text-white">
                   <LockKeyhole className="h-5 w-5" />
                 </span>
                 <div>
@@ -155,7 +155,7 @@ export function ProductCommandCenter({ className }: { className?: string }) {
               </div>
             </div>
 
-            <div className="flex-1 rounded-2xl border border-ktf-gray-200 bg-white p-4">
+            <div className="flex-1 rounded-lg border border-ktf-gray-200 bg-white p-4">
               <div className="flex items-center gap-2 text-ktf-navy">
                 <FileKey2 className="h-4 w-4 text-ktf-blue-deep" />
                 <p className="text-body-sm font-semibold">Handover standard</p>

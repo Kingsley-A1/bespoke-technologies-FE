@@ -27,17 +27,17 @@ export function Card({
   return (
     <Tag
       className={cn(
-        "rounded-xl border transition-shadow duration-200",
+        "rounded-md border transition-shadow duration-200",
         paddingMap[padding],
         variant === "default" && [
           "border-ktf-gray-200 bg-white",
           "shadow-card",
-          "hover:shadow-[0_8px_25px_-5px_rgba(10,132,255,0.12),0_4px_10px_-4px_rgba(11,31,58,0.06)]",
+          "hover:shadow-card-hover",
         ],
         variant === "premium" && [
           "border-ktf-blue/20 bg-gradient-to-br from-white to-ktf-surface",
-          "shadow-[0_4px_6px_-1px_rgba(11,31,58,0.07),0_2px_4px_-2px_rgba(11,31,58,0.05)]",
-          "hover:shadow-[0_20px_25px_-5px_rgba(10,132,255,0.15),0_8px_10px_-6px_rgba(11,31,58,0.06)]",
+          "shadow-sm",
+          "hover:shadow-md",
           "hover:border-ktf-blue/40",
         ],
         className,
