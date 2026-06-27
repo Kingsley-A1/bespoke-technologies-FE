@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Header } from "@/components/layout/header";
-import { Footer } from "@/components/layout/footer";
+import { ConditionalFooter } from "@/components/layout/conditional-footer";
 import { BespokeAILauncher } from "@/components/ai";
 import { InstallPrompt } from "@/components/pwa/install-prompt";
 import { ServiceWorkerRegistration } from "@/components/pwa/service-worker-registration";
@@ -94,7 +94,7 @@ export default function RootLayout({
         />
         <Header />
         <main className="flex flex-col flex-1">{children}</main>
-        <Footer />
+        <ConditionalFooter />
         <BespokeAILauncher />
         <InstallPrompt />
         <ServiceWorkerRegistration />
