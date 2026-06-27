@@ -167,7 +167,7 @@ export function ProjectCard({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -16, scale: 0.97 }}
       transition={{ duration: 0.3 }}
-      className="group relative flex flex-col overflow-hidden rounded-sm border border-ktf-gray-200 bg-ktf-white shadow-xs transition-all duration-300 hover:-translate-y-0.5 hover:border-ktf-blue/25 hover:shadow-md"
+      className="group relative flex flex-col overflow-hidden rounded-md border border-ktf-gray-200 bg-ktf-white shadow-xs transition-all duration-300 hover:-translate-y-0.5 hover:border-ktf-blue/25 hover:shadow-md"
     >
       {/* Project image */}
       <div
@@ -207,7 +207,12 @@ export function ProjectCard({
       </div>
 
       {/* Card body */}
-      <div className={cn("flex flex-1 flex-col", compact ? "p-3 sm:p-6" : "p-6")}>
+      <div
+        className={cn(
+          "flex flex-1 flex-col border-t border-ktf-gray-200",
+          compact ? "p-3 sm:p-6" : "p-6",
+        )}
+      >
         {/* Type + Category */}
         <div
           className={cn(
