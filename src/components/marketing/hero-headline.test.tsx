@@ -16,8 +16,8 @@ describe("HeroHeadline", () => {
   it("renders the visual product promise around the rotating product word", () => {
     render(<HeroHeadline />);
 
-    expect(screen.getByText("Launch secure,")).toBeInTheDocument();
-    expect(screen.getByText("production-ready")).toBeInTheDocument();
+    expect(screen.getByText("Launch Secure,")).toBeInTheDocument();
+    expect(screen.getByText("Production-ready")).toBeInTheDocument();
     expect(screen.getByText("your business can own.")).toBeInTheDocument();
     // First product in the rotation is shown on initial render.
     expect(screen.getByText("Website")).toBeInTheDocument();

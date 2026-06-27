@@ -9,9 +9,9 @@ import {
 
 export const BESPOKE_AI_SUGGESTIONS = [
   {
-    label: "Choose my build path",
+    label: "What products can Bespoke build?",
     prompt:
-      "Help me choose the right build path for my product or business idea.",
+      "Help me explain the kind of products Bespoke Technologies can build for my business or  idea.",
     icon: Sparkles,
   },
   {
@@ -20,8 +20,8 @@ export const BESPOKE_AI_SUGGESTIONS = [
     icon: BriefcaseBusiness,
   },
   {
-    label: "Plan an MVP",
-    prompt: "Help me scope a production-ready MVP without overbuilding.",
+    label: "Plan a Project",
+    prompt: "Help me make a plan for a project I have told you before, if I didn't mention anyone, ask me.",
     icon: MessageCircle,
   },
   {

@@ -26,6 +26,8 @@ export const BESPOKE_AI_APPROVED_PATHS = [
   "/partnerships/tiers",
   "/reviews",
   "/contact",
+  "/terms",
+  "/privacy",
 ] as const;
 
 export type BespokeAIApprovedPath = (typeof BESPOKE_AI_APPROVED_PATHS)[number];

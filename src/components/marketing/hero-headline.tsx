@@ -41,8 +41,8 @@ export function HeroHeadline({ className }: { className?: string }) {
       </span>
 
       <span aria-hidden="true" className="block text-ktf-navy">
-        <span className="block">Launch secure,</span>
-        <span className="block">production-ready</span>
+        <span className="block">Launch Secure,</span>
+        <span className="block">Production-ready</span>
         {/* Rotating product word — its own line so length changes never reflow
             the rest of the headline. */}
         <span className="relative block min-h-[1.1em]">

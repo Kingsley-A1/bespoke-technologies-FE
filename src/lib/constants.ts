@@ -3,7 +3,7 @@
  */
 
 export const SITE_NAME = "Bespoke Technologies";
-export const SITE_SHORT_NAME = "BT";
+export const SITE_SHORT_NAME = "Bespoke Tech";
 export const SITE_TAGLINE =
   "Engineering the solutions for this, and The Next Generations_";
 export const SITE_CREED =
@@ -18,16 +18,19 @@ export const API_URL =
 export const PHONE_NUMBER = "08088071657";
 export const PHONE_DISPLAY = "08088071657";
 export const WHATSAPP_NUMBER = "2348088071657";
-export const CONTACT_EMAIL = "bespoketech.ng@gmail.com";
-export const SOCIAL_HANDLE = "@bespoketech";
+export const CONTACT_EMAIL = "bespoketech01@gmail.com";
+export const SOCIAL_HANDLE = "@bespoketech_"; //Facebook, Instagram and Tik Tok
 export const BRAND_ICON_SRC = "/icons/bespoke-technologies-icon.png";
 export const BRAND_LOGO_SRC = "/icons/bespoke-technologies-logo-main.png";
 export const WHATSAPP_INQUIRY_MESSAGE =
   "Hello Bespoke Technologies, I'd like to enquire about your engineering services. Please can you help me?";
 
 export const NAV_LINKS = [
+  {label: "Home", href: "/"},
   { label: "Services", href: "/services" },
+  { label: "Bespoke AI", href: "/bespoke-ai" },
   { label: "Projects", href: "/projects" },
+  { label: "Partnership", href: "/partnerships" },
   { label: "Reviews", href: "/reviews" },
   { label: "About", href: "/about" },
   { label: "Contact", href: "/contact" },
@@ -45,7 +48,7 @@ export const STATS = [
 export const PRODUCT_OUTCOMES = [
   {
     id: "validate",
-    title: "Validate before overbuilding",
+    title: "Validate before building",
     description:
       "Clarify scope, users, and the highest-value release before engineering expands.",
   },
@@ -155,7 +158,7 @@ export const SERVICES = [
       "Kubernetes orchestration",
       "Terraform infrastructure as code",
       "GitHub Actions CI/CD",
-      "99.99% uptime SLAs",
+      "99.99% uptime Servic Layer Agreements",
     ],
     tech: ["AWS", "GCP", "Kubernetes", "Terraform"],
   },
