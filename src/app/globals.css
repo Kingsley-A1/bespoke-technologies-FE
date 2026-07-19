@@ -151,6 +151,10 @@
 
 /* ---- CSS Custom Properties (for non-Tailwind contexts) ---- */
 :root {
+  /* The site ships light-only for now. Enforce light rendering everywhere
+     (form controls, scrollbars, UA surfaces) until dark mode is deliberately
+     designed and QA'd. */
+  color-scheme: light;
   --ktf-blue-primary: #0a84ff;
   --ktf-blue-deep: #0057d9;
   --ktf-blue-navy: #0b1f3a;

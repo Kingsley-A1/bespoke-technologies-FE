@@ -37,7 +37,7 @@ const OUTER_HEXES = NEIGHBOR_ANGLES.map((deg, i) => {
 });
 
 const METRICS = [
-  { value: 14, suffix: "+", label: "Projects delivered" },
+  { value: 18, suffix: "+", label: "Projects delivered" },
   { value: 99, suffix: "%", label: "Client satisfaction" },
   { value: 2, suffix: "+", label: "Years delivering" },
 ] as const;

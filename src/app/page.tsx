@@ -16,17 +16,17 @@ import { BespokeAIIcon } from "@/components/ai/bespoke-ai-icon";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/layout/container";
 import { AnimatedStats } from "@/components/marketing/animated-stats";
-import { ClientStory } from "@/components/marketing/client-story";
-import { HeroHeadline } from "@/components/marketing/hero-headline";
+import { HomeHero } from "@/components/marketing/home-hero";
 import {
   Reveal,
   StaggerGroup,
   StaggerItem,
 } from "@/components/marketing/motion-reveal";
 import { DeliverySteps } from "@/components/marketing/delivery-steps";
-import { ProductCommandCenter } from "@/components/marketing/product-command-center";
 import { ProjectCard } from "@/components/marketing/projects-grid";
+import { BookCard, HandoverCard } from "@/components/marketing/publication-cards";
 import { ShowcaseCarousel } from "@/components/marketing/showcase-carousel";
+import { listPublishedPublicationsSafe } from "@/features/admin/publications/repository";
 import {
   ENGAGEMENT_PATHS,
   PARTNERS,
@@ -52,13 +52,6 @@ const homeProjects = PROJECTS.filter((project) => !project.comingSoon).slice(
   0,
   6,
 );
-
-const HERO_PROOF_POINTS = [
-  { value: "16+", label: "projects delivered" },
-  { value: "3-4 wks", label: "focused launch paths" },
-  { value: "99%", label: "client satisfaction" },
-  { value: "Own it", label: "code, docs, deployment" },
-] as const;
 
 interface ServiceIconProps {
   id: (typeof SERVICES)[number]["id"];
@@ -87,96 +80,17 @@ function ServiceIcon({ id }: ServiceIconProps) {
   }
 }
 
-export default function HomePage() {
+export default async function HomePage() {
+  const [handovers, books] = await Promise.all([
+    listPublishedPublicationsSafe("handover"),
+    listPublishedPublicationsSafe("book"),
+  ]);
+  const homeHandovers = handovers.slice(0, 3);
+  const homeBooks = books.slice(0, 3);
+
   return (
     <>
-      <section
-        aria-labelledby="home-hero-title"
-        className="relative overflow-hidden border-b border-ktf-gray-200 bg-white pt-12 pb-16 sm:pt-16 sm:pb-20 lg:pt-20 lg:pb-24"
-      >
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 opacity-75"
-          style={{
-            backgroundImage:
-              "linear-gradient(to right, rgba(10,132,255,0.045) 1px, transparent 1px), linear-gradient(to bottom, rgba(11,31,58,0.035) 1px, transparent 1px)",
-            backgroundSize: "64px 64px",
-            maskImage:
-              "linear-gradient(to bottom, black 0%, black 58%, transparent 100%)",
-            WebkitMaskImage:
-              "linear-gradient(to bottom, black 0%, black 58%, transparent 100%)",
-          }}
-        />
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute top-0 right-0 h-[520px] w-[52vw] bg-[radial-gradient(circle_at_52%_35%,rgba(10,132,255,0.12),transparent_46%),radial-gradient(circle_at_85%_5%,rgba(145,110,255,0.12),transparent_34%)]"
-        />
-
-        <Container size="xl" className="relative">
-          <div className="grid min-w-0 gap-12 lg:grid-cols-[minmax(0,0.94fr)_minmax(440px,0.92fr)] lg:items-center lg:gap-16">
-            <Reveal className="min-w-0 overflow-hidden">
-              <HeroHeadline className="max-w-[15ch] text-[2.65rem] font-bold leading-[1.04] tracking-normal sm:text-[3.9rem] lg:text-[4.45rem] xl:text-[4.9rem]" />
-
-              <p className="mt-7 max-w-xl text-body leading-body text-ktf-gray-600 sm:text-body-lg">
-                Strategy, UX, engineering, security, and launch in one
-                accountable team for SaaS platforms, websites, mobile apps, AI
-                systems, and business software.
-              </p>
-
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <Button
-                  size="lg"
-                  href="/contact"
-                  className="w-full bg-ktf-blue-deep hover:bg-ktf-blue-pressed sm:w-auto"
-                >
-                  Book a Product Scope Call
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-                <Button
-                  variant="outline"
-                  size="lg"
-                  href="/projects"
-                  className="w-full border-ktf-gray-300 sm:w-auto"
-                >
-                  See Relevant Work
-                </Button>
-              </div>
-
-              <dl className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
-                {HERO_PROOF_POINTS.map((point) => (
-                  <div
-                    key={point.label}
-                    className="rounded-md border border-ktf-gray-200 bg-white/85 px-3 py-3 shadow-xs"
-                  >
-                    <dt className="text-[11px] font-semibold uppercase leading-tight text-ktf-gray-500">
-                      {point.label}
-                    </dt>
-                    <dd className="mt-1 text-base font-bold leading-none text-ktf-navy">
-                      {point.value}
-                    </dd>
-                  </div>
-                ))}
-              </dl>
-
-              {/* <div className="mt-7 flex flex-col gap-4 border-t border-ktf-gray-200 pt-5 sm:flex-row sm:items-center sm:justify-between">
-                <p className="text-body-sm font-medium text-ktf-gray-500">
-                  Clear scope. Production foundations. No technical lock-in.
-                </p>
-                <Link
-                  href="/bespoke-ai"
-                  className="inline-flex min-h-11 items-center gap-2 text-body-sm font-semibold text-ktf-blue-deep hover:text-ktf-blue-pressed"
-                >
-                  <BespokeAIIcon className="h-4 w-4" />
-                  Get a build-path recommendation
-                  <ArrowRight className="h-3.5 w-3.5" />
-                </Link>
-              </div> */}
-            </Reveal>
-
-            <ProductCommandCenter />
-          </div>
-        </Container>
-      </section>
+      <HomeHero />
 
       <section
         aria-labelledby="home-showcase-title"
@@ -292,6 +206,72 @@ export default function HomePage() {
         </Container>
       </section>
 
+      {homeHandovers.length > 0 && (
+        <section className="bg-white py-20 sm:py-28">
+          <Container size="lg">
+            <Reveal className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+              <div className="max-w-2xl">
+                <p className="text-overline font-bold uppercase tracking-[0.2em] text-ktf-blue-deep">
+                  Documented handovers
+                </p>
+                <h2 className="mt-4 text-h2 font-bold tracking-tight text-ktf-navy sm:text-h1">
+                  We document every build and hand it to the owner.
+                </h2>
+                <p className="mt-5 max-w-2xl text-body-lg leading-body text-ktf-gray-600">
+                  A preview of the handover guides we produce for completed
+                  projects. The documents themselves stay private to each client.
+                </p>
+              </div>
+              <Link
+                href="/library"
+                className="inline-flex min-h-11 items-center gap-2 text-body-sm font-semibold text-ktf-blue-deep hover:text-ktf-blue-pressed"
+              >
+                View the library
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </Reveal>
+            <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {homeHandovers.map((publication) => (
+                <HandoverCard key={publication.id} publication={publication} />
+              ))}
+            </div>
+          </Container>
+        </section>
+      )}
+
+      {homeBooks.length > 0 && (
+        <section className="bg-ktf-surface py-20 sm:py-28">
+          <Container size="lg">
+            <Reveal className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+              <div className="max-w-2xl">
+                <p className="text-overline font-bold uppercase tracking-[0.2em] text-ktf-blue-deep">
+                  Books
+                </p>
+                <h2 className="mt-4 text-h2 font-bold tracking-tight text-ktf-navy sm:text-h1">
+                  Written by the Bespoke team.
+                </h2>
+                <p className="mt-5 max-w-2xl text-body-lg leading-body text-ktf-gray-600">
+                  Practical books on building and shipping production software.
+                  Preview and download from our library.
+                </p>
+              </div>
+              <Link
+                href="/library"
+                className="inline-flex min-h-11 items-center gap-2 text-body-sm font-semibold text-ktf-blue-deep hover:text-ktf-blue-pressed"
+              >
+                Browse all books
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </Reveal>
+            <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {homeBooks.map((publication) => (
+                <BookCard key={publication.id} publication={publication} />
+              ))}
+            </div>
+          </Container>
+        </section>
+      )}
+
       <section
         id="home-projects"
         className="relative overflow-hidden bg-white py-20 sm:py-28"
@@ -380,27 +360,6 @@ export default function HomePage() {
               </StaggerItem>
             ))}
           </StaggerGroup>
-        </Container>
-      </section>
-
-      <section className="bg-ktf-surface py-20 sm:py-28">
-        <Container size="lg">
-          <Reveal className="max-w-3xl">
-            <p className="text-overline font-bold uppercase tracking-[0.2em] text-ktf-blue-deep">
-              Progressive proof
-            </p>
-            <h2 className="mt-4 text-h2 font-bold tracking-tight text-ktf-navy sm:text-h1">
-              Proof through the product journey.
-            </h2>
-            <p className="mt-5 max-w-2xl text-body-lg leading-body text-ktf-gray-600">
-              The strongest client stories connect the original challenge to
-              the product delivered and the relationship built around it.
-            </p>
-          </Reveal>
-
-          <Reveal className="mt-12" delay={0.08}>
-            <ClientStory />
-          </Reveal>
         </Container>
       </section>
 

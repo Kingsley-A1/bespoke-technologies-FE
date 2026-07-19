@@ -37,35 +37,33 @@ export function HeroHeadline({ className }: { className?: string }) {
   return (
     <h1 id="home-hero-title" className={className}>
       <span className="sr-only">
-        Launch secure, production-ready software your business can own.
+        We do the engineering, you own the software.
       </span>
 
+      {/* Two lines: the promise, then ownership with the rotating product
+          inline. The word swaps with a quick fade so the centered line
+          re-balances cleanly. */}
       <span aria-hidden="true" className="block text-ktf-navy">
-        <span className="block">Launch Secure,</span>
-        <span className="block">Production-ready</span>
-        {/* Rotating product word — its own line so length changes never reflow
-            the rest of the headline. */}
-        <span className="relative block min-h-[1.1em]">
+        <span className="block">We do the engineering,</span>
+        <span className="block">
+          you own the{" "}
           {reduceMotion ? (
-            <span className="block whitespace-nowrap text-ktf-blue-deep">
-              {word}
-            </span>
+            <span className="whitespace-nowrap text-ktf-blue-deep">{word}</span>
           ) : (
             <AnimatePresence mode="wait" initial={false}>
               <motion.span
                 key={word}
-                initial={{ opacity: 0, y: "0.34em" }}
+                initial={{ opacity: 0, y: "0.28em" }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: "-0.34em" }}
-                transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-                className="absolute inset-x-0 top-0 block whitespace-nowrap text-ktf-blue-deep"
+                exit={{ opacity: 0, y: "-0.28em" }}
+                transition={{ duration: 0.32, ease: [0.4, 0, 0.2, 1] }}
+                className="inline-block whitespace-nowrap text-ktf-blue-deep"
               >
                 {word}
               </motion.span>
             </AnimatePresence>
           )}
         </span>
-        <span className="block">your business can own.</span>
       </span>
     </h1>
   );
