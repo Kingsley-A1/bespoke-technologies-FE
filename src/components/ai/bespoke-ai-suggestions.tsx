@@ -37,7 +37,7 @@ type BespokeAISuggestionsProps = {
 
 export function BespokeAISuggestions({ onSelect }: BespokeAISuggestionsProps) {
   return (
-    <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+    <div className="flex flex-wrap justify-center gap-2">
       {BESPOKE_AI_SUGGESTIONS.map((item) => {
         const Icon = item.icon;
         return (
@@ -45,9 +45,9 @@ export function BespokeAISuggestions({ onSelect }: BespokeAISuggestionsProps) {
             key={item.prompt}
             type="button"
             onClick={() => onSelect(item.prompt)}
-            className="flex min-h-11 items-center gap-2 rounded-lg border border-ktf-gray-200 bg-white px-3 py-2 text-left text-sm font-semibold text-ktf-navy shadow-xs transition-colors hover:border-ktf-blue/40 hover:text-ktf-blue focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ktf-blue"
+            className="inline-flex items-center gap-1.5 rounded-full border border-ktf-gray-200 bg-white px-3.5 py-2 text-[13px] font-medium text-ktf-gray-700 transition-colors hover:border-ktf-blue/40 hover:bg-ktf-blue/5 hover:text-ktf-blue-deep focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ktf-blue"
           >
-            <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
+            <Icon className="h-3.5 w-3.5 shrink-0 text-ktf-blue-deep" aria-hidden="true" />
             <span>{item.label}</span>
           </button>
         );

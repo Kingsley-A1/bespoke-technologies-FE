@@ -6,7 +6,6 @@ import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import {
   ArrowRight,
-  CheckCircle2,
   PanelLeft,
   PanelLeftClose,
   X,
@@ -31,12 +30,6 @@ type BespokeAIPanelProps = {
   mode?: "page" | "panel";
   onClose?: () => void;
 };
-
-const AI_PROOF_POINTS = [
-  "Choose the right service path",
-  "Review relevant proof and projects",
-  "Prepare a cleaner scope conversation",
-] as const;
 
 export function BespokeAIPanel({
   mode = "page",
@@ -219,17 +212,17 @@ export function BespokeAIPanel({
                   <PanelLeft className="h-5 w-5" aria-hidden="true" />
                 )}
               </button>
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-ktf-blue/15 bg-gradient-to-br from-ktf-blue/12 to-white text-ktf-blue shadow-xs">
-                <BespokeAIIcon className="h-6 w-6" />
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-ktf-blue-deep text-white">
+                <BespokeAIIcon className="h-5 w-5" />
               </span>
               <div className="min-w-0">
                 <h1
                   id="bespoke-ai-panel-title"
-                  className="truncate text-base font-bold text-ktf-obsidian"
+                  className="truncate text-sm font-bold text-ktf-obsidian"
                 >
                   Bespoke AI
                 </h1>
-                <p className="truncate text-xs font-medium text-ktf-gray-600">
+                <p className="truncate text-[11px] font-medium text-ktf-gray-500">
                   Build guidance for {SITE_NAME}
                 </p>
               </div>
@@ -263,44 +256,23 @@ export function BespokeAIPanel({
           >
             <div className="mx-auto flex w-full max-w-3xl flex-col gap-4">
               {hasEmptyState ? (
-                <div className="mx-auto flex w-full max-w-2xl flex-col items-center px-1 pt-6 pb-2 text-center sm:pt-10">
-                  <span className="flex h-14 w-14 items-center justify-center rounded-xl border border-ktf-blue/15 bg-gradient-to-br from-ktf-blue/12 to-white text-ktf-blue shadow-xs">
-                    <BespokeAIIcon className="h-7 w-7" />
+                <div className="mx-auto flex w-full max-w-2xl flex-col items-center px-1 pt-10 pb-2 text-center sm:pt-16">
+                  <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-ktf-blue-deep text-white">
+                    <BespokeAIIcon className="h-6 w-6" />
                   </span>
-                  <p className="mt-5 text-xs font-bold uppercase tracking-[0.16em] text-ktf-blue-deep">
-                    Product build assistant
-                  </p>
-                  <h2 className="mt-2 text-2xl font-bold leading-tight tracking-tight text-ktf-obsidian sm:text-[1.95rem]">
-                    Find the clearest route from idea to shipped product.
+                  <h2 className="mt-5 text-xl font-bold leading-tight tracking-tight text-ktf-obsidian sm:text-2xl">
+                    What are you building?
                   </h2>
-                  <p className="mt-3 max-w-xl text-sm leading-relaxed text-ktf-gray-600 sm:text-base">
-                    Ask Bespoke AI to recommend a build path, surface relevant
-                    work, clarify scope, or prepare for a product call.
+                  <p className="mt-2 max-w-md text-sm leading-relaxed text-ktf-gray-500">
+                    Get a build path, relevant proof, or a clean scope — before
+                    you ever book a call.
                   </p>
 
-                  <div className="mt-7 w-full text-left">
+                  <div className="mt-7 w-full">
                     <BespokeAISuggestions onSelect={sendPrompt} />
                   </div>
 
-                  <ul
-                    className="mt-6 flex flex-wrap items-center justify-center gap-x-4 gap-y-2"
-                    role="list"
-                  >
-                    {AI_PROOF_POINTS.map((point) => (
-                      <li
-                        key={point}
-                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-ktf-gray-600"
-                      >
-                        <CheckCircle2
-                          className="h-3.5 w-3.5 shrink-0 text-ktf-success"
-                          aria-hidden="true"
-                        />
-                        {point}
-                      </li>
-                    ))}
-                  </ul>
-
-                  <div className="mt-7 inline-flex flex-wrap items-center justify-center gap-1.5 text-sm text-ktf-gray-500">
+                  <div className="mt-8 inline-flex flex-wrap items-center justify-center gap-1.5 text-xs text-ktf-gray-500">
                     Prefer a human conversation?
                     <Link
                       href="/contact"
@@ -318,14 +290,23 @@ export function BespokeAIPanel({
               )}
               {isStreaming ? (
                 <div
-                  className="flex justify-start"
+                  className="flex items-center gap-3"
                   role="status"
                   aria-live="polite"
                   aria-atomic="true"
                 >
-                  <div className="rounded-lg border border-ktf-gray-200 bg-white px-4 py-3 text-sm text-ktf-gray-600 shadow-xs">
-                    Bespoke AI is preparing a useful response...
-                  </div>
+                  <span
+                    className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-ktf-blue-deep text-white"
+                    aria-hidden="true"
+                  >
+                    <BespokeAIIcon className="h-4 w-4" />
+                  </span>
+                  <span className="flex items-center gap-1" aria-hidden="true">
+                    <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-ktf-gray-400" />
+                    <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-ktf-gray-400 [animation-delay:120ms]" />
+                    <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-ktf-gray-400 [animation-delay:240ms]" />
+                  </span>
+                  <span className="sr-only">Bespoke AI is responding</span>
                 </div>
               ) : null}
               {error ? (
