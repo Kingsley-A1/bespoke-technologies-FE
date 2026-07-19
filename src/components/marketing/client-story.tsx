@@ -18,8 +18,8 @@ export function ClientStory() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [paused, setPaused] = useState(false);
   const [hovered, setHovered] = useState(false);
-  const story = CLIENT_STORIES[activeIndex];
-  const shouldRotate = !reduceMotion && !paused && !hovered;
+  const hasStories = CLIENT_STORIES.length > 0;
+  const shouldRotate = hasStories && !reduceMotion && !paused && !hovered;
 
   useEffect(() => {
     if (!shouldRotate) return;
@@ -30,6 +30,11 @@ export function ClientStory() {
 
     return () => window.clearInterval(interval);
   }, [shouldRotate]);
+
+  // No published client stories yet — render nothing until real feedback exists.
+  if (!hasStories) return null;
+
+  const story = CLIENT_STORIES[activeIndex];
 
   const selectStory = (index: number) => {
     setActiveIndex((index + CLIENT_STORIES.length) % CLIENT_STORIES.length);
