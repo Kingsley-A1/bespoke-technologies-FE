@@ -11,6 +11,7 @@ import {
   Handshake,
   Home,
   Layers,
+  Library,
   Mail,
   Sparkles,
   Star,
@@ -25,6 +26,7 @@ import {
   WHATSAPP_NUMBER,
 } from "@/lib/constants";
 import { WhatsAppIcon } from "@/components/icons/whatsapp-icon";
+import { MegaNavItem, NAV_MENUS } from "@/components/layout/nav-mega-menu";
 import { cn } from "@/lib/utils";
 import { useMediaQuery } from "@/hooks";
 
@@ -34,6 +36,7 @@ const NAV_ICONS: Record<string, LucideIcon> = {
   "/services": Layers,
   "/bespoke-ai": Sparkles,
   "/projects": FolderGit2,
+  "/library": Library,
   "/partnerships": Handshake,
   "/reviews": Star,
   "/about": Users,
@@ -92,6 +95,18 @@ export function Header() {
           >
             {NAV_LINKS.map((link) => {
               const isActive = pathname === link.href;
+              const menu = NAV_MENUS[link.href];
+              if (menu) {
+                return (
+                  <MegaNavItem
+                    key={link.href}
+                    href={link.href}
+                    label={link.label}
+                    isActive={isActive}
+                    menu={menu}
+                  />
+                );
+              }
               return (
                 <li key={link.href}>
                   <Link

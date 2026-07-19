@@ -1,9 +1,5 @@
 import type { Metadata } from "next";
-import { Header } from "@/components/layout/header";
-import { ConditionalFooter } from "@/components/layout/conditional-footer";
-import { BespokeAILauncher } from "@/components/ai";
-import { InstallPrompt } from "@/components/pwa/install-prompt";
-import { ServiceWorkerRegistration } from "@/components/pwa/service-worker-registration";
+import { PublicExperience } from "@/components/layout/public-experience";
 import {
   BRAND_ICON_SRC,
   CONTACT_EMAIL,
@@ -92,12 +88,7 @@ export default function RootLayout({
             __html: JSON.stringify(organizationJsonLd),
           }}
         />
-        <Header />
-        <main className="flex flex-col flex-1">{children}</main>
-        <ConditionalFooter />
-        <BespokeAILauncher />
-        <InstallPrompt />
-        <ServiceWorkerRegistration />
+        <PublicExperience>{children}</PublicExperience>
       </body>
     </html>
   );

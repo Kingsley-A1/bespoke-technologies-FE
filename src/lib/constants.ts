@@ -30,6 +30,7 @@ export const NAV_LINKS = [
   { label: "Services", href: "/services" },
   { label: "Bespoke AI", href: "/bespoke-ai" },
   { label: "Projects", href: "/projects" },
+  { label: "Library", href: "/library" },
   { label: "Partnership", href: "/partnerships" },
   { label: "Reviews", href: "/reviews" },
   { label: "About", href: "/about" },
@@ -39,7 +40,7 @@ export const NAV_LINKS = [
 // ── Stats ──────────────────────────────────────────────────────────────────
 
 export const STATS = [
-  { value: "16+", label: "Projects Delivered" },
+  { value: "18+", label: "Projects Delivered" },
   { value: "3–4 Wks", label: "Est. Delivery" },
   { value: "2+", label: "Years of Excellence" },
   { value: "99%", label: "Client Satisfaction" },
@@ -258,78 +259,30 @@ export const VALUES = [
 
 // ── Testimonials ───────────────────────────────────────────────────────────
 
-export const TESTIMONIALS = [
-  {
-    id: "1",
-    quote:
-      "Bespoke Technologies didn't just build our platform — they redesigned how we think about our digital infrastructure. The quality and thoughtfulness of their engineering is extraordinary.",
-    author: "Amara Okafor",
-    role: "Co-Founder & CTO",
-    company: "FinEdge Technologies",
-    initials: "AO",
-    rating: 5,
-  },
-  {
-    id: "2",
-    quote:
-      "Working with Bespoke Technologies was a defining moment for our startup. They delivered a production-ready SaaS platform in record time, without a single compromise on quality or performance.",
-    author: "James Thornton",
-    role: "Chief Executive Officer",
-    company: "Debranded Studio",
-    initials: "JT",
-    rating: 5,
-  },
-  {
-    id: "3",
-    quote:
-      "The Bespoke Technologies team has become our permanent engineering partner. Their work ethic, technical depth, and genuine care for our product sets them apart from every agency we have ever worked with.",
-    author: "Priya Nair",
-    role: "VP of Technology",
-    company: "Horizon Logistics Group",
-    initials: "PN",
-    rating: 5,
-  },
-  {
-    id: "4",
-    quote:
-      "What impressed me most was how Bespoke Technologies treated our project as if it were their own. The design system they built for us is still serving us perfectly two years later.",
-    author: "David Chen",
-    role: "Founder",
-    company: "BuildXR Studio",
-    initials: "DC",
-    rating: 5,
-  },
-] as const;
+export interface Testimonial {
+  id: string;
+  quote: string;
+  author: string;
+  role: string;
+  company: string;
+  initials: string;
+  rating: number;
+}
 
-export const CLIENT_STORIES = TESTIMONIALS.map((testimonial, index) => {
-  const storyDetails = [
-    {
-      challenge: "Rethink the product's digital infrastructure",
-      delivery: "Product strategy and platform engineering",
-      outcome: "A stronger, more considered technical foundation",
-    },
-    {
-      challenge: "Move from startup ambition to a launch-ready SaaS product",
-      delivery: "End-to-end product and engineering execution",
-      outcome: "A production-ready platform delivered at startup speed",
-    },
-    {
-      challenge: "Build dependable long-term engineering capacity",
-      delivery: "Embedded product partnership and technical delivery",
-      outcome: "A trusted engineering relationship beyond one release",
-    },
-    {
-      challenge: "Create a design system that would remain useful over time",
-      delivery: "Product design and production-ready component architecture",
-      outcome: "A durable system still supporting the product years later",
-    },
-  ] as const;
+export interface ClientStory extends Testimonial {
+  challenge: string;
+  delivery: string;
+  outcome: string;
+}
 
-  return {
-    ...testimonial,
-    ...storyDetails[index],
-  };
-});
+/**
+ * Real, verified client testimonials only. This list stays empty until genuine
+ * client feedback has been collected and approved for publication — the public
+ * reviews page and home carousel render an honest empty state until then.
+ */
+export const TESTIMONIALS: readonly Testimonial[] = [];
+
+export const CLIENT_STORIES: readonly ClientStory[] = [];
 
 // ── Partners ───────────────────────────────────────────────────────────────
 

@@ -11,6 +11,7 @@ const FOOTER_LINKS = {
     { label: "Reviews", href: "/reviews" },
   ],
   resources: [
+    { label: "Library", href: "/library" },
     { label: "Contact", href: "/contact" },
     { label: "Privacy Policy", href: "/privacy" },
     { label: "Terms of Service", href: "/terms" },
