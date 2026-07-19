@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { Button, Input, Textarea, Select } from "@/components/ui";
-import { API_URL } from "@/lib/constants";
 
 type ContactSubject = "project_enquiry" | "partnership" | "general" | "support";
 
@@ -81,7 +80,7 @@ export function ContactForm() {
     setErrorMessage("");
 
     try {
-      const response = await fetch(`${API_URL}/contact`, {
+      const response = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
