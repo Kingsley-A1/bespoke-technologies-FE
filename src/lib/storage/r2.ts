@@ -107,6 +107,25 @@ export async function getR2Object(key: string) {
     }),
   );
 }
+
+/**
+ * Fetches a stored object fully into memory. Returns `null` when the object is
+ * missing. Suitable for the size-capped documents/covers this app stores.
+ */
+export async function getR2ObjectBytes(
+  key: string,
+): Promise<{ bytes: Uint8Array; contentType?: string } | null> {
+  try {
+    const output = await getR2Object(key);
+    if (!output.Body) return null;
+    const bytes = await output.Body.transformToByteArray();
+    return { bytes, contentType: output.ContentType };
+  } catch (error) {
+    const name = typeof error === "object" && error && "name" in error ? String(error.name) : "";
+    if (name === "NoSuchKey" || name === "NotFound") return null;
+    throw error;
+  }
+}
 export async function deleteR2Object(key: string) {
   const config = getR2Config();
   const r2 = getR2Client();

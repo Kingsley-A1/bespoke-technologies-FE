@@ -1,0 +1,45 @@
+{
+  "browser": "Microsoft Edge",
+  "baseUrl": "http://localhost:3000",
+  "capturedAt": "2026-07-17T11:07:04.204Z",
+  "checks": {
+    "loginTitle": true,
+    "loginLabels": true,
+    "keyboardFocusOrder": true,
+    "fullCodeEntry": true,
+    "dashboardLoaded": true,
+    "landmarks": true,
+    "noDuplicateIds": true,
+    "namedButtons": true,
+    "desktopNoHorizontalOverflow": true,
+    "tabletNoHorizontalOverflow": true,
+    "mobileNoHorizontalOverflow": true,
+    "mobileMenuButton": true,
+    "mobileNavigationVisible": true,
+    "primaryNavigation": true,
+    "editorLoaded": true,
+    "editorNoHorizontalOverflow": true,
+    "invoiceDetailLoaded": true,
+    "invoicePreviewGeometry": true,
+    "reducedMotionMedia": true,
+    "allAutomatedChecksPassed": true
+  },
+  "focusOrder": [
+    "Bespoke Technologies Admin home",
+    "email",
+    "code",
+    "Continue securely"
+  ],
+  "screenshots": [
+    "login-desktop.png",
+    "dashboard-desktop.png",
+    "dashboard-tablet.png",
+    "dashboard-mobile.png",
+    "dashboard-mobile-nav.png",
+    "billing-editor-desktop.png",
+    "invoice-detail-desktop.png",
+    "invoice-preview.png",
+    "dashboard-comparison.png",
+    "invoice-comparison.png"
+  ]
+}

@@ -32,7 +32,7 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
-!.env.example
+.env.example
 
 # vercel
 .vercel
@@ -43,3 +43,4 @@ next-env.d.ts
 
 .vercel
 *.docx
+*Bespoke_Invoice_Generator_Source

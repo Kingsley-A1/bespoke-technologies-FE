@@ -7,20 +7,28 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "migrate": "node scripts/migrate.mjs",
+    "admin:totp": "node scripts/admin-totp.mjs",
+    "admin:recovery": "node scripts/admin-recovery.mjs",
+    "admin:verify": "node scripts/verify-admin-config.mjs",
+    "qa:admin-browser": "node scripts/admin-browser-qa.mjs"
   },
-
   "dependencies": {
     "@ai-sdk/google": "^3.0.80",
     "@ai-sdk/react": "^3.0.200",
     "@aws-sdk/client-s3": "^3.1064.0",
+    "@pdf-lib/fontkit": "1.1.1",
     "ai": "^6.0.198",
     "clsx": "^2.1.1",
     "lucide-react": "^1.17.0",
     "motion": "^12.38.0",
     "next": "16.2.1",
+    "pdf-lib": "1.17.1",
     "pg": "^8.21.0",
+    "qrcode": "^1.5.4",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "tailwind-merge": "^3.5.0",
@@ -33,6 +41,7 @@
     "@testing-library/user-event": "^14.6.1",
     "@types/node": "^20",
     "@types/pg": "^8.20.0",
+    "@types/qrcode": "^1.5.6",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@vitejs/plugin-react": "^6.0.1",
@@ -40,9 +49,10 @@
     "eslint": "^9",
     "eslint-config-next": "16.2.1",
     "jsdom": "^29.0.1",
+    "png-to-ico": "^2.0.0",
+    "prisma": "^7.8.0",
     "tailwindcss": "^4",
     "typescript": "^5",
-    "vitest": "^4.1.2",
-    "png-to-ico": "^2.0.0"
+    "vitest": "^4.1.2"
   }
 }
