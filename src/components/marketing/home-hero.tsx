@@ -70,38 +70,49 @@ export async function HomeHero() {
   return (
     <section
       aria-labelledby="home-hero-title"
-      className="relative overflow-hidden border-b border-ktf-gray-200 bg-white pt-8 pb-14 sm:pt-10 sm:pb-16 lg:pt-12"
+      className="relative overflow-hidden border-b border-ktf-gray-200 bg-ktf-surface pt-8 pb-14 sm:pt-10 sm:pb-16 lg:pt-12"
     >
-      {/* Engineered grid, faded before the fold */}
+      {/* Base wash — a whisper of cool tone so the stage never reads as flat white */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 opacity-60"
+        className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,#ffffff_0%,#f6f8fb_60%,#eef2f8_100%)]"
+      />
+      {/* Engineered grid, denser and drawn through the device stage */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0"
         style={{
           backgroundImage:
-            "linear-gradient(to right, rgba(11,31,58,0.035) 1px, transparent 1px), linear-gradient(to bottom, rgba(11,31,58,0.03) 1px, transparent 1px)",
-          backgroundSize: "72px 72px",
-          maskImage: "radial-gradient(110% 70% at 50% 0%, black 0%, transparent 72%)",
-          WebkitMaskImage: "radial-gradient(110% 70% at 50% 0%, black 0%, transparent 72%)",
+            "linear-gradient(to right, rgba(11,31,58,0.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(11,31,58,0.045) 1px, transparent 1px)",
+          backgroundSize: "56px 56px",
+          maskImage: "radial-gradient(120% 78% at 50% 34%, black 0%, transparent 78%)",
+          WebkitMaskImage: "radial-gradient(120% 78% at 50% 34%, black 0%, transparent 78%)",
         }}
       />
       {/* Soft headline glow */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-0 h-[340px] bg-[radial-gradient(ellipse_60%_55%_at_50%_0%,rgba(10,132,255,0.09),transparent_70%)]"
+        className="pointer-events-none absolute inset-x-0 top-0 h-[340px] bg-[radial-gradient(ellipse_60%_55%_at_50%_0%,rgba(10,132,255,0.10),transparent_70%)]"
       />
 
       <Container size="lg" className="relative">
         <Reveal className="mx-auto max-w-2xl text-center">
-          <HeroHeadline className="text-[1.8rem] font-bold leading-[1.12] tracking-[-0.03em] sm:text-[2.5rem] lg:text-[2.9rem]" />
+          <HeroHeadline className="text-[1.25rem] font-bold leading-[1.2] tracking-[-0.03em] sm:text-[2.5rem] lg:text-[2.9rem]" />
         </Reveal>
       </Container>
 
       {/* Phone trio — fanned out on desktop, rotating carousel on mobile */}
       <Container size="xl" className="relative mt-8 sm:mt-10">
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute left-1/2 top-4 h-[85%] w-[680px] max-w-[92vw] -translate-x-1/2 rounded-full bg-[conic-gradient(from_140deg_at_50%_45%,rgba(10,132,255,0.14),rgba(0,87,217,0.05),rgba(10,132,255,0.16),rgba(11,31,58,0.06),rgba(10,132,255,0.14))] blur-3xl"
-        />
+        {/* Ambient stage behind the devices — depth and grounding without noise */}
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0">
+          {/* Cool spotlight pooling behind the trio */}
+          <div className="absolute left-1/2 top-1 h-[80%] w-[640px] max-w-[94vw] -translate-x-1/2 rounded-full bg-[radial-gradient(58%_58%_at_50%_44%,rgba(10,132,255,0.20),rgba(0,87,217,0.06)_52%,transparent_74%)] blur-2xl" />
+          {/* Blueprint rings — quiet engineering motif */}
+          <div className="absolute left-1/2 top-[46%] h-[280px] w-[280px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-ktf-blue/[0.09] sm:h-[380px] sm:w-[380px] lg:h-[460px] lg:w-[460px]" />
+          <div className="absolute left-1/2 top-[46%] h-[400px] w-[400px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-ktf-blue/[0.06] sm:h-[520px] sm:w-[520px] lg:h-[620px] lg:w-[620px]" />
+          {/* Grounding reflection beneath the devices */}
+          <div className="absolute bottom-2 left-1/2 h-10 w-[64%] max-w-[540px] -translate-x-1/2 rounded-[50%] bg-[radial-gradient(closest-side,rgba(11,31,58,0.18),transparent)] blur-md" />
+        </div>
         <HeroPhoneShowcase phones={phones} />
       </Container>
 
@@ -119,7 +130,7 @@ export async function HomeHero() {
               href="/contact"
               className="w-full bg-ktf-blue-deep hover:bg-ktf-blue-pressed sm:w-auto"
             >
-              Book a Product Scope Call
+              Contact Us
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
             <Button

@@ -43,8 +43,8 @@ export function HeroHeadline({ className }: { className?: string }) {
       {/* Two lines: the promise, then ownership with the rotating product
           inline. The word swaps with a quick fade so the centered line
           re-balances cleanly. */}
-      <span aria-hidden="true" className="block text-ktf-navy">
-        <span className="block">We do the engineering,</span>
+      <span aria-hidden="true" className="block text-balance text-ktf-navy">
+        <span className="block whitespace-nowrap">We do the engineering,</span>
         <span className="block">
           you own the{" "}
           {reduceMotion ? (
