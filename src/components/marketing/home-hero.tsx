@@ -1,10 +1,13 @@
-import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/layout/container";
 import { HeroHeadline } from "@/components/marketing/hero-headline";
-import { PhoneFrame } from "@/components/marketing/phone-frame";
+import {
+  HeroPhoneShowcase,
+  type HeroPhone,
+} from "@/components/marketing/hero-phone-showcase";
 import { Reveal } from "@/components/marketing/motion-reveal";
+import { PROJECTS } from "@/lib/constants";
 import { listSiteAssetsSafe, type SiteAssetKey } from "@/features/admin/site-assets/repository";
 
 const PROOF_POINTS = [
@@ -19,46 +22,50 @@ const PROOF_POINTS = [
  * mobile viewport. The admin can replace any slot from Settings → Homepage
  * hero screenshots.
  */
-const FALLBACK_SCREENS: Record<SiteAssetKey, { src: string; alt: string }> = {
+const FALLBACK_SCREENS: Record<
+  SiteAssetKey,
+  { src: string; alt: string; projectId: string }
+> = {
   "hero-phone-1": {
     src: "/hero/luminary.png",
     alt: "Luminary College — education platform delivered by Bespoke Technologies",
+    projectId: "luminary-college",
   },
   "hero-phone-2": {
     src: "/hero/maxit.png",
     alt: "Maxit Autos — premium car rental platform delivered by Bespoke Technologies",
+    projectId: "maxit-autos",
   },
   "hero-phone-3": {
     src: "/hero/downbelow.png",
     alt: "DownBelow Family Health Initiatives — health education platform delivered by Bespoke Technologies",
+    projectId: "down-below",
   },
 };
 
-function PhoneScreen({ slot, hasAsset }: { slot: SiteAssetKey; hasAsset: boolean }) {
-  const fallback = FALLBACK_SCREENS[slot];
-  return (
-    <Image
-      src={hasAsset ? `/api/site-assets/${slot}` : fallback.src}
-      alt={hasAsset ? "" : fallback.alt}
-      fill
-      sizes="(min-width: 1024px) 240px, 40vw"
-      unoptimized={hasAsset}
-      className="object-cover object-top"
-    />
-  );
-}
-
 /**
  * Homepage hero — a compact two-line promise, then three real product phones
- * front and center. On pointer devices the side phones tuck behind the lead
- * device and fan out on hover; on small screens the trio is always fanned.
- * The supporting copy, CTAs, and proof row sit under the devices.
+ * front and center. On desktop the side phones slide out into a fanned trio
+ * by default; on mobile the trio rotates as a swipeable carousel. Each frame
+ * links to the live project it shows. The supporting copy, CTAs, and proof
+ * row sit under the devices.
  */
 export async function HomeHero() {
   const assets = await listSiteAssetsSafe();
 
-  const sidePhoneBase =
-    "transition-transform duration-500 ease-out motion-reduce:transition-none";
+  const phones = (Object.keys(FALLBACK_SCREENS) as SiteAssetKey[]).map((slot) => {
+    const fallback = FALLBACK_SCREENS[slot];
+    const hasAsset = Boolean(assets[slot]);
+    const project = PROJECTS.find((entry) => entry.id === fallback.projectId);
+    return {
+      slot,
+      src: hasAsset ? `/api/site-assets/${slot}` : fallback.src,
+      alt: fallback.alt,
+      unoptimized: hasAsset,
+      href: project?.liveUrl,
+      label: project ? `View the live ${project.name} project` : undefined,
+    } satisfies HeroPhone;
+  }) as [HeroPhone, HeroPhone, HeroPhone];
 
   return (
     <section
@@ -89,27 +96,13 @@ export async function HomeHero() {
         </Reveal>
       </Container>
 
-      {/* Phone trio — fully visible, fanned on mobile, hover-fan on desktop */}
+      {/* Phone trio — fanned out on desktop, rotating carousel on mobile */}
       <Container size="xl" className="relative mt-8 sm:mt-10">
         <div
           aria-hidden="true"
           className="pointer-events-none absolute left-1/2 top-4 h-[85%] w-[680px] max-w-[92vw] -translate-x-1/2 rounded-full bg-[conic-gradient(from_140deg_at_50%_45%,rgba(10,132,255,0.14),rgba(0,87,217,0.05),rgba(10,132,255,0.16),rgba(11,31,58,0.06),rgba(10,132,255,0.14))] blur-3xl"
         />
-        <div className="ktf-hero-console group relative flex items-start justify-center">
-          <PhoneFrame
-            className={`z-0 mt-6 w-[104px] -rotate-8 translate-y-1 -mr-6 sm:w-[150px] sm:-mr-8 lg:mt-8 lg:w-[195px] lg:rotate-0 lg:translate-y-0 lg:-mr-[7.25rem] lg:group-hover:-translate-x-14 lg:group-hover:-rotate-6 ${sidePhoneBase}`}
-          >
-            <PhoneScreen slot="hero-phone-1" hasAsset={Boolean(assets["hero-phone-1"])} />
-          </PhoneFrame>
-          <PhoneFrame className="z-10 w-[136px] sm:w-[190px] lg:w-[235px]">
-            <PhoneScreen slot="hero-phone-2" hasAsset={Boolean(assets["hero-phone-2"])} />
-          </PhoneFrame>
-          <PhoneFrame
-            className={`z-0 mt-6 w-[104px] rotate-8 translate-y-1 -ml-6 sm:w-[150px] sm:-ml-8 lg:mt-8 lg:w-[195px] lg:rotate-0 lg:translate-y-0 lg:-ml-[7.25rem] lg:group-hover:translate-x-14 lg:group-hover:rotate-6 ${sidePhoneBase}`}
-          >
-            <PhoneScreen slot="hero-phone-3" hasAsset={Boolean(assets["hero-phone-3"])} />
-          </PhoneFrame>
-        </div>
+        <HeroPhoneShowcase phones={phones} />
       </Container>
 
       {/* Supporting copy, actions, and proof under the devices */}

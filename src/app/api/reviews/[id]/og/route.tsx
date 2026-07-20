@@ -1,6 +1,7 @@
 import { ImageResponse } from "next/og";
 import { NextResponse } from "next/server";
 import { getPublishedReviewByIdSafe } from "@/features/admin/reviews/repository";
+import { getBrandIconDataUri } from "@/lib/brand-logo";
 
 export const runtime = "nodejs";
 
@@ -14,6 +15,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   if (!review) return new NextResponse(null, { status: 404 });
 
   const origin = new URL(request.url).origin;
+  const brandIcon = await getBrandIconDataUri();
   const excerpt =
     review.body.length > 180 ? `${review.body.slice(0, 177).trimEnd()}…` : review.body;
 
@@ -58,14 +60,17 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
             >
               CLIENT REVIEW
             </div>
-            <div style={{ display: "flex", marginTop: 18, fontSize: 44 }}>
+            <div style={{ display: "flex", marginTop: 18, gap: 6 }}>
               {[1, 2, 3, 4, 5].map((star) => (
-                <span
+                <svg
                   key={star}
-                  style={{ color: star <= review.rating ? "#f5a524" : "#e8edf3", marginRight: 6 }}
+                  width="44"
+                  height="44"
+                  viewBox="0 0 24 24"
+                  fill={star <= review.rating ? "#f5a524" : "#e8edf3"}
                 >
-                  ★
-                </span>
+                  <path d="M12 2l2.95 5.96 6.58.96-4.77 4.64 1.13 6.55L12 17.02l-5.89 3.09 1.13-6.55-4.77-4.64 6.58-.96L12 2z" />
+                </svg>
               ))}
             </div>
           </div>
@@ -103,9 +108,27 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
               {review.projectName}
             </div>
           </div>
-          <div style={{ display: "flex", alignItems: "baseline", fontSize: 28, fontWeight: 800 }}>
-            <span style={{ color: "#0a84ff" }}>BESPOKE</span>
-            <span style={{ color: "#111318", marginLeft: 10 }}>TECHNOLOGIES</span>
+          <div style={{ display: "flex", alignItems: "center" }}>
+            {/* eslint-disable-next-line @next/next/no-img-element -- ImageResponse requires plain img */}
+            <img
+              src={brandIcon}
+              alt=""
+              width={60}
+              height={60}
+              style={{ width: 60, height: 60, borderRadius: 14, border: "1px solid #e8edf3" }}
+            />
+            <div
+              style={{
+                display: "flex",
+                alignItems: "baseline",
+                fontSize: 28,
+                fontWeight: 800,
+                marginLeft: 16,
+              }}
+            >
+              <span style={{ color: "#0a84ff" }}>BESPOKE</span>
+              <span style={{ color: "#111318", marginLeft: 10 }}>TECHNOLOGIES</span>
+            </div>
           </div>
         </div>
       </div>

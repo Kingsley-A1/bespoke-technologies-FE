@@ -1,10 +1,13 @@
 import { ImageResponse } from "next/og";
+import { getBrandIconDataUri } from "@/lib/brand-logo";
 
-export const runtime = "edge";
+export const runtime = "nodejs";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-export default function Image() {
+export default async function Image() {
+  const brandIcon = await getBrandIconDataUri();
+
   return new ImageResponse(
     <div
       style={{
@@ -61,24 +64,19 @@ export default function Image() {
           marginBottom: "40px",
         }}
       >
-        <div
+        <img
+          src={brandIcon}
+          alt=""
+          width={72}
+          height={72}
           style={{
             width: 72,
             height: 72,
-            background: "linear-gradient(135deg, #0a84ff 0%, #0057d9 100%)",
             borderRadius: "16px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: "26px",
-            fontWeight: 900,
-            color: "white",
-            letterSpacing: "-1px",
+            backgroundColor: "#ffffff",
             boxShadow: "0 8px 32px rgba(10,132,255,0.4)",
           }}
-        >
-          BT
-        </div>
+        />
         <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
           <span
             style={{
@@ -149,10 +147,10 @@ export default function Image() {
         Real feedback from real projects — 99% client satisfaction.
       </p>
       <div style={{ marginTop: "36px", display: "flex", gap: "8px" }}>
-        {["★", "★", "★", "★", "★"].map((s, i) => (
-          <span key={i} style={{ fontSize: "28px", color: "#f5a524" }}>
-            {s}
-          </span>
+        {[1, 2, 3, 4, 5].map((star) => (
+          <svg key={star} width="28" height="28" viewBox="0 0 24 24" fill="#f5a524">
+            <path d="M12 2l2.95 5.96 6.58.96-4.77 4.64 1.13 6.55L12 17.02l-5.89 3.09 1.13-6.55-4.77-4.64 6.58-.96L12 2z" />
+          </svg>
         ))}
       </div>
     </div>,
