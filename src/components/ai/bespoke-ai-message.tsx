@@ -4,6 +4,7 @@ import type { BespokeAIUIMessage } from "@/lib/ai/bespoke-ai-types";
 import { cn } from "@/lib/utils";
 import { BespokeAIActionCard } from "./bespoke-ai-action-card";
 import { BespokeAIIcon } from "./bespoke-ai-icon";
+import { BespokeAIMarkdown } from "./bespoke-ai-markdown";
 
 type BespokeAIMessageProps = {
   message: BespokeAIUIMessage;
@@ -50,9 +51,7 @@ export function BespokeAIMessage({ message }: BespokeAIMessageProps) {
               {textParts.map((part, index) => {
                 if (part.type !== "text") return null;
                 return (
-                  <p key={`${message.id}-${index}`} className="whitespace-pre-wrap">
-                    {part.text}
-                  </p>
+                  <BespokeAIMarkdown key={`${message.id}-${index}`} text={part.text} />
                 );
               })}
             </div>

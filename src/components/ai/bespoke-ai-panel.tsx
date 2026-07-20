@@ -30,11 +30,14 @@ import { useBespokeAIConversations } from "./use-bespoke-ai-conversations";
 type BespokeAIPanelProps = {
   mode?: "page" | "panel";
   onClose?: () => void;
+  /** When provided, the header acts as a drag handle (floating panel). */
+  onHeaderPointerDown?: (event: React.PointerEvent<HTMLElement>) => void;
 };
 
 export function BespokeAIPanel({
   mode = "page",
   onClose,
+  onHeaderPointerDown,
 }: BespokeAIPanelProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const isDesktop = useMediaQuery("(min-width: 1024px)");
@@ -192,7 +195,13 @@ export function BespokeAIPanel({
         {isDesktop && isHistoryDockOpen ? historySidebar : null}
         {mobileHistoryDrawer}
         <div className="flex min-w-0 flex-1 flex-col bg-ktf-white">
-          <header className="flex h-16 shrink-0 items-center justify-between border-b border-ktf-gray-200 px-4">
+          <header
+            onPointerDown={onHeaderPointerDown}
+            className={cn(
+              "flex h-16 shrink-0 items-center justify-between border-b border-ktf-gray-200 px-4",
+              onHeaderPointerDown && "cursor-grab touch-none select-none active:cursor-grabbing",
+            )}
+          >
             <div className="flex min-w-0 items-center gap-3">
               <button
                 type="button"
