@@ -41,10 +41,10 @@ export function BespokeAIMessage({ message }: BespokeAIMessageProps) {
           // Assistant turn — flat, document-like, no bubble chrome.
           <div className="flex w-full gap-3">
             <span
-              className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-ktf-blue-deep text-white"
+              className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-ktf-blue to-ktf-blue-deep text-white shadow-sm"
               aria-hidden="true"
             >
-              <BespokeAIIcon className="h-4 w-4" />
+              <BespokeAIIcon className="h-4 w-4" inverse />
             </span>
             <div className="grid min-w-0 flex-1 gap-2 pt-1 text-sm leading-relaxed text-ktf-obsidian">
               {textParts.map((part, index) => {

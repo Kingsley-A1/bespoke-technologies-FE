@@ -72,7 +72,7 @@ export default async function ReviewPermalinkPage({ params }: ReviewPageProps) {
             We design, engineer, and hand over production software you fully own.
           </p>
           <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
-            <Button href="/contact">Book a Product Scope Call</Button>
+            <Button href="/contact">Contact Us</Button>
             <Button href="/projects" variant="outline">
               See Delivered Work
             </Button>

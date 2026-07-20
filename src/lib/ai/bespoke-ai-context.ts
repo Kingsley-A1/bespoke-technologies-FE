@@ -1,5 +1,6 @@
 import {
   CONTACT_EMAIL,
+  FOUNDER,
   NAV_LINKS,
   PARTNERS,
   PARTNERSHIP_TIERS,
@@ -68,6 +69,11 @@ export function getBespokeAIContext() {
     (tier) => `${tier.name}: ${tier.description}`,
   ).join("\n");
   const stats = STATS.map((stat) => `${stat.value} ${stat.label}`).join("; ");
+  const leadership = [
+    `${FOUNDER.name} — ${FOUNDER.title}. ${FOUNDER.role}`,
+    `Ethos: ${FOUNDER.ethos}`,
+    `Accountability: ${FOUNDER.accountability}`,
+  ].join(" ");
 
   return [
     `Company: ${SITE_NAME}`,
@@ -75,6 +81,7 @@ export function getBespokeAIContext() {
     `Public motto: ${SITE_TAGLINE}`,
     `Internal creed: ${SITE_CREED}`,
     `Description: ${SITE_DESCRIPTION}`,
+    `Leadership: ${leadership}`,
     `Phone/WhatsApp display: ${PHONE_DISPLAY}`,
     `WhatsApp international number: ${WHATSAPP_NUMBER}`,
     `Email: ${CONTACT_EMAIL}`,

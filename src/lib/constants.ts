@@ -25,6 +25,18 @@ export const BRAND_LOGO_SRC = "/icons/bespoke-technologies-logo-main.png";
 export const WHATSAPP_INQUIRY_MESSAGE =
   "Hello Bespoke Technologies, I'd like to enquire about your engineering services. Please can you help me?";
 
+// ── Leadership ─────────────────────────────────────────────────────────────
+// Kept intentionally brief and factual — no unverified background details.
+export const FOUNDER = {
+  name: "Kingsley Maduabuchi",
+  title: "Founder & CEO",
+  role: "Leads engineering and delivery at Bespoke Technologies.",
+  ethos:
+    "Engineering-first and hands-on: builds practical, intelligent, secure, scalable, and future-ready systems that just work — guided by the creed \"For Honor and For Excellence\".",
+  accountability:
+    "Keeps one accountable team behind every build. Clients fully own their code, documentation, and deployment.",
+} as const;
+
 export const NAV_LINKS = [
   {label: "Home", href: "/"},
   { label: "Services", href: "/services" },

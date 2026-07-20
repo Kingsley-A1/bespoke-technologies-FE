@@ -50,7 +50,7 @@ export const NAV_MENUS: Record<string, MegaMenu> = {
       },
       {
         icon: CalendarCheck2,
-        label: "Book a scope call",
+        label: "Contact us",
         description: "Start a build conversation",
         href: "/contact",
       },

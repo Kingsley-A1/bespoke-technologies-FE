@@ -527,7 +527,7 @@ export default async function HomePage() {
                 href="/contact"
                 className="bg-white text-ktf-navy hover:bg-ktf-gray-100"
               >
-                Book a Product Scope Call
+                Contact Us
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
               <Button

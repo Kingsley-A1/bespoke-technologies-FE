@@ -130,9 +130,9 @@ export function Header() {
           <div className="hidden items-center gap-3 lg:flex">
             <Link
               href="/contact"
-              className="inline-flex h-10 items-center justify-center rounded-lg bg-ktf-blue px-4 text-sm font-semibold text-white shadow-sm transition-colors duration-150 hover:bg-ktf-blue-deep active:bg-ktf-blue-pressed xl:px-5"
+              className="inline-flex h-10 items-center justify-center whitespace-nowrap rounded-lg bg-ktf-blue px-4 text-sm font-semibold text-white shadow-sm transition-colors duration-150 hover:bg-ktf-blue-deep active:bg-ktf-blue-pressed xl:px-5"
             >
-              Book Scope Call
+              Contact Us
             </Link>
           </div>
 
@@ -307,7 +307,7 @@ export function Header() {
                     onClick={closeMobile}
                     className="flex h-12 items-center justify-center rounded-lg bg-ktf-blue text-sm font-semibold text-white transition-colors duration-150 hover:bg-ktf-blue-deep active:bg-ktf-blue-pressed"
                   >
-                    Book a Call
+                    Contact Us
                   </Link>
                 </div>
                 <div className="mt-4 flex items-center justify-center gap-5">

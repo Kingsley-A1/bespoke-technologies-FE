@@ -185,22 +185,7 @@ export function BespokeAIInput({
       <label htmlFor={inputId} className="sr-only">
         Message Bespoke AI
       </label>
-      <div className="flex min-h-14 items-center gap-2 rounded-full border border-ktf-gray-200 bg-white py-1.5 pl-2 pr-1.5 shadow-sm transition-colors focus-within:border-ktf-blue/40 focus-within:ring-2 focus-within:ring-ktf-blue/10">
-        <button
-          type="button"
-          onClick={() => {
-            setIsActionMenuOpen((current) => !current);
-            setIsModeMenuOpen(false);
-          }}
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-ktf-obsidian transition-colors hover:bg-ktf-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ktf-blue"
-          aria-label="Open Bespoke AI actions"
-          aria-expanded={isActionMenuOpen}
-          aria-controls={actionMenuId}
-          aria-haspopup="menu"
-        >
-          <Plus className="h-5 w-5" aria-hidden="true" />
-        </button>
-
+      <div className="rounded-2xl border border-ktf-gray-200 bg-white shadow-sm transition-colors focus-within:border-ktf-blue/40 focus-within:ring-2 focus-within:ring-ktf-blue/10">
         <textarea
           ref={inputRef}
           id={inputId}
@@ -215,88 +200,107 @@ export function BespokeAIInput({
           }}
           autoComplete="off"
           placeholder="Describe what you want to build"
-          className="min-h-[44px] max-h-28 min-w-0 flex-1 resize-none appearance-none border-0 bg-transparent text-base leading-6 text-ktf-obsidian outline-none ring-0 placeholder:text-ktf-gray-500 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 disabled:cursor-not-allowed disabled:opacity-60"
+          className="block max-h-40 min-h-[48px] w-full resize-none appearance-none border-0 bg-transparent px-4 pt-3.5 pb-1 text-[15px] leading-6 text-ktf-obsidian outline-none ring-0 placeholder:text-ktf-gray-400 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 disabled:cursor-not-allowed disabled:opacity-60"
           disabled={disabled}
           rows={1}
         />
 
-        <div className="relative hidden shrink-0 sm:block">
+        <div className="flex items-center gap-1 px-2 pb-2">
           <button
             type="button"
             onClick={() => {
-              setIsModeMenuOpen((current) => !current);
-              setIsActionMenuOpen(false);
+              setIsActionMenuOpen((current) => !current);
+              setIsModeMenuOpen(false);
             }}
-            className="flex h-10 items-center gap-1 rounded-full px-3 text-xs font-medium text-ktf-gray-600 transition-colors hover:bg-ktf-surface hover:text-ktf-obsidian focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ktf-blue"
-            aria-label="Set Bespoke AI response length"
-            aria-expanded={isModeMenuOpen}
-            aria-controls={modeMenuId}
-            aria-haspopup="listbox"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-ktf-gray-600 transition-colors hover:bg-ktf-surface hover:text-ktf-obsidian focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ktf-blue"
+            aria-label="Open Bespoke AI actions"
+            aria-expanded={isActionMenuOpen}
+            aria-controls={actionMenuId}
+            aria-haspopup="menu"
           >
-            {selectedMode.label}
-            <ChevronDown className="h-3.5 w-3.5" aria-hidden="true" />
+            <Plus className="h-5 w-5" aria-hidden="true" />
           </button>
-          {isModeMenuOpen ? (
-            <div
-              id={modeMenuId}
-              role="listbox"
-              aria-label="Bespoke AI response length"
-              className="absolute bottom-12 right-0 z-20 w-36 rounded-lg border border-ktf-gray-200 bg-white p-1 shadow-xl"
+
+          <div className="relative hidden shrink-0 sm:block">
+            <button
+              type="button"
+              onClick={() => {
+                setIsModeMenuOpen((current) => !current);
+                setIsActionMenuOpen(false);
+              }}
+              className="flex h-9 items-center gap-1 rounded-lg px-2.5 text-xs font-semibold text-ktf-gray-600 transition-colors hover:bg-ktf-surface hover:text-ktf-obsidian focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ktf-blue"
+              aria-label="Set Bespoke AI response length"
+              aria-expanded={isModeMenuOpen}
+              aria-controls={modeMenuId}
+              aria-haspopup="listbox"
             >
-              {RESPONSE_MODES.map((mode) => (
-                <button
-                  key={mode.value}
-                  type="button"
-                  role="option"
-                  aria-selected={mode.value === responseMode}
-                  onClick={() => handleModeSelect(mode.value)}
-                  className={cn(
-                    "flex min-h-10 w-full items-center rounded-lg px-3 text-left text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ktf-blue",
-                    mode.value === responseMode
-                      ? "bg-ktf-blue/8 text-ktf-blue"
-                      : "text-ktf-gray-700 hover:bg-ktf-surface hover:text-ktf-obsidian",
-                  )}
-                >
-                  {mode.label}
-                </button>
-              ))}
-            </div>
-          ) : null}
+              {selectedMode.label}
+              <ChevronDown className="h-3.5 w-3.5" aria-hidden="true" />
+            </button>
+            {isModeMenuOpen ? (
+              <div
+                id={modeMenuId}
+                role="listbox"
+                aria-label="Bespoke AI response length"
+                className="absolute bottom-full left-0 z-20 mb-2 w-36 rounded-lg border border-ktf-gray-200 bg-white p-1 shadow-xl"
+              >
+                {RESPONSE_MODES.map((mode) => (
+                  <button
+                    key={mode.value}
+                    type="button"
+                    role="option"
+                    aria-selected={mode.value === responseMode}
+                    onClick={() => handleModeSelect(mode.value)}
+                    className={cn(
+                      "flex min-h-10 w-full items-center rounded-lg px-3 text-left text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ktf-blue",
+                      mode.value === responseMode
+                        ? "bg-ktf-blue/8 text-ktf-blue"
+                        : "text-ktf-gray-700 hover:bg-ktf-surface hover:text-ktf-obsidian",
+                    )}
+                  >
+                    {mode.label}
+                  </button>
+                ))}
+              </div>
+            ) : null}
+          </div>
+
+          <div className="flex-1" />
+
+          <button
+            type="button"
+            onClick={handleVoiceInput}
+            disabled={disabled || isStreaming}
+            className={cn(
+              "hidden h-9 w-9 shrink-0 items-center justify-center rounded-lg text-ktf-gray-600 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ktf-blue sm:flex",
+              isListening
+                ? "bg-ktf-blue/10 text-ktf-blue"
+                : "hover:bg-ktf-surface hover:text-ktf-obsidian disabled:cursor-not-allowed disabled:opacity-40",
+            )}
+            aria-label={isListening ? "Stop voice input" : "Start voice input"}
+          >
+            <Mic className="h-4 w-4" aria-hidden="true" />
+          </button>
+
+          <button
+            type={isStreaming ? "button" : "submit"}
+            onClick={isStreaming ? onStop : undefined}
+            disabled={!isStreaming && (disabled || !input.trim())}
+            className={cn(
+              "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-white transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ktf-blue",
+              isStreaming
+                ? "bg-ktf-obsidian hover:bg-ktf-gray-800"
+                : "bg-ktf-blue hover:bg-ktf-blue-deep disabled:cursor-not-allowed disabled:bg-ktf-gray-200 disabled:text-ktf-gray-400",
+            )}
+            aria-label={isStreaming ? "Stop Bespoke AI response" : "Send message"}
+          >
+            {isStreaming ? (
+              <Square className="h-4 w-4" aria-hidden="true" />
+            ) : (
+              <ArrowUp className="h-5 w-5" aria-hidden="true" />
+            )}
+          </button>
         </div>
-
-        <button
-          type="button"
-          onClick={handleVoiceInput}
-          disabled={disabled || isStreaming}
-          className={cn(
-            "hidden h-10 w-10 shrink-0 items-center justify-center rounded-full text-ktf-obsidian transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ktf-blue sm:flex",
-            isListening
-              ? "bg-ktf-blue/10 text-ktf-blue"
-              : "hover:bg-ktf-surface disabled:cursor-not-allowed disabled:opacity-40",
-          )}
-          aria-label={isListening ? "Stop voice input" : "Start voice input"}
-        >
-          <Mic className="h-4 w-4" aria-hidden="true" />
-        </button>
-
-        <button
-          type={isStreaming ? "button" : "submit"}
-          onClick={isStreaming ? onStop : undefined}
-          disabled={!isStreaming && (disabled || !input.trim())}
-          className={cn(
-            "flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-white shadow-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ktf-blue",
-            isStreaming
-              ? "bg-ktf-obsidian hover:bg-ktf-gray-800"
-              : "bg-ktf-blue hover:bg-ktf-blue-deep disabled:cursor-not-allowed disabled:bg-ktf-gray-300",
-          )}
-          aria-label={isStreaming ? "Stop Bespoke AI response" : "Send message"}
-        >
-          {isStreaming ? (
-            <Square className="h-4 w-4" aria-hidden="true" />
-          ) : (
-            <ArrowUp className="h-5 w-5" aria-hidden="true" />
-          )}
-        </button>
       </div>
 
       {isActionMenuOpen ? (
@@ -304,7 +308,7 @@ export function BespokeAIInput({
           id={actionMenuId}
           role="menu"
           aria-label="Bespoke AI quick actions"
-          className="absolute bottom-16 left-0 z-20 w-72 rounded-lg border border-ktf-gray-200 bg-white p-2 shadow-xl"
+          className="absolute bottom-full left-0 z-20 mb-2 w-72 rounded-xl border border-ktf-gray-200 bg-white p-2 shadow-xl"
         >
           {INPUT_ACTIONS.map((item) => {
             const Icon = item.icon;

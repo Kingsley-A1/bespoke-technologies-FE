@@ -8,6 +8,7 @@ import {
   ArrowRight,
   PanelLeft,
   PanelLeftClose,
+  SquarePen,
   X,
 } from "lucide-react";
 import { useMediaQuery } from "@/hooks";
@@ -212,8 +213,8 @@ export function BespokeAIPanel({
                   <PanelLeft className="h-5 w-5" aria-hidden="true" />
                 )}
               </button>
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-ktf-blue-deep text-white">
-                <BespokeAIIcon className="h-5 w-5" />
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-ktf-blue to-ktf-blue-deep text-white shadow-sm">
+                <BespokeAIIcon className="h-5 w-5" inverse />
               </span>
               <div className="min-w-0">
                 <h1
@@ -227,7 +228,17 @@ export function BespokeAIPanel({
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={handleStartNewConversation}
+                disabled={hasEmptyState && !isStreaming}
+                className="flex h-10 w-10 items-center justify-center rounded-md text-ktf-gray-600 transition-colors hover:bg-ktf-surface hover:text-ktf-blue focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ktf-blue disabled:cursor-not-allowed disabled:opacity-40"
+                aria-label="Start a new chat"
+                title="New chat"
+              >
+                <SquarePen className="h-5 w-5" aria-hidden="true" />
+              </button>
               {mode === "panel" ? (
                 <Link
                   href="/bespoke-ai"
@@ -256,29 +267,29 @@ export function BespokeAIPanel({
           >
             <div className="mx-auto flex w-full max-w-3xl flex-col gap-4">
               {hasEmptyState ? (
-                <div className="mx-auto flex w-full max-w-2xl flex-col items-center px-1 pt-10 pb-2 text-center sm:pt-16">
-                  <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-ktf-blue-deep text-white">
-                    <BespokeAIIcon className="h-6 w-6" />
+                <div className="mx-auto flex w-full max-w-2xl flex-col items-center px-1 pt-8 pb-2 text-center sm:pt-14">
+                  <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-ktf-blue to-ktf-blue-deep text-white shadow-lg shadow-ktf-blue/20">
+                    <BespokeAIIcon className="h-7 w-7" inverse />
                   </span>
-                  <h2 className="mt-5 text-xl font-bold leading-tight tracking-tight text-ktf-obsidian sm:text-2xl">
-                    What are you building?
+                  <h2 className="mt-5 text-2xl font-bold leading-tight tracking-tight text-ktf-obsidian">
+                    How can I help you build?
                   </h2>
                   <p className="mt-2 max-w-md text-sm leading-relaxed text-ktf-gray-500">
-                    Get a build path, relevant proof, or a clean scope — before
-                    you ever book a call.
+                    Ask about services, explore real delivered work, or shape a
+                    clean scope — before you ever contact the team.
                   </p>
 
-                  <div className="mt-7 w-full">
+                  <div className="mt-8 w-full">
                     <BespokeAISuggestions onSelect={sendPrompt} />
                   </div>
 
-                  <div className="mt-8 inline-flex flex-wrap items-center justify-center gap-1.5 text-xs text-ktf-gray-500">
+                  <div className="mt-7 inline-flex flex-wrap items-center justify-center gap-1.5 text-xs text-ktf-gray-500">
                     Prefer a human conversation?
                     <Link
                       href="/contact"
                       className="inline-flex items-center gap-1 font-semibold text-ktf-blue hover:text-ktf-blue-deep"
                     >
-                      Book a scope call
+                      Contact us
                       <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
                     </Link>
                   </div>
@@ -296,10 +307,10 @@ export function BespokeAIPanel({
                   aria-atomic="true"
                 >
                   <span
-                    className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-ktf-blue-deep text-white"
+                    className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-ktf-blue to-ktf-blue-deep text-white shadow-sm"
                     aria-hidden="true"
                   >
-                    <BespokeAIIcon className="h-4 w-4" />
+                    <BespokeAIIcon className="h-4 w-4" inverse />
                   </span>
                   <span className="flex items-center gap-1" aria-hidden="true">
                     <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-ktf-gray-400" />
@@ -318,7 +329,7 @@ export function BespokeAIPanel({
             </div>
           </div>
 
-          <div className="shrink-0 border-t border-ktf-gray-200 bg-white px-3 py-3 sm:px-4">
+          <div className="shrink-0 border-t border-ktf-gray-200 bg-white px-3 pt-3 pb-2.5 sm:px-4">
             <div className="mx-auto w-full max-w-3xl">
               <BespokeAIInput
                 disabled={Boolean(aiError?.shouldDisableInput)}
@@ -328,6 +339,10 @@ export function BespokeAIPanel({
                 onSubmit={sendPrompt}
                 onStop={stop}
               />
+              <p className="mt-2 text-center text-[11px] leading-relaxed text-ktf-gray-400">
+                Bespoke AI can make mistakes. Verify important details before you
+                rely on them.
+              </p>
             </div>
           </div>
         </div>
