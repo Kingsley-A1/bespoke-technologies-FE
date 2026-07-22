@@ -1,7 +1,16 @@
 "use client";
 
 import { useState } from "react";
+import Script from "next/script";
 import { Button, Input, Textarea, Select } from "@/components/ui";
+
+const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
+
+declare global {
+  interface Window {
+    turnstile?: { reset: (widget?: string) => void };
+  }
+}
 
 type ContactSubject = "project_enquiry" | "partnership" | "general" | "support";
 
@@ -76,6 +85,21 @@ export function ContactForm() {
     // Honeypot check — bots fill the hidden website field
     if (form.website) return;
 
+    // Cloudflare Turnstile token, injected by the widget into the form
+    const turnstileToken = TURNSTILE_SITE_KEY
+      ? (
+          e.currentTarget.querySelector(
+            '[name="cf-turnstile-response"]',
+          ) as HTMLInputElement | null
+        )?.value ?? ""
+      : "";
+
+    if (TURNSTILE_SITE_KEY && !turnstileToken) {
+      setStatus("error");
+      setErrorMessage("Please complete the verification and try again.");
+      return;
+    }
+
     setStatus("loading");
     setErrorMessage("");
 
@@ -90,6 +114,7 @@ export function ContactForm() {
           subject: form.subject,
           message: form.message.trim(),
           website: form.website,
+          turnstileToken,
         }),
       });
 
@@ -102,6 +127,7 @@ export function ContactForm() {
 
       setStatus("success");
       setForm(initialState);
+      window.turnstile?.reset();
     } catch (err) {
       setStatus("error");
       setErrorMessage(
@@ -109,6 +135,7 @@ export function ContactForm() {
           ? err.message
           : "Something went wrong. Please try again.",
       );
+      window.turnstile?.reset();
     }
   }
 
@@ -211,6 +238,21 @@ export function ContactForm() {
           rows={6}
           required
         />
+
+        {TURNSTILE_SITE_KEY && (
+          <>
+            <Script
+              src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+              strategy="lazyOnload"
+            />
+            <div
+              className="cf-turnstile"
+              data-sitekey={TURNSTILE_SITE_KEY}
+              data-theme="light"
+              data-size="flexible"
+            />
+          </>
+        )}
 
         {status === "error" && (
           <p
