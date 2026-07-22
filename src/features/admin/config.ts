@@ -16,7 +16,7 @@ export const COMPANY_SETTINGS: CompanySettings = {
   name: "Bespoke Technologies",
   website: "www.bespoketech.com.ng",
   phone: "08088071657",
-  email: "bespoketech01@gmail.com",
+  email: "support@bespoketech.com.ng",
   registrationNumber: "9582429",
   motto: "Engineering the solutions for this, and The Next Generations_",
   address: "",
