@@ -1,16 +1,14 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import {
-  Clock3,
-  Home,
-  MessageSquarePlus,
   PanelLeft,
   PanelLeftClose,
+  PanelRightClose,
+  PictureInPicture2,
   SquarePen,
   X,
 } from "lucide-react";
@@ -28,8 +26,10 @@ import { useBespokeAIConversations } from "./use-bespoke-ai-conversations";
 
 type BespokeAIPanelProps = {
   mode?: "page" | "panel" | "admin";
+  isDocked?: boolean;
   onClose?: () => void;
   onHeaderPointerDown?: (event: React.PointerEvent<HTMLElement>) => void;
+  onToggleDock?: () => void;
 };
 
 const PUBLIC_HEADLINES = [
@@ -44,7 +44,7 @@ const ADMIN_HEADLINES = [
   "Where can I help you decide faster?",
 ] as const;
 
-export function BespokeAIPanel({ mode = "page", onClose, onHeaderPointerDown }: BespokeAIPanelProps) {
+export function BespokeAIPanel({ mode = "page", isDocked = false, onClose, onHeaderPointerDown, onToggleDock }: BespokeAIPanelProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const isDesktop = useMediaQuery("(min-width: 1024px)");
   const prefersReducedMotion = useMediaQuery("(prefers-reduced-motion: reduce)");
@@ -176,14 +176,13 @@ export function BespokeAIPanel({ mode = "page", onClose, onHeaderPointerDown }: 
     <section
       className={cn(
         "flex min-h-0 flex-1 overflow-hidden bg-white",
-        isStandalone && "h-dvh bg-[#eef3f9] p-0 sm:p-3 lg:p-5",
+        isStandalone && "h-dvh bg-[#f7f9fc] p-0 sm:p-3 lg:p-5",
         mode === "panel" && "h-full",
-        isAdmin && "h-[calc(100dvh-9.5rem)] min-h-[640px] rounded-lg border border-slate-200 shadow-card",
+        isAdmin && "h-[calc(100dvh-9.5rem)] min-h-[580px] rounded-lg border border-slate-200 shadow-card",
       )}
       aria-labelledby="bespoke-ai-panel-title"
     >
       <div className={cn("mx-auto flex min-h-0 flex-1 overflow-hidden bg-white", isStandalone && "max-w-[1440px] sm:rounded-lg sm:border sm:border-slate-200 sm:shadow-[0_30px_90px_-45px_rgba(15,38,71,0.45)]") }>
-        {isStandalone ? <WorkspaceRail onHistory={handleToggleHistory} onNew={handleStartNewConversation} /> : null}
         {isDesktop && isHistoryDockOpen ? historySidebar : null}
         {mobileHistoryDrawer}
 
@@ -193,11 +192,9 @@ export function BespokeAIPanel({ mode = "page", onClose, onHeaderPointerDown }: 
             className={cn("flex h-14 shrink-0 items-center justify-between border-b border-slate-100 px-3 sm:px-5", onHeaderPointerDown && "cursor-grab touch-none select-none active:cursor-grabbing")}
           >
             <div className="flex min-w-0 items-center gap-2.5">
-              {!isStandalone ? (
-                <button type="button" onClick={handleToggleHistory} className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-50 hover:text-ktf-blue" aria-label={isDesktop && isHistoryDockOpen ? "Hide conversation history" : "Show conversation history"} aria-expanded={isDesktop ? isHistoryDockOpen : isHistoryDrawerOpen}>
-                  {isDesktop && isHistoryDockOpen ? <PanelLeftClose className="h-4.5 w-4.5" /> : <PanelLeft className="h-4.5 w-4.5" />}
-                </button>
-              ) : null}
+              <button type="button" onClick={handleToggleHistory} className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-50 hover:text-ktf-blue" aria-label={isDesktop && isHistoryDockOpen ? "Hide conversation history" : "Show conversation history"} aria-expanded={isDesktop ? isHistoryDockOpen : isHistoryDrawerOpen}>
+                {isDesktop && isHistoryDockOpen ? <PanelLeftClose className="h-4.5 w-4.5" /> : <PanelLeft className="h-4.5 w-4.5" />}
+              </button>
               <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-ktf-blue text-white"><BespokeAIIcon className="h-4 w-4" inverse /></span>
               <div className="min-w-0">
                 <h1 id="bespoke-ai-panel-title" className="truncate text-sm font-bold text-slate-950">{assistantName}</h1>
@@ -206,6 +203,11 @@ export function BespokeAIPanel({ mode = "page", onClose, onHeaderPointerDown }: 
             </div>
             <div className="flex items-center gap-1">
               <span className="mr-1 hidden items-center gap-1.5 text-[10px] font-semibold text-emerald-700 sm:flex"><span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />Ready</span>
+              {onToggleDock ? (
+                <button type="button" onClick={onToggleDock} className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-50 hover:text-ktf-blue" aria-label={isDocked ? "Detach Bespoke AI panel" : "Dock Bespoke AI to the side"} title={isDocked ? "Detach panel" : "Dock to side"}>
+                  {isDocked ? <PictureInPicture2 className="h-4 w-4" /> : <PanelRightClose className="h-4 w-4" />}
+                </button>
+              ) : null}
               <button type="button" onClick={handleStartNewConversation} disabled={hasEmptyState && !isStreaming} className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-50 hover:text-ktf-blue disabled:cursor-not-allowed disabled:opacity-35" aria-label="Start a new chat" title="New chat"><SquarePen className="h-4 w-4" /></button>
               {onClose ? <button data-bespoke-ai-close="true" type="button" onClick={onClose} className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-50 hover:text-slate-900" aria-label={`Close ${assistantName}`}><X className="h-4 w-4" /></button> : null}
             </div>
@@ -213,20 +215,20 @@ export function BespokeAIPanel({ mode = "page", onClose, onHeaderPointerDown }: 
 
           <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto">
             {hasEmptyState ? (
-              <div data-bespoke-ai-empty-state="true" className="relative flex h-full items-center justify-center overflow-hidden px-4 py-7 sm:px-6">
-                {!isAdmin ? (
-                  <Image src="/ai/bespoke-ai-glass-orb.png" alt="" width={1672} height={909} priority className="pointer-events-none absolute left-1/2 top-[-13%] w-[min(920px,105vw)] -translate-x-1/2 opacity-60 mix-blend-multiply" />
+              <div data-bespoke-ai-empty-state="true" className="relative flex min-h-full items-center justify-center overflow-hidden px-4 py-7 sm:px-6">
+                {isStandalone && !isAdmin ? (
+                  <Image src="/ai/bespoke-ai-glass-orb.png" alt="" width={1672} height={909} priority className="pointer-events-none absolute left-1/2 top-[-16%] w-[min(680px,82vw)] -translate-x-1/2 opacity-[0.14] mix-blend-multiply" />
                 ) : (
-                  <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 h-56 bg-[radial-gradient(circle_at_50%_0%,rgba(10,132,255,0.13),transparent_68%)]" />
+                  <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-[radial-gradient(circle_at_50%_0%,rgba(10,132,255,0.07),transparent_70%)]" />
                 )}
-                <div data-bespoke-ai-empty-content="true" className="relative z-10 w-full max-w-[760px] pt-20 sm:pt-24">
-                  <div className="text-left">
-                    <p className="text-base font-medium text-slate-500">{isAdmin ? "Welcome back." : "Hello there."}</p>
-                    <h2 key={headlineIndex} className="mt-1 animate-fade-in text-[clamp(1.9rem,4vw,3.25rem)] font-semibold leading-[1.04] tracking-[-0.045em] text-slate-950">{headlines[headlineIndex]}</h2>
-                    <p className="mt-3 max-w-xl text-sm leading-6 text-slate-500">{isAdmin ? "Ask one clear question about the work. I’ll use only the admin context your role is allowed to see." : "Start with a question or choose a quick path. No account or technical language needed."}</p>
+                <div data-bespoke-ai-empty-content="true" className={cn("relative z-10 w-full pt-8 sm:pt-10", mode === "panel" ? "max-w-[360px]" : "max-w-[720px]")}>
+                  <div className="text-center">
+                    <p className="text-sm font-medium text-slate-500">{isAdmin ? "Welcome back." : "Hello there."}</p>
+                    <h2 key={headlineIndex} className={cn("mt-1 animate-fade-in font-semibold leading-[1.08] tracking-[-0.04em] text-slate-950", mode === "panel" ? "text-[1.75rem]" : "text-[clamp(1.9rem,4vw,2.75rem)]")}>{headlines[headlineIndex]}</h2>
+                    <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-slate-500">{isAdmin ? "Ask one clear question about the work. I’ll use only the admin context your role is allowed to see." : "Start with a question or choose a quick path."}</p>
                   </div>
-                  <div data-bespoke-ai-empty-suggestions="true" className="mt-6"><BespokeAISuggestions experience={isAdmin ? "admin" : "public"} onSelect={sendPrompt} /></div>
-                  <div className="mt-3 sm:mt-4">{composer}</div>
+                  <div data-bespoke-ai-empty-suggestions="true" className="mt-5"><BespokeAISuggestions compact={mode === "panel"} experience={isAdmin ? "admin" : "public"} onSelect={sendPrompt} /></div>
+                  <div className="mt-4">{composer}</div>
                   <p className="mt-2.5 text-center text-[10px] leading-4 text-slate-400">{assistantName} can make mistakes. Verify important decisions.</p>
                 </div>
               </div>
@@ -244,22 +246,4 @@ export function BespokeAIPanel({ mode = "page", onClose, onHeaderPointerDown }: 
       </div>
     </section>
   );
-}
-
-function WorkspaceRail({ onHistory, onNew }: { onHistory: () => void; onNew: () => void }) {
-  return (
-    <aside className="hidden w-[68px] shrink-0 flex-col items-center border-r border-slate-100 bg-[#f8fbff] py-3 md:flex" aria-label="Bespoke AI workspace">
-      <Link href="/" className="flex h-10 w-10 items-center justify-center rounded-lg bg-ktf-blue text-white shadow-sm" aria-label="Bespoke Technologies home"><BespokeAIIcon className="h-5 w-5" inverse /></Link>
-      <nav className="mt-7 flex flex-col gap-2" aria-label="AI workspace actions">
-        <RailButton label="New conversation" onClick={onNew}><MessageSquarePlus className="h-[18px] w-[18px]" /></RailButton>
-        <RailButton label="Conversation history" onClick={onHistory}><Clock3 className="h-[18px] w-[18px]" /></RailButton>
-        <Link href="/" className="flex h-10 w-10 items-center justify-center rounded-lg text-slate-400 transition hover:bg-white hover:text-ktf-blue" aria-label="Return home"><Home className="h-[18px] w-[18px]" /></Link>
-      </nav>
-      <span className="mt-auto text-[9px] font-black tracking-[0.12em] text-ktf-blue [writing-mode:vertical-rl]">BESPOKE</span>
-    </aside>
-  );
-}
-
-function RailButton({ children, label, onClick }: { children: React.ReactNode; label: string; onClick: () => void }) {
-  return <button type="button" onClick={onClick} className="flex h-10 w-10 items-center justify-center rounded-lg text-slate-400 transition hover:bg-white hover:text-ktf-blue focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ktf-blue" aria-label={label}>{children}</button>;
 }

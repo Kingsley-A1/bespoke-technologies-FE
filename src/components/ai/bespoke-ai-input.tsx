@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowUp, Sparkles, Square } from "lucide-react";
+import { ArrowUp, Square } from "lucide-react";
 import { useEffect, useId, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
@@ -31,7 +31,7 @@ export function BespokeAIInput({
     const inputElement = inputRef.current;
     if (!inputElement) return;
     inputElement.style.height = "auto";
-    inputElement.style.height = `${Math.min(inputElement.scrollHeight, 148)}px`;
+    inputElement.style.height = `${Math.min(inputElement.scrollHeight, 120)}px`;
   }, [input]);
 
   const handleSubmit = () => {
@@ -52,11 +52,7 @@ export function BespokeAIInput({
       }}
     >
       <label htmlFor={inputId} className="sr-only">Message {assistantName}</label>
-      <div className="overflow-hidden rounded-lg border border-slate-300 bg-white shadow-[0_18px_50px_-26px_rgba(15,38,71,0.45)] transition-[border-color,box-shadow] focus-within:border-ktf-blue focus-within:shadow-[0_20px_56px_-24px_rgba(10,132,255,0.38)]">
-        <div className="flex items-center gap-2 px-4 pt-3.5 text-[11px] font-semibold text-slate-500">
-          <Sparkles className="h-3.5 w-3.5 text-ktf-blue" aria-hidden="true" />
-          Ask {assistantName}
-        </div>
+      <div className="relative overflow-hidden rounded-lg border border-slate-300 bg-white shadow-[0_12px_32px_-24px_rgba(15,38,71,0.42)] transition-[border-color,box-shadow] focus-within:border-ktf-blue focus-within:shadow-[0_14px_34px_-22px_rgba(10,132,255,0.3)]">
         <textarea
           ref={inputRef}
           id={inputId}
@@ -71,28 +67,24 @@ export function BespokeAIInput({
           }}
           autoComplete="off"
           placeholder={placeholder}
-          className="block max-h-[148px] min-h-[62px] w-full resize-none appearance-none border-0 bg-transparent px-4 py-2 text-[15px] leading-6 text-ktf-obsidian outline-none placeholder:text-slate-400 disabled:cursor-not-allowed disabled:opacity-60 sm:min-h-[70px]"
+          className="block max-h-[120px] min-h-[52px] w-full resize-none appearance-none border-0 bg-transparent py-3 pl-4 pr-14 text-sm leading-6 text-ktf-obsidian outline-none placeholder:text-slate-400 disabled:cursor-not-allowed disabled:opacity-60"
           disabled={disabled}
-          rows={2}
+          rows={1}
         />
-        <div className="flex items-center justify-between gap-3 border-t border-slate-100 px-3 py-2.5">
-          <span className="hidden text-[10px] font-medium text-slate-400 sm:block">Enter to send · Shift + Enter for a new line</span>
-          <span className="text-[10px] font-medium text-slate-400 sm:hidden">Ask anything</span>
-          <button
-            type={isStreaming ? "button" : "submit"}
-            onClick={isStreaming ? onStop : undefined}
-            disabled={!isStreaming && (disabled || !input.trim())}
-            className={cn(
-              "flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-white shadow-sm transition-[background-color,transform] hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ktf-blue",
-              isStreaming
-                ? "bg-ktf-obsidian hover:bg-slate-800"
-                : "bg-ktf-blue hover:bg-ktf-blue-deep disabled:translate-y-0 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-none",
-            )}
-            aria-label={isStreaming ? `Stop ${assistantName} response` : "Send message"}
-          >
-            {isStreaming ? <Square className="h-3.5 w-3.5" aria-hidden="true" /> : <ArrowUp className="h-5 w-5" aria-hidden="true" />}
-          </button>
-        </div>
+        <button
+          type={isStreaming ? "button" : "submit"}
+          onClick={isStreaming ? onStop : undefined}
+          disabled={!isStreaming && (disabled || !input.trim())}
+          className={cn(
+            "absolute bottom-2 right-2 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-white shadow-sm transition-[background-color,transform] hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ktf-blue",
+            isStreaming
+              ? "bg-ktf-obsidian hover:bg-slate-800"
+              : "bg-ktf-blue hover:bg-ktf-blue-deep disabled:translate-y-0 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400 disabled:shadow-none",
+          )}
+          aria-label={isStreaming ? `Stop ${assistantName} response` : "Send message"}
+        >
+          {isStreaming ? <Square className="h-3.5 w-3.5" aria-hidden="true" /> : <ArrowUp className="h-4.5 w-4.5" aria-hidden="true" />}
+        </button>
       </div>
     </form>
   );

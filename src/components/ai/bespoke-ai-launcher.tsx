@@ -11,10 +11,13 @@ import { BespokeAIPanel } from "./bespoke-ai-panel";
 // The panel opens at Galaxy S22 Ultra proportions (logical CSS pixels), then
 // can be dragged and resized freely by desktop users who want more room.
 const DEFAULT_WIDTH = 412;
-const DEFAULT_HEIGHT = 883;
+const DEFAULT_HEIGHT = 760;
+const DEFAULT_DOCK_WIDTH = 400;
 const MIN_WIDTH = 360;
 const MIN_HEIGHT = 460;
+const MAX_DOCK_WIDTH = 560;
 const EDGE_MARGIN = 20;
+const SESSION_KEY = "bespoke-ai-panel-state";
 
 type Rect = { x: number; y: number; width: number; height: number };
 type ResizeDir = "n" | "s" | "e" | "w" | "ne" | "nw" | "se" | "sw";
@@ -50,16 +53,50 @@ export function BespokeAILauncher() {
   const pathname = usePathname();
   const router = useRouter();
   const [open, setOpen] = useState(false);
+  const [docked, setDocked] = useState(true);
+  const [dockWidth, setDockWidth] = useState(DEFAULT_DOCK_WIDTH);
   const [rect, setRect] = useState<Rect | null>(null);
+  const [sessionRestored, setSessionRestored] = useState(false);
   const launcherRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLElement>(null);
-  const previousPathnameRef = useRef(pathname);
   const shouldHideAI = pathname === "/bespoke-ai";
   const shouldHideWhatsapp =
     pathname === "/contact" || pathname === "/bespoke-ai";
   const whatsappHref = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
     WHATSAPP_INQUIRY_MESSAGE,
   )}`;
+
+  useEffect(() => {
+    try {
+      const saved = window.sessionStorage.getItem(SESSION_KEY);
+      if (saved) {
+        const state = JSON.parse(saved) as {
+          open?: boolean;
+          docked?: boolean;
+          dockWidth?: number;
+          rect?: Rect | null;
+        };
+        setOpen(state.open === true);
+        setDocked(state.docked !== false);
+        if (typeof state.dockWidth === "number") {
+          setDockWidth(clamp(state.dockWidth, MIN_WIDTH, MAX_DOCK_WIDTH));
+        }
+        if (state.rect) setRect(state.rect);
+      }
+    } catch {
+      window.sessionStorage.removeItem(SESSION_KEY);
+    } finally {
+      setSessionRestored(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!sessionRestored) return;
+    window.sessionStorage.setItem(
+      SESSION_KEY,
+      JSON.stringify({ open, docked, dockWidth, rect }),
+    );
+  }, [dockWidth, docked, open, rect, sessionRestored]);
 
   const closePanel = () => {
     setOpen(false);
@@ -68,7 +105,7 @@ export function BespokeAILauncher() {
 
   const handleOpen = () => {
     if (window.matchMedia("(min-width: 1024px)").matches) {
-      setRect(defaultRect());
+      setDocked(true);
       setOpen(true);
       return;
     }
@@ -147,21 +184,29 @@ export function BespokeAILauncher() {
 
   const handleHeaderPointerDown = useCallback(
     (event: React.PointerEvent<HTMLElement>) => {
+      if (docked) return;
       // Leave interactive controls in the header clickable.
       if ((event.target as HTMLElement).closest("button, a, input, textarea, select")) {
         return;
       }
       beginGesture(event, "move");
     },
-    [beginGesture],
+    [beginGesture, docked],
   );
 
   useEffect(() => {
     if (!open) return;
 
     document.body.classList.add("bespoke-ai-dock-open");
-    return () => document.body.classList.remove("bespoke-ai-dock-open");
-  }, [open]);
+    if (docked) {
+      document.body.classList.add("bespoke-ai-side-panel-open");
+      document.documentElement.style.setProperty("--bespoke-ai-side-panel-width", `${dockWidth}px`);
+    }
+    return () => {
+      document.body.classList.remove("bespoke-ai-dock-open", "bespoke-ai-side-panel-open");
+      document.documentElement.style.removeProperty("--bespoke-ai-side-panel-width");
+    };
+  }, [dockWidth, docked, open]);
 
   // Keep the floating window inside the viewport when it is resized.
   useEffect(() => {
@@ -188,13 +233,6 @@ export function BespokeAILauncher() {
   }, [open]);
 
   useEffect(() => {
-    if (previousPathnameRef.current === pathname) return;
-
-    previousPathnameRef.current = pathname;
-    requestAnimationFrame(() => setOpen(false));
-  }, [pathname]);
-
-  useEffect(() => {
     if (!open) return;
 
     panelRef.current
@@ -208,6 +246,35 @@ export function BespokeAILauncher() {
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [open]);
+
+  const toggleDock = () => {
+    if (docked) {
+      setRect(defaultRect());
+      setDocked(false);
+      return;
+    }
+    setDocked(true);
+  };
+
+  const beginDockResize = (event: React.PointerEvent) => {
+    const startX = event.clientX;
+    const startWidth = dockWidth;
+    event.preventDefault();
+
+    const onMove = (moveEvent: PointerEvent) => {
+      const next = startWidth + (startX - moveEvent.clientX);
+      setDockWidth(clamp(next, MIN_WIDTH, Math.min(MAX_DOCK_WIDTH, window.innerWidth - 280)));
+    };
+    const onUp = () => {
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+      document.body.style.userSelect = "";
+    };
+
+    document.body.style.userSelect = "none";
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+  };
 
   if (shouldHideAI && shouldHideWhatsapp) return null;
 
@@ -245,24 +312,39 @@ export function BespokeAILauncher() {
         </div>
       ) : null}
 
-      {open && rect ? (
+      {open && (docked || rect) ? (
         <aside
           ref={panelRef}
-          style={{
-            left: rect.x,
-            top: rect.y,
-            width: rect.width,
-            height: rect.height,
+          style={docked ? { right: 0, top: 0, width: dockWidth, height: "100dvh" } : {
+            left: rect?.x,
+            top: rect?.y,
+            width: rect?.width,
+            height: rect?.height,
           }}
-          className="fixed z-300 hidden flex-col overflow-hidden rounded-2xl border border-ktf-gray-200 bg-white shadow-2xl lg:flex"
-          aria-label="Bespoke AI floating panel"
+          className={cn(
+            "fixed z-300 hidden flex-col overflow-hidden border-ktf-gray-200 bg-white lg:flex",
+            docked
+              ? "border-l shadow-[-18px_0_45px_-34px_rgba(15,38,71,0.45)]"
+              : "rounded-lg border shadow-2xl",
+          )}
+          aria-label={docked ? "Bespoke AI side panel" : "Bespoke AI floating panel"}
         >
           <BespokeAIPanel
             mode="panel"
+            isDocked={docked}
             onClose={closePanel}
+            onToggleDock={toggleDock}
             onHeaderPointerDown={handleHeaderPointerDown}
           />
-          {RESIZE_HANDLES.map((handle) => (
+          {docked ? (
+            <div
+              role="separator"
+              aria-label="Resize Bespoke AI side panel"
+              aria-orientation="vertical"
+              onPointerDown={beginDockResize}
+              className="absolute inset-y-0 left-0 z-20 w-1.5 cursor-ew-resize touch-none transition-colors hover:bg-ktf-blue/20"
+            />
+          ) : RESIZE_HANDLES.map((handle) => (
             <div
               key={handle.dir}
               role="presentation"

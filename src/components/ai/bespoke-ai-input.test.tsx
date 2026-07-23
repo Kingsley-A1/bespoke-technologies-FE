@@ -23,7 +23,7 @@ describe("BespokeAIInput", () => {
   it("adapts its accessible language for Bespoke Coworker", () => {
     render(<BespokeAIInput assistantName="Bespoke Coworker" placeholder="Ask about your work" onSubmit={vi.fn()} onStop={vi.fn()} />);
     expect(screen.getByLabelText("Message Bespoke Coworker")).toHaveAttribute("placeholder", "Ask about your work");
-    expect(screen.getByText("Ask Bespoke Coworker")).toBeInTheDocument();
+    expect(screen.queryByText(/Shift \+ Enter/i)).not.toBeInTheDocument();
   });
 
   it("turns the primary action into a stop control while streaming", () => {

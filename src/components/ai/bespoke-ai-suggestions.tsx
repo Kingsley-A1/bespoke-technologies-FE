@@ -1,6 +1,7 @@
 "use client";
 
 import { ArrowUpRight, BriefcaseBusiness, Lightbulb, Route } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export const BESPOKE_AI_SUGGESTIONS = [
   {
@@ -44,10 +45,18 @@ const BESPOKE_COWORKER_SUGGESTIONS = [
   },
 ] as const;
 
-export function BespokeAISuggestions({ experience = "public", onSelect }: { experience?: "public" | "admin"; onSelect: (prompt: string) => void }) {
+export function BespokeAISuggestions({
+  compact = false,
+  experience = "public",
+  onSelect,
+}: {
+  compact?: boolean;
+  experience?: "public" | "admin";
+  onSelect: (prompt: string) => void;
+}) {
   const suggestions = experience === "admin" ? BESPOKE_COWORKER_SUGGESTIONS : BESPOKE_AI_SUGGESTIONS;
   return (
-    <div className="grid w-full gap-2 sm:grid-cols-3">
+    <div className={cn("grid w-full gap-2", !compact && "sm:grid-cols-3")}>
       {suggestions.map((item) => {
         const Icon = item.icon;
         return (
@@ -56,16 +65,16 @@ export function BespokeAISuggestions({ experience = "public", onSelect }: { expe
             key={item.prompt}
             type="button"
             onClick={() => onSelect(item.prompt)}
-            className="group flex min-h-[88px] flex-col items-start justify-between rounded-lg border border-slate-200 bg-white p-3 text-left shadow-[0_10px_30px_-24px_rgba(15,38,71,0.5)] transition-[border-color,box-shadow,transform] hover:-translate-y-0.5 hover:border-ktf-blue/35 hover:shadow-[0_16px_36px_-24px_rgba(10,132,255,0.45)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ktf-blue"
+            className="group flex min-w-0 items-center gap-3 rounded-lg border border-slate-200 bg-white px-3.5 py-3 text-left transition-[border-color,background-color,box-shadow] hover:border-ktf-blue/30 hover:bg-blue-50/35 hover:shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ktf-blue"
           >
-            <span className="flex w-full items-center justify-between">
-              <span className="flex h-7 w-7 items-center justify-center rounded-md bg-ktf-blue/8 text-ktf-blue-deep"><Icon className="h-3.5 w-3.5" aria-hidden="true" /></span>
-              <ArrowUpRight className="h-3.5 w-3.5 text-slate-300 transition-colors group-hover:text-ktf-blue" aria-hidden="true" />
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-ktf-blue-deep">
+              <Icon className="h-4 w-4" aria-hidden="true" />
             </span>
-            <span className="mt-3">
-              <span className="block text-xs font-bold text-slate-900">{item.label}</span>
-              <span className="mt-0.5 block text-[10px] leading-4 text-slate-500">{item.hint}</span>
+            <span className="min-w-0 flex-1">
+              <span className="block break-words text-xs font-semibold leading-5 text-slate-900">{item.label}</span>
+              <span className="block break-words text-[10px] leading-4 text-slate-500">{item.hint}</span>
             </span>
+            <ArrowUpRight className="h-3.5 w-3.5 shrink-0 text-slate-300 transition-colors group-hover:text-ktf-blue" aria-hidden="true" />
           </button>
         );
       })}

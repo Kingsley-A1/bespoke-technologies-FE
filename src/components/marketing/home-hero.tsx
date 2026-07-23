@@ -133,11 +133,12 @@ export async function HomeHero() {
 
       {/* Supporting copy, actions, and proof under the devices */}
       <Container size="lg" className="relative mt-9 sm:mt-11">
-        <Reveal className="mx-auto max-w-2xl text-center">
-          <p className="mx-auto max-w-xl text-body leading-body text-ktf-gray-600 sm:text-body-lg">
-            Designed, engineered, secured, and handed over — by one accountable
-            team.
-          </p>
+        <div data-home-hero-support="true">
+          <Reveal className="mx-auto max-w-2xl text-center">
+            <p className="mx-auto max-w-xl text-body leading-body text-ktf-gray-600 sm:text-body-lg">
+              Designed, engineered, secured, and handed over — by one accountable
+              team.
+            </p>
 
           <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
             <Button
@@ -168,7 +169,8 @@ export async function HomeHero() {
               </div>
             ))}
           </dl>
-        </Reveal>
+          </Reveal>
+        </div>
       </Container>
     </section>
   );

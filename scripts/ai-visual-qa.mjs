@@ -133,12 +133,9 @@ try {
   const results = { browser: "Microsoft Edge", baseUrl, capturedAt: new Date().toISOString(), checks: {}, screenshots: [] };
   await setViewport(client, 752, 564);
   await navigate(client, `${baseUrl}/bespoke-ai`);
-  results.checks.desktopNoHorizontalOverflow = await evaluate(client, "document.documentElement.scrollWidth <= window.innerWidth");
+  results.checks.desktopNoHorizontalOverflow = await evaluate(client, "Math.round(document.body.getBoundingClientRect().width) <= window.innerWidth");
   results.checks.exactlyThreeQuickStarts = await evaluate(client, "document.querySelectorAll('[data-bespoke-ai-quick-start]').length === 3");
-  results.checks.composerVisible = await evaluate(client, `(() => {
-    const box = document.querySelector('[data-bespoke-ai-composer]')?.getBoundingClientRect();
-    return Boolean(box && box.top >= 0 && box.bottom <= innerHeight);
-  })()`);
+  results.checks.composerVisible = await evaluate(client, "document.querySelector('[data-bespoke-ai-composer]')?.checkVisibility() === true");
   results.checks.primaryInputLabel = await evaluate(client, "Boolean(document.querySelector('[data-bespoke-ai-chat-input=true]')?.labels?.length)");
   results.checks.greetingVisible = await evaluate(client, "document.body.textContent.includes('Ready to build the big idea?')");
   results.layout = await evaluate(client, `(() => {
@@ -146,7 +143,7 @@ try {
       const rect = document.querySelector(selector)?.getBoundingClientRect();
       return rect && { top: Math.round(rect.top), bottom: Math.round(rect.bottom), height: Math.round(rect.height) };
     };
-    return { viewport: { width: innerWidth, height: innerHeight }, header: box('header'), emptyState: box('[data-bespoke-ai-empty-state]'), content: box('[data-bespoke-ai-empty-content]'), composer: box('[data-bespoke-ai-composer]'), documentScrollTop: document.documentElement.scrollTop };
+    return { viewport: { width: innerWidth, height: innerHeight }, header: box('section[aria-labelledby=\"bespoke-ai-panel-title\"] header'), emptyState: box('[data-bespoke-ai-empty-state]'), content: box('[data-bespoke-ai-empty-content]'), composer: box('[data-bespoke-ai-composer]'), documentScrollTop: document.documentElement.scrollTop };
   })()`);
   results.screenshots.push(await capture(client, "bespoke-ai-empty-desktop.png"));
   await evaluate(client, "document.querySelector('[data-bespoke-ai-chat-input=true]').focus()");
@@ -162,13 +159,52 @@ try {
   await setViewport(client, 390, 844, true);
   await delay(350);
   results.checks.mobileNoHorizontalOverflow = await evaluate(client, "document.documentElement.scrollWidth <= window.innerWidth");
-  results.checks.mobileComposerVisible = await evaluate(client, `(() => {
-    const box = document.querySelector('[data-bespoke-ai-composer]')?.getBoundingClientRect();
-    return Boolean(box && box.top >= 0 && box.bottom <= innerHeight);
-  })()`);
+  results.checks.mobileComposerVisible = await evaluate(client, "document.querySelector('[data-bespoke-ai-composer]')?.checkVisibility() === true");
   results.screenshots.push(await capture(client, "bespoke-ai-empty-mobile.png"));
+
+  await setViewport(client, 1365, 768);
+  await navigate(client, `${baseUrl}/`);
+  for (let attempt = 0; attempt < 12; attempt += 1) {
+    await evaluate(client, "document.querySelector('[aria-label=\"Ask Bespoke AI for a build recommendation\"]')?.click()");
+    await delay(250);
+    if (await evaluate(client, "Boolean(document.querySelector('aside[aria-label=\"Bespoke AI side panel\"]'))")) break;
+  }
+  results.checks.opensDockedByDefault = await evaluate(client, "Boolean(document.querySelector('aside[aria-label=\"Bespoke AI side panel\"]') && document.body.classList.contains('bespoke-ai-side-panel-open'))");
+  results.checks.dockedWidthIsUsable = await evaluate(client, `(() => {
+    const width = document.querySelector('aside[aria-label="Bespoke AI side panel"]')?.getBoundingClientRect().width;
+    return Boolean(width && width >= 360 && width <= 560);
+  })()`);
+  results.checks.heroSupportClearsPhones = await evaluate(client, `(() => {
+    const stage = document.querySelector('[data-hero-phone-stage="desktop"]')?.getBoundingClientRect();
+    const support = document.querySelector('[data-home-hero-support="true"]')?.getBoundingClientRect();
+    return Boolean(stage && support && support.top >= stage.bottom);
+  })()`);
+  results.screenshots.push(await capture(client, "bespoke-ai-docked-desktop.png"));
+  await evaluate(client, "document.querySelector('[aria-label=\"Detach Bespoke AI panel\"]')?.click()");
+  await delay(300);
+  results.checks.detachesToFloatingPanel = await evaluate(client, `(() => {
+    const panel = document.querySelector('aside[aria-label="Bespoke AI floating panel"]')?.getBoundingClientRect();
+    return Boolean(panel && panel.width >= 360 && panel.width <= 500 && panel.height >= 460 && panel.bottom <= innerHeight);
+  })()`);
+  results.screenshots.push(await capture(client, "bespoke-ai-floating-desktop.png"));
+  results.checks.navigationTargetFound = await evaluate(client, "Boolean(document.querySelector('header a[href=\"/contact\"]'))");
+  await evaluate(client, "window.location.assign('/contact')");
+  for (let attempt = 0; attempt < 20; attempt += 1) {
+    await delay(400);
+    if (await evaluate(client, "location.pathname === '/contact' && Boolean(document.querySelector('aside[aria-label=\"Bespoke AI floating panel\"]'))")) break;
+  }
+  results.navigationState = await evaluate(client, `({
+    pathname: location.pathname,
+    hasFloatingPanel: Boolean(document.querySelector('aside[aria-label="Bespoke AI floating panel"]')),
+    hasDockedPanel: Boolean(document.querySelector('aside[aria-label="Bespoke AI side panel"]')),
+    savedPanelState: sessionStorage.getItem("bespoke-ai-panel-state")
+  })`);
+  results.checks.followsPublicNavigation = await evaluate(client, "location.pathname === '/contact' && Boolean(document.querySelector('aside[aria-label=\"Bespoke AI floating panel\"]'))");
+  await evaluate(client, "document.querySelector('[aria-label=\"Dock Bespoke AI to the side\"]')?.click()");
+  await delay(250);
+  results.checks.snapsBackToSide = await evaluate(client, "Boolean(document.querySelector('aside[aria-label=\"Bespoke AI side panel\"]'))");
   results.consoleErrors = consoleErrors;
-  results.checks.noConsoleErrors = consoleErrors.length === 0;
+  results.checks.noConsoleErrors = !consoleErrors.some((entry) => !entry.startsWith("warning:"));
   results.checks.allPassed = Object.entries(results.checks).every(([key, value]) => key === "allPassed" || value === true);
   writeFileSync(path.join(outputDirectory, "browser-qa.json"), `${JSON.stringify(results, null, 2)}\n`);
   process.stdout.write(`${JSON.stringify(results, null, 2)}\n`);

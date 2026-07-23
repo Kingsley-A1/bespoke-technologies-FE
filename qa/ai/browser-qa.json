@@ -1,7 +1,7 @@
 {
   "browser": "Microsoft Edge",
   "baseUrl": "http://127.0.0.1:3000",
-  "capturedAt": "2026-07-23T00:24:18.256Z",
+  "capturedAt": "2026-07-23T22:41:50.770Z",
   "checks": {
     "desktopNoHorizontalOverflow": true,
     "exactlyThreeQuickStarts": true,
@@ -11,12 +11,21 @@
     "inputAcceptsText": true,
     "mobileNoHorizontalOverflow": true,
     "mobileComposerVisible": true,
+    "opensDockedByDefault": true,
+    "dockedWidthIsUsable": true,
+    "heroSupportClearsPhones": true,
+    "detachesToFloatingPanel": true,
+    "navigationTargetFound": true,
+    "followsPublicNavigation": true,
+    "snapsBackToSide": true,
     "noConsoleErrors": true,
     "allPassed": true
   },
   "screenshots": [
     "C:\\Users\\hp\\Documents\\Bespoke Technologies\\bespoke-technologies-FE\\qa\\ai\\bespoke-ai-empty-desktop.png",
-    "C:\\Users\\hp\\Documents\\Bespoke Technologies\\bespoke-technologies-FE\\qa\\ai\\bespoke-ai-empty-mobile.png"
+    "C:\\Users\\hp\\Documents\\Bespoke Technologies\\bespoke-technologies-FE\\qa\\ai\\bespoke-ai-empty-mobile.png",
+    "C:\\Users\\hp\\Documents\\Bespoke Technologies\\bespoke-technologies-FE\\qa\\ai\\bespoke-ai-docked-desktop.png",
+    "C:\\Users\\hp\\Documents\\Bespoke Technologies\\bespoke-technologies-FE\\qa\\ai\\bespoke-ai-floating-desktop.png"
   ],
   "layout": {
     "viewport": {
@@ -30,20 +39,31 @@
     },
     "emptyState": {
       "top": 69,
-      "bottom": 592,
-      "height": 523
+      "bottom": 551,
+      "height": 482
     },
     "content": {
-      "top": 97,
-      "bottom": 564,
-      "height": 467
+      "top": 140,
+      "bottom": 480,
+      "height": 340
     },
     "composer": {
-      "top": 381,
-      "bottom": 538,
-      "height": 158
+      "top": 400,
+      "bottom": 454,
+      "height": 54
     },
     "documentScrollTop": 0
   },
-  "consoleErrors": []
+  "navigationState": {
+    "pathname": "/contact",
+    "hasFloatingPanel": true,
+    "hasDockedPanel": false,
+    "savedPanelState": "{\"open\":true,\"docked\":false,\"dockWidth\":400,\"rect\":{\"width\":412,\"height\":728,\"x\":933,\"y\":20}}"
+  },
+  "consoleErrors": [
+    "warning: Tracking Prevention blocked access to storage for https://challenges.cloudflare.com/turnstile/v0/api.js.",
+    "warning: Tracking Prevention blocked access to storage for https://challenges.cloudflare.com/turnstile/v0/api.js.",
+    "warning: Tracking Prevention blocked access to storage for https://challenges.cloudflare.com/turnstile/v0/api.js.",
+    "warning: Tracking Prevention blocked access to storage for https://challenges.cloudflare.com/turnstile/v0/api.js."
+  ]
 }

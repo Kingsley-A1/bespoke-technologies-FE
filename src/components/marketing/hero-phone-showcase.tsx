@@ -110,7 +110,10 @@ export function HeroPhoneShowcase({ phones }: HeroPhoneShowcaseProps) {
   return (
     <>
       {/* Desktop — lead device centered, side devices fanned out by default */}
-      <div className="ktf-hero-console group relative hidden min-h-[520px] items-start justify-center pt-14 lg:flex">
+      <div
+        data-hero-phone-stage="desktop"
+        className="ktf-hero-console group relative hidden min-h-[650px] items-start justify-center pt-14 lg:flex"
+      >
         <div aria-hidden="true" className="absolute inset-x-[11%] top-[52%] h-px bg-gradient-to-r from-transparent via-ktf-blue/35 to-transparent" />
         {desktopPositions.map((position) => (
           <span key={position} aria-hidden="true" className={cn("absolute h-2.5 w-2.5 rounded-full border-2 border-white bg-ktf-blue shadow-[0_0_0_4px_rgba(10,132,255,0.12)]", position)} />
