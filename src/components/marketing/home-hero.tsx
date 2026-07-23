@@ -7,7 +7,7 @@ import {
   type HeroPhone,
 } from "@/components/marketing/hero-phone-showcase";
 import { Reveal } from "@/components/marketing/motion-reveal";
-import { PROJECTS } from "@/lib/constants";
+import { listPublishedPortfolioProjectsSafe } from "@/features/admin/portfolio/repository";
 import { listSiteAssetsSafe, type SiteAssetKey } from "@/features/admin/site-assets/repository";
 
 const PROOF_POINTS = [
@@ -24,22 +24,25 @@ const PROOF_POINTS = [
  */
 const FALLBACK_SCREENS: Record<
   SiteAssetKey,
-  { src: string; alt: string; projectId: string }
+  { src: string; alt: string; projectId: string; discipline: string }
 > = {
   "hero-phone-1": {
     src: "/hero/luminary.png",
     alt: "Luminary College — education platform delivered by Bespoke Technologies",
     projectId: "luminary-college",
+    discipline: "Education platform",
   },
   "hero-phone-2": {
     src: "/hero/maxit.png",
     alt: "Maxit Autos — premium car rental platform delivered by Bespoke Technologies",
     projectId: "maxit-autos",
+    discipline: "Mobility experience",
   },
   "hero-phone-3": {
     src: "/hero/downbelow.png",
     alt: "DownBelow Family Health Initiatives — health education platform delivered by Bespoke Technologies",
     projectId: "down-below",
+    discipline: "Health platform",
   },
 };
 
@@ -51,12 +54,15 @@ const FALLBACK_SCREENS: Record<
  * row sit under the devices.
  */
 export async function HomeHero() {
-  const assets = await listSiteAssetsSafe();
+  const [assets, projects] = await Promise.all([
+    listSiteAssetsSafe(),
+    listPublishedPortfolioProjectsSafe(),
+  ]);
 
   const phones = (Object.keys(FALLBACK_SCREENS) as SiteAssetKey[]).map((slot) => {
     const fallback = FALLBACK_SCREENS[slot];
     const hasAsset = Boolean(assets[slot]);
-    const project = PROJECTS.find((entry) => entry.id === fallback.projectId);
+    const project = projects.find((entry) => entry.id === fallback.projectId);
     return {
       slot,
       src: hasAsset ? `/api/site-assets/${slot}` : fallback.src,
@@ -64,13 +70,15 @@ export async function HomeHero() {
       unoptimized: hasAsset,
       href: project?.liveUrl,
       label: project ? `View the live ${project.name} project` : undefined,
+      name: project?.name ?? fallback.discipline,
+      discipline: fallback.discipline,
     } satisfies HeroPhone;
   }) as [HeroPhone, HeroPhone, HeroPhone];
 
   return (
     <section
       aria-labelledby="home-hero-title"
-      className="relative overflow-hidden border-b border-ktf-gray-200 bg-ktf-surface pt-8 pb-14 sm:pt-10 sm:pb-16 lg:pt-12"
+      className="relative overflow-hidden border-b border-ktf-gray-200 bg-ktf-surface pt-8 pb-14 sm:pt-10 sm:pb-16 lg:pt-14"
     >
       {/* Base wash — a whisper of cool tone so the stage never reads as flat white */}
       <div
@@ -113,11 +121,18 @@ export async function HomeHero() {
           {/* Grounding reflection beneath the devices */}
           <div className="absolute bottom-2 left-1/2 h-10 w-[64%] max-w-[540px] -translate-x-1/2 rounded-[50%] bg-[radial-gradient(closest-side,rgba(11,31,58,0.18),transparent)] blur-md" />
         </div>
+        <div className="pointer-events-none absolute left-1/2 top-8 hidden w-[min(860px,88vw)] -translate-x-1/2 items-center justify-between lg:flex" aria-hidden="true">
+          <span className="text-[9px] font-bold uppercase tracking-[0.18em] text-ktf-gray-400">Brief</span>
+          <span className="h-px flex-1 bg-gradient-to-r from-transparent via-ktf-blue/25 to-ktf-blue/50" />
+          <span className="mx-3 flex h-7 w-7 items-center justify-center rounded-full border border-ktf-blue/25 bg-white/80 text-[9px] font-bold text-ktf-blue shadow-sm">BT</span>
+          <span className="h-px flex-1 bg-gradient-to-r from-ktf-blue/50 via-ktf-blue/25 to-transparent" />
+          <span className="text-[9px] font-bold uppercase tracking-[0.18em] text-ktf-gray-400">Live</span>
+        </div>
         <HeroPhoneShowcase phones={phones} />
       </Container>
 
       {/* Supporting copy, actions, and proof under the devices */}
-      <Container size="lg" className="relative mt-10 sm:mt-12">
+      <Container size="lg" className="relative mt-9 sm:mt-11">
         <Reveal className="mx-auto max-w-2xl text-center">
           <p className="mx-auto max-w-xl text-body leading-body text-ktf-gray-600 sm:text-body-lg">
             Designed, engineered, secured, and handed over — by one accountable

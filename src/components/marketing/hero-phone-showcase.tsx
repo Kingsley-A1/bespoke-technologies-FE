@@ -15,6 +15,9 @@ export interface HeroPhone {
   label?: string;
   /** True when the screen is an admin-uploaded asset streamed from our API. */
   unoptimized?: boolean;
+  /** Visible project identity beneath the device. */
+  name: string;
+  discipline: string;
 }
 
 interface HeroPhoneShowcaseProps {
@@ -96,26 +99,36 @@ export function HeroPhoneShowcase({ phones }: HeroPhoneShowcaseProps) {
   }
 
   const sidePhoneBase =
-    "z-0 mt-8 w-[195px] transition-transform duration-700 ease-out motion-reduce:transition-none";
+    "z-0 mt-9 w-[202px] transition-transform duration-700 ease-out motion-reduce:transition-none";
+
+  const desktopPositions = [
+    "left-[7%] top-[38%]",
+    "left-1/2 top-[22%] -translate-x-1/2",
+    "right-[7%] top-[38%]",
+  ] as const;
 
   return (
     <>
       {/* Desktop — lead device centered, side devices fanned out by default */}
-      <div className="ktf-hero-console group relative hidden items-start justify-center lg:flex">
+      <div className="ktf-hero-console group relative hidden min-h-[520px] items-start justify-center pt-14 lg:flex">
+        <div aria-hidden="true" className="absolute inset-x-[11%] top-[52%] h-px bg-gradient-to-r from-transparent via-ktf-blue/35 to-transparent" />
+        {desktopPositions.map((position) => (
+          <span key={position} aria-hidden="true" className={cn("absolute h-2.5 w-2.5 rounded-full border-2 border-white bg-ktf-blue shadow-[0_0_0_4px_rgba(10,132,255,0.12)]", position)} />
+        ))}
         <PhoneFrame
           href={phones[0].href}
           label={phones[0].label}
           className={cn(
             sidePhoneBase,
-            "-mr-[7.25rem]",
+            "-mr-[7rem]",
             fanned
-              ? "-translate-x-16 -rotate-6 group-hover:-translate-x-20"
+              ? "-translate-x-20 -rotate-[7deg] group-hover:-translate-x-24 group-hover:-rotate-[8deg]"
               : "translate-x-0 rotate-0",
           )}
         >
           <PhoneScreen phone={phones[0]} />
         </PhoneFrame>
-        <PhoneFrame href={phones[1].href} label={phones[1].label} className="z-10 w-[235px]">
+        <PhoneFrame href={phones[1].href} label={phones[1].label} className="z-10 w-[242px] transition-transform duration-500 group-hover:-translate-y-2 motion-reduce:transition-none">
           <PhoneScreen phone={phones[1]} />
         </PhoneFrame>
         <PhoneFrame
@@ -123,14 +136,22 @@ export function HeroPhoneShowcase({ phones }: HeroPhoneShowcaseProps) {
           label={phones[2].label}
           className={cn(
             sidePhoneBase,
-            "-ml-[7.25rem]",
+            "-ml-[7rem]",
             fanned
-              ? "translate-x-16 rotate-6 group-hover:translate-x-20"
+              ? "translate-x-20 rotate-[7deg] group-hover:translate-x-24 group-hover:rotate-[8deg]"
               : "translate-x-0 rotate-0",
           )}
         >
           <PhoneScreen phone={phones[2]} />
         </PhoneFrame>
+        <div className="absolute inset-x-0 bottom-0 grid grid-cols-3 gap-4">
+          {phones.map((phone, index) => (
+            <a key={phone.slot} href={phone.href} target="_blank" rel="noreferrer" className="mx-auto w-full max-w-[245px] rounded-lg border border-ktf-gray-200/90 bg-white/90 px-4 py-3 text-left shadow-sm backdrop-blur transition hover:border-ktf-blue/30 hover:shadow-card-hover">
+              <span className="flex items-center gap-2 text-[9px] font-bold uppercase tracking-[0.14em] text-ktf-blue"><span className="font-mono text-ktf-gray-400">0{index + 1}</span>{phone.discipline}</span>
+              <span className="mt-1.5 block truncate text-xs font-semibold text-ktf-navy">{phone.name}</span>
+            </a>
+          ))}
+        </div>
       </div>
 
       {/* Mobile — swipeable carousel, one device in full view at a time */}
@@ -156,9 +177,13 @@ export function HeroPhoneShowcase({ phones }: HeroPhoneShowcaseProps) {
               aria-label={`${index + 1} of ${phones.length}`}
               className="flex w-full shrink-0 snap-center justify-center px-6 py-1"
             >
-              <PhoneFrame href={phone.href} label={phone.label} className="w-[180px] sm:w-[210px]">
-                <PhoneScreen phone={phone} />
-              </PhoneFrame>
+              <div className="flex flex-col items-center">
+                <PhoneFrame href={phone.href} label={phone.label} className="w-[180px] sm:w-[210px]"><PhoneScreen phone={phone} /></PhoneFrame>
+                <div className="mt-4 w-[min(260px,82vw)] rounded-lg border border-ktf-gray-200 bg-white/90 px-4 py-3 text-center shadow-sm">
+                  <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-ktf-blue">{phone.discipline}</p>
+                  <p className="mt-1 truncate text-xs font-semibold text-ktf-navy">{phone.name}</p>
+                </div>
+              </div>
             </div>
           ))}
         </div>

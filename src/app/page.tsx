@@ -27,11 +27,11 @@ import { ProjectCard } from "@/components/marketing/projects-grid";
 import { BookCard, HandoverCard } from "@/components/marketing/publication-cards";
 import { ShowcaseCarousel } from "@/components/marketing/showcase-carousel";
 import { listPublishedPublicationsSafe } from "@/features/admin/publications/repository";
+import { listPublishedPortfolioProjectsSafe } from "@/features/admin/portfolio/repository";
 import {
   ENGAGEMENT_PATHS,
   PARTNERS,
   PRODUCT_OUTCOMES,
-  PROJECTS,
   SERVICES,
   SITE_DESCRIPTION,
   SITE_NAME,
@@ -47,11 +47,6 @@ export const metadata: Metadata = {
     canonical: "/",
   },
 };
-
-const homeProjects = PROJECTS.filter((project) => !project.comingSoon).slice(
-  0,
-  6,
-);
 
 interface ServiceIconProps {
   id: (typeof SERVICES)[number]["id"];
@@ -81,12 +76,14 @@ function ServiceIcon({ id }: ServiceIconProps) {
 }
 
 export default async function HomePage() {
-  const [handovers, books] = await Promise.all([
+  const [handovers, books, projects] = await Promise.all([
     listPublishedPublicationsSafe("handover"),
     listPublishedPublicationsSafe("book"),
+    listPublishedPortfolioProjectsSafe(),
   ]);
   const homeHandovers = handovers.slice(0, 3);
   const homeBooks = books.slice(0, 3);
+  const homeProjects = projects.filter((project) => !project.comingSoon).slice(0, 6);
 
   return (
     <>

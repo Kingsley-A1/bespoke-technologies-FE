@@ -1,4 +1,4 @@
-const CACHE_NAME = "bt-v1";
+const CACHE_NAME = "bt-v2";
 const STATIC_ASSETS = [
   "/",
   "/about",
@@ -6,6 +6,7 @@ const STATIC_ASSETS = [
   "/projects",
   "/contact",
   "/partnerships",
+  "/offline",
   "/icons/bespoke-technologies-icon.png",
   "/icons/bespoke-technologies-logo-main.png",
 ];
@@ -37,12 +38,26 @@ self.addEventListener("fetch", (event) => {
 
   const url = new URL(event.request.url);
 
-  // Skip cross-origin, API, and _next/ internal requests
+  // Never cache authenticated admin or API responses. The installed public
+  // experience and the operational admin have deliberately separate trust boundaries.
   if (
     url.origin !== self.location.origin ||
+    url.pathname.startsWith("/admin") ||
     url.pathname.startsWith("/_next/") ||
     url.pathname.startsWith("/api/")
   ) {
+    return;
+  }
+
+  if (event.request.mode === "navigate") {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          if (response.ok) caches.open(CACHE_NAME).then((cache) => cache.put(event.request, response.clone()));
+          return response;
+        })
+        .catch(async () => (await caches.match(event.request)) || (await caches.match("/offline"))),
+    );
     return;
   }
 

@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { Container } from "@/components/layout";
 import { PageHero } from "@/components/marketing/page-hero";
 import { ProjectsGrid } from "@/components/marketing/projects-grid";
-import { PROJECTS, SITE_NAME } from "@/lib/constants";
+import { listPublishedPortfolioProjectsSafe } from "@/features/admin/portfolio/repository";
+import { SITE_NAME } from "@/lib/constants";
 import { absoluteUrl } from "@/lib/seo";
 
 export const metadata: Metadata = {
@@ -26,23 +27,14 @@ export const metadata: Metadata = {
   },
 };
 
-const stats = [
-  { value: String(PROJECTS.length) + "+", label: "Projects Delivered" },
-  {
-    value: String(PROJECTS.filter((p) => !p.comingSoon).length),
-    label: "Live & Deployed",
-  },
-  {
-    value: String(PROJECTS.filter((p) => p.comingSoon).length),
-    label: "In Active Development",
-  },
-  {
-    value: String(new Set(PROJECTS.map((p) => p.type)).size),
-    label: "Platform Types Covered",
-  },
-] as const;
-
-export default function ProjectsPage() {
+export default async function ProjectsPage() {
+  const projects = await listPublishedPortfolioProjectsSafe();
+  const stats = [
+    { value: String(projects.length) + "+", label: "Projects Delivered" },
+    { value: String(projects.filter((p) => !p.comingSoon).length), label: "Live & Deployed" },
+    { value: String(projects.filter((p) => p.comingSoon).length), label: "In Active Development" },
+    { value: String(new Set(projects.map((p) => p.type)).size), label: "Platform Types Covered" },
+  ] as const;
   return (
     <>
       <PageHero
@@ -83,7 +75,7 @@ export default function ProjectsPage() {
             </p>
           </div>
 
-          <ProjectsGrid />
+          <ProjectsGrid projects={projects} />
         </Container>
       </section>
 

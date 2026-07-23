@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "motion/react";
-import { PROJECTS, type ProjectType } from "@/lib/constants";
+import type { PortfolioProject, ProjectType } from "@/types/portfolio";
 import { cn } from "@/lib/utils";
 
 // ── Type meta ──────────────────────────────────────────────────────────────
@@ -154,7 +154,7 @@ export function ProjectCard({
   project,
   compact = false,
 }: {
-  project: (typeof PROJECTS)[number];
+  project: PortfolioProject;
   compact?: boolean;
 }) {
   const meta = TYPE_META[project.type];
@@ -336,13 +336,13 @@ export function ProjectCard({
 
 // ── Main grid with filters ─────────────────────────────────────────────────
 
-export function ProjectsGrid() {
+export function ProjectsGrid({ projects }: { projects: readonly PortfolioProject[] }) {
   const [active, setActive] = useState<FilterOption>("all");
 
   const filtered = useMemo(
     () =>
-      active === "all" ? PROJECTS : PROJECTS.filter((p) => p.type === active),
-    [active],
+      active === "all" ? projects : projects.filter((p) => p.type === active),
+    [active, projects],
   );
 
   return (
@@ -358,8 +358,8 @@ export function ProjectsGrid() {
             const isActive = f.id === active;
             const count =
               f.id === "all"
-                ? PROJECTS.length
-                : PROJECTS.filter((p) => p.type === f.id).length;
+                ? projects.length
+                : projects.filter((p) => p.type === f.id).length;
 
             if (count === 0 && f.id !== "all") return null;
 

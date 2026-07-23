@@ -35,7 +35,7 @@ export function InstallPrompt() {
 
     // iOS detection
     const isIOSDevice =
-      /iphone|ipad|ipod/i.test(navigator.userAgent) &&
+      (/iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)) &&
       !(window.navigator as Navigator & { standalone?: boolean }).standalone;
     if (isIOSDevice) {
       const timeout = window.setTimeout(() => {
@@ -93,7 +93,7 @@ export function InstallPrompt() {
           role="dialog"
           aria-label={`Install ${SITE_NAME} app`}
         >
-          <div className="overflow-hidden rounded-2xl border border-ktf-gray-200 bg-ktf-white/95 shadow-premium backdrop-blur-xl">
+          <div className="overflow-hidden rounded-lg border border-ktf-gray-200 bg-ktf-white/95 shadow-xl backdrop-blur-xl">
             <div className="h-1 w-full bg-linear-to-r from-ktf-blue via-ktf-blue-deep to-ktf-gold" />
 
             <div className="p-4 sm:p-5">
@@ -113,8 +113,7 @@ export function InstallPrompt() {
                     Install Bespoke Technologies
                   </p>
                   <p className="mt-1 text-caption leading-relaxed text-ktf-gray-600">
-                    Keep Bespoke Technologies one tap away for a faster,
-                    polished app-like experience.
+                    <span className="hidden md:inline">Open Bespoke Technologies in its own focused desktop window.</span><span className="md:hidden">Keep Bespoke Technologies one tap away for a faster app-like experience.</span>
                   </p>
                 </div>
 

@@ -11,11 +11,13 @@ export default function manifest(): MetadataRoute.Manifest {
     name: SITE_NAME,
     short_name: SITE_SHORT_NAME,
     description: SITE_DESCRIPTION,
-    start_url: "/",
+    id: "/",
+    start_url: "/?source=pwa",
+    scope: "/",
     display: "standalone",
     background_color: "#0b1f3a",
     theme_color: "#0a84ff",
-    orientation: "portrait-primary",
+    orientation: "any",
     categories: ["business", "productivity", "technology"],
     icons: [
       {
@@ -48,5 +50,6 @@ export default function manifest(): MetadataRoute.Manifest {
         description: "View our accomplished portfolio",
       },
     ],
-  };
+    display_override: ["window-controls-overlay", "standalone", "minimal-ui"],
+  } as MetadataRoute.Manifest;
 }
