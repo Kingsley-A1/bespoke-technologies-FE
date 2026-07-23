@@ -8,8 +8,12 @@ export async function POST(request: Request) {
   const email = String(formData.get("email") ?? "");
   const code = String(formData.get("code") ?? "");
   const result = await authenticateAdmin(email, code, request);
-  if (!result.ok) return NextResponse.redirect(new URL(`/admin/login?error=${result.reason}`, request.url), 303);
+  if (!result.ok) {
+    const loginUrl = new URL("/admin/login", request.url);
+    loginUrl.searchParams.set("error", result.reason);
+    loginUrl.searchParams.set("email", email);
+    return NextResponse.redirect(loginUrl, 303);
+  }
   await createAdminSession(result.user, request);
   return NextResponse.redirect(new URL("/admin", request.url), 303);
 }
-

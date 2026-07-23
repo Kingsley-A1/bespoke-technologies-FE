@@ -63,8 +63,9 @@ export async function PUT(request: Request, context: { params: Promise<{ id: str
     }
     refreshPortfolio();
     return NextResponse.json({ ok: true, project: result.project });
-  } catch {
+  } catch (error) {
     if (imageResult.file && nextImageKey) await deleteR2Object(nextImageKey).catch(() => undefined);
+    console.error("Portfolio project update failed", error);
     return NextResponse.json({ error: "The project could not be updated." }, { status: 500 });
   }
 }

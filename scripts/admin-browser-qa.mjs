@@ -1,8 +1,16 @@
 import { spawn } from "node:child_process";
+import { createDecipheriv, createHash, createHmac } from "node:crypto";
 import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import pg from "pg";
 import { pathToFileURL } from "node:url";
+
+try {
+  process.loadEnvFile(".env.local");
+} catch {
+  // CI can provide the same values directly.
+}
 
 const repo = process.cwd();
 const outputDirectory = path.join(repo, "qa", "admin");
@@ -13,6 +21,64 @@ const profileDirectory = mkdtempSync(path.join(tmpdir(), "bespoke-admin-edge-"))
 mkdirSync(outputDirectory, { recursive: true });
 
 const delay = (milliseconds) => new Promise((resolve) => setTimeout(resolve, milliseconds));
+
+function generateTotp(secret) {
+  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+  const normalized = secret.toUpperCase().replace(/[^A-Z2-7]/g, "");
+  let bits = "";
+  for (const character of normalized) bits += alphabet.indexOf(character).toString(2).padStart(5, "0");
+  const bytes = [];
+  for (let index = 0; index + 8 <= bits.length; index += 8) bytes.push(Number.parseInt(bits.slice(index, index + 8), 2));
+  const counter = Buffer.alloc(8);
+  counter.writeBigUInt64BE(BigInt(Math.floor(Date.now() / 30_000)));
+  const digest = createHmac("sha1", Buffer.from(bytes)).update(counter).digest();
+  const offset = digest[digest.length - 1] & 0x0f;
+  return String((digest.readUInt32BE(offset) & 0x7fffffff) % 1_000_000).padStart(6, "0");
+}
+
+function decryptTotpSecret(payload) {
+  try {
+    const [iv, tag, ciphertext] = payload.split(".");
+    const key = createHash("sha256")
+      .update(`${process.env.ADMIN_CODE_PEPPER ?? "bespoke-admin-local-development-code-pepper"}:totp-secret-encryption`)
+      .digest();
+    const decipher = createDecipheriv("aes-256-gcm", key, Buffer.from(iv, "base64url"));
+    decipher.setAuthTag(Buffer.from(tag, "base64url"));
+    return Buffer.concat([
+      decipher.update(Buffer.from(ciphertext, "base64url")),
+      decipher.final(),
+    ]).toString("utf8");
+  } catch {
+    return null;
+  }
+}
+
+async function resolveQaSecret(email, fallback) {
+  if (!process.env.DATABASE_URL) return fallback;
+  const pool = new pg.Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: process.env.DATABASE_URL.includes("sslmode=disable") ? false : { rejectUnauthorized: false },
+    max: 1,
+  });
+  try {
+    const result = await pool.query(
+      `SELECT authenticator.secret_ciphertext
+       FROM admin_authenticators authenticator
+       JOIN admin_users admin_user ON admin_user.id = authenticator.user_id
+       WHERE lower(admin_user.email) = lower($1)
+         AND authenticator.authenticator_type = 'totp'
+         AND authenticator.disabled_at IS NULL
+         AND authenticator.confirmed_at IS NOT NULL
+         AND authenticator.secret_ciphertext IS NOT NULL
+       ORDER BY authenticator.created_at DESC
+       LIMIT 1`,
+      [email],
+    );
+    return decryptTotpSecret(result.rows[0]?.secret_ciphertext ?? "") ?? fallback;
+  } finally {
+    await pool.end();
+  }
+}
 
 class CdpClient {
   constructor(url) {
@@ -97,6 +163,15 @@ async function navigate(client, url, waitMilliseconds = 900) {
   await delay(waitMilliseconds);
 }
 
+async function waitForCondition(client, expression, timeout = 30_000) {
+  const startedAt = Date.now();
+  while (Date.now() - startedAt < timeout) {
+    if (await evaluate(client, expression)) return;
+    await delay(250);
+  }
+  throw new Error(`Timed out waiting for browser condition: ${expression}`);
+}
+
 async function setViewport(client, width, height, mobile = false) {
   await client.send("Emulation.setDeviceMetricsOverride", {
     width,
@@ -179,21 +254,26 @@ try {
   await screenshot(client, "login-desktop.png");
   results.screenshots.push("login-desktop.png");
 
+  const qaEmail = process.env.ADMIN_FOUNDER_EMAIL;
+  const configuredQaSecret = process.env.ADMIN_FOUNDER_TOTP_SECRET;
+  if (!qaEmail || !configuredQaSecret) throw new Error("Founder QA credentials are not configured.");
+  const qaSecret = await resolveQaSecret(qaEmail, configuredQaSecret);
+  const qaCode = generateTotp(qaSecret);
   await evaluate(client, `(() => {
     const setValue = (element, value) => {
       element.value = value;
       element.dispatchEvent(new Event('input', { bubbles: true }));
       element.dispatchEvent(new Event('change', { bubbles: true }));
     };
-    setValue(document.querySelector('input[name="email"]'), 'manager@bespoketech.com.ng');
-    setValue(document.querySelector('input[name="code"]'), '160726');
+    setValue(document.querySelector('input[name="email"]'), ${JSON.stringify(qaEmail)});
+    setValue(document.querySelector('input[name="code"]'), ${JSON.stringify(qaCode)});
     return document.querySelector('input[name="code"]').value;
   })()`);
-  results.checks.fullCodeEntry = await evaluate(client, "document.querySelector('input[name=code]').value === '160726'");
+  results.checks.fullCodeEntry = await evaluate(client, "document.querySelector('input[name=code]').value.length === 6");
   await evaluate(client, "document.querySelector('form').requestSubmit()");
   await delay(1_500);
   if (!(await evaluate(client, "location.pathname === '/admin'"))) await navigate(client, `${baseUrl}/admin`);
-  await delay(700);
+  await waitForCondition(client, "document.querySelector('h1')?.textContent?.trim() === 'Company overview'");
 
   results.checks.dashboardLoaded = await evaluate(client, "document.querySelector('h1')?.textContent?.trim() === 'Company overview'");
   results.checks.landmarks = await evaluate(client, "Boolean(document.querySelector('main') && document.querySelector('nav[aria-label=\"Admin navigation\"]'))");
@@ -205,8 +285,40 @@ try {
     .filter((button) => button.offsetParent !== null)
     .every((button) => (button.getAttribute('aria-label') || button.textContent || '').trim().length > 0))()`);
   results.checks.desktopNoHorizontalOverflow = await evaluate(client, "document.documentElement.scrollWidth <= window.innerWidth");
+  results.checks.portfolioKpi = await evaluate(client, "document.body.textContent.includes('Portfolio projects')");
   await screenshot(client, "dashboard-desktop.png");
   results.screenshots.push("dashboard-desktop.png");
+
+  await navigate(client, `${baseUrl}/admin/portfolio`);
+  await waitForCondition(client, "document.body.textContent.includes('Website portfolio') && Boolean([...document.querySelectorAll('button')].find((button) => button.textContent.trim() === 'Edit'))");
+  await evaluate(client, `(() => {
+    const edit = [...document.querySelectorAll('button')].find((button) => button.textContent.trim() === 'Edit');
+    edit?.click();
+  })()`);
+  await delay(300);
+  results.checks.singlePortfolioEditor = await evaluate(client, `(() => {
+    const dialogs = [...document.querySelectorAll('[role="dialog"]')].filter((dialog) => dialog.offsetParent !== null);
+    if (dialogs.length !== 1) return false;
+    const rectangle = dialogs[0].getBoundingClientRect();
+    return rectangle.width >= 640 && getComputedStyle(dialogs[0]).borderRadius === '8px';
+  })()`);
+  results.checks.portfolioNoHorizontalOverflow = await evaluate(client, "document.documentElement.scrollWidth <= window.innerWidth");
+  await screenshot(client, "portfolio-editor-desktop.png");
+  results.screenshots.push("portfolio-editor-desktop.png");
+
+  await navigate(client, `${baseUrl}/admin/people`);
+  await waitForCondition(client, "document.querySelector('h1')?.textContent?.trim() === 'People & access'");
+  results.checks.peopleSeparatePage = await evaluate(client, "document.querySelector('h1')?.textContent?.trim() === 'People & access'");
+  results.checks.employeeEmailFits = await evaluate(client, `(() => {
+    const input = document.querySelector('input[name="username"]');
+    const row = input?.parentElement;
+    return Boolean(input && row && input.getBoundingClientRect().right <= row.getBoundingClientRect().right && document.documentElement.scrollWidth <= innerWidth);
+  })()`);
+  await screenshot(client, "people-access-desktop.png");
+  results.screenshots.push("people-access-desktop.png");
+
+  await navigate(client, `${baseUrl}/admin`);
+  await waitForCondition(client, "document.querySelector('h1')?.textContent?.trim() === 'Company overview'");
 
   await setViewport(client, 820, 1180);
   await delay(350);

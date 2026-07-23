@@ -42,6 +42,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true, project }, { status: 201 });
   } catch (error) {
     await deleteR2Object(imageKey).catch(() => undefined);
+    console.error("Portfolio project creation failed", error);
     const code = typeof error === "object" && error && "code" in error ? String(error.code) : "";
     const message = code === "23505" ? "A portfolio project already uses this ID." : "The project could not be saved.";
     return NextResponse.json({ error: message }, { status: code === "23505" ? 409 : 500 });

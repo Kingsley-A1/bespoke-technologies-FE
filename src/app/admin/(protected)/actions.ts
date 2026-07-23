@@ -291,7 +291,7 @@ export async function setUserStateAction(formData: FormData) {
   const session = await requireRecentAdminPermission("users.manage");
   const input = z.object({ id: z.string().uuid(), state: z.enum(["invited", "active", "suspended"]), reason: z.string().trim().min(5).max(500) }).parse(Object.fromEntries(formData));
   await setAdminUserState(input.id, input.state, session, input.reason);
-  revalidatePath("/admin/settings");
+  revalidatePath("/admin/people");
 }
 
 export async function createEmployeeAction(formData: FormData) {
@@ -313,7 +313,7 @@ export async function createEmployeeAction(formData: FormData) {
   if (!delivery.ok) throw new Error(delivery.skipped
     ? "Employee identity created, but email delivery is not configured. Configure RESEND_API_KEY, then invite this employee again."
     : `Employee created, but invitation delivery failed: ${delivery.error}`);
-  revalidatePath("/admin/settings");
+  revalidatePath("/admin/people");
 }
 
 export async function createLearningGoalAction(formData: FormData) {
@@ -353,7 +353,7 @@ export async function revokeSessionAction(formData: FormData) {
   const session = await requireRecentAdminPermission("users.manage");
   const input = z.object({ id: z.string().uuid(), reason: z.string().trim().min(5).max(500) }).parse(Object.fromEntries(formData));
   await revokeAdminSession(input.id, session, input.reason);
-  revalidatePath("/admin/settings");
+  revalidatePath("/admin/people");
 }
 
 export async function convertProformaAction(formData: FormData) {

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, BadgePoundSterling, Banknote, BriefcaseBusiness, CircleAlert, Clock3, FilePlus2, FolderKanban, ShieldAlert, UserRoundSearch } from "lucide-react";
+import { ArrowRight, BadgePoundSterling, Banknote, BriefcaseBusiness, CircleAlert, Clock3, FilePlus2, FolderKanban, Images, ShieldAlert, UserRoundSearch } from "lucide-react";
 import { requireAdminPermission } from "@/features/admin/access";
 import { calculateDocumentTotals, formatAdminDate, formatMoney } from "@/features/admin/billing/money";
 import { MetricCard, Panel, PanelHeader, StatusPill } from "@/features/admin/components/admin-ui";
@@ -7,6 +7,7 @@ import { getAdminSnapshot } from "@/features/admin/repository";
 import { resolveApprovalAction } from "./actions";
 import { updateMyTaskStatusAction } from "./actions";
 import { listLearningGoals } from "@/features/admin/learning/repository";
+import { listPortfolioProjects } from "@/features/admin/portfolio/repository";
 import type { AdminSnapshot, LearningGoal } from "@/features/admin/types";
 
 export default async function AdminOverviewPage() {
@@ -16,6 +17,7 @@ export default async function AdminOverviewPage() {
     const learningGoals = await listLearningGoals(session);
     return <EmployeeOverview snapshot={snapshot} learningGoals={learningGoals} userId={session.userId} />;
   }
+  const portfolioProjects = await listPortfolioProjects();
   const month = new Date().toISOString().slice(0, 7);
   const today = new Date().toISOString().slice(0, 10);
   const standardDocuments = snapshot.documents.filter((document) => document.type !== "recurring" && document.status !== "voided" && document.currency === "NGN");
@@ -43,11 +45,12 @@ export default async function AdminOverviewPage() {
         <Link href="/admin/billing/new" className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-lg bg-ktf-blue px-5 text-sm font-semibold text-white shadow-sm hover:bg-ktf-blue-deep"><FilePlus2 className="h-4 w-4" /> New invoice</Link>
       </section>
 
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4" aria-label="Company summary">
+      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5" aria-label="Company summary">
         <MetricCard label="Outstanding" value={formatMoney(outstanding)} detail="NGN issued unpaid invoices" icon={Clock3} tone="amber" />
         <MetricCard label="Paid this month" value={formatMoney(paidThisMonth)} detail="Confirmed NGN payments" icon={Banknote} tone="green" />
         <MetricCard label="Active projects" value={String(activeProjects.length)} detail={`${activeProjects.filter((project) => project.health !== "on_track").length} need attention`} icon={FolderKanban} tone="blue" />
         <MetricCard label="Open leads" value={String(openLeads.length)} detail={formatMoney(openLeads.filter((lead) => lead.currency === "NGN").reduce((sum, lead) => sum + lead.estimatedValue, 0)) + " NGN pipeline"} icon={UserRoundSearch} tone="slate" />
+        <MetricCard label="Portfolio projects" value={String(portfolioProjects.length)} detail={`${portfolioProjects.filter((project) => project.published).length} published on the website`} icon={Images} tone="blue" />
       </section>
 
       <section className="grid gap-5 xl:grid-cols-[1.35fr_0.65fr]">

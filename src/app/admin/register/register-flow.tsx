@@ -67,7 +67,7 @@ export function RegisterFlow({ defaultEmail = "" }: { defaultEmail?: string }) {
       const payload = (await response.json().catch(() => ({}))) as { error?: string };
       if (!response.ok) throw new Error(payload.error ?? "The code could not be verified.");
       setStep("done");
-      window.setTimeout(() => router.push("/admin/login"), 1600);
+      window.setTimeout(() => router.push(`/admin/login?email=${encodeURIComponent(email)}`), 1600);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "The code could not be verified.");
     } finally {

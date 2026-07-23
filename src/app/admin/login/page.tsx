@@ -3,11 +3,12 @@ import { redirect } from "next/navigation";
 import { LockKeyhole, ShieldCheck } from "lucide-react";
 import { AdminLogo } from "@/features/admin/components/admin-logo";
 import { CodeInput } from "@/features/admin/components/code-input";
+import { AuthSubmitButton } from "@/features/admin/components/auth-submit-button";
 import { getAdminSession } from "@/features/admin/auth";
 
-export default async function AdminLoginPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
+export default async function AdminLoginPage({ searchParams }: { searchParams: Promise<{ error?: string; email?: string }> }) {
   if (await getAdminSession()) redirect("/admin");
-  const { error } = await searchParams;
+  const { error, email = "" } = await searchParams;
   return (
     <div className="grid min-h-screen bg-white lg:grid-cols-[1fr_0.82fr]">
       <section className="relative hidden overflow-hidden bg-slate-950 p-14 text-white lg:flex lg:flex-col lg:justify-between">
@@ -55,7 +56,7 @@ export default async function AdminLoginPage({ searchParams }: { searchParams: P
           <form action="/admin/api/auth/login" method="post" className="mt-8 space-y-5">
             <label className="block">
               <span className="mb-1.5 block text-[13px] font-semibold text-slate-800">Work email</span>
-              <input name="email" type="email" autoComplete="username" required className="h-11 w-full rounded-md border border-slate-300 bg-white px-3.5 text-sm text-slate-950 shadow-xs outline-none transition focus:border-ktf-blue focus:ring-2 focus:ring-ktf-blue/15" placeholder="name@bespoketech.com.ng" />
+              <input name="email" type="email" autoComplete="username" required defaultValue={email} className="h-11 w-full rounded-md border border-slate-300 bg-white px-3.5 text-sm text-slate-950 shadow-xs outline-none transition focus:border-ktf-blue focus:ring-2 focus:ring-ktf-blue/15" placeholder="name@bespoketech.com.ng" />
             </label>
             <CodeInput />
             {error && (
@@ -63,7 +64,7 @@ export default async function AdminLoginPage({ searchParams }: { searchParams: P
                 {error === "locked" ? "Access is temporarily locked after repeated attempts. Wait 15 minutes and try again." : "The identity or code could not be verified."}
               </p>
             )}
-            <button className="h-11 w-full rounded-md bg-ktf-blue text-sm font-semibold text-white shadow-sm transition hover:bg-ktf-blue-deep">Continue securely</button>
+            <AuthSubmitButton pendingLabel="Verifying access…" className="h-11 w-full rounded-md bg-ktf-blue text-sm font-semibold text-white shadow-sm transition hover:bg-ktf-blue-deep">Continue securely</AuthSubmitButton>
           </form>
           <div className="mt-6 flex items-center justify-between gap-3 border-t border-slate-200 pt-5">
             <p className="flex items-start gap-2 text-xs leading-5 text-slate-500"><ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" /> Confidential data is limited to approved named staff.</p>
