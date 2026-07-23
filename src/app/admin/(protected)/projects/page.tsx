@@ -33,7 +33,7 @@ export default async function ProjectsPage() {
         <Summary label="Blocked work" value={String(blocked.length)} detail="explicitly blocked" tone="text-amber-700" />
       </section>
 
-      <details className="rounded-2xl border border-slate-200 bg-white">
+      <details className="rounded-lg border border-slate-200 bg-white">
         <summary className="flex cursor-pointer list-none items-center justify-between px-5 py-4 text-sm font-semibold text-slate-800"><span className="flex items-center gap-2"><Plus className="h-4 w-4 text-ktf-blue" /> Add project</span><span className="text-xs font-normal text-slate-500">Connect delivery to a client</span></summary>
         <form action={createProjectAction} className="grid gap-4 border-t border-slate-200 p-5 sm:grid-cols-2 xl:grid-cols-4">
           <label><span className={labelClass}>Client</span><select className={inputClass} name="clientId" required><option value="">Choose client</option>{snapshot.clients.filter((client) => client.state === "active").map((client) => <option key={client.id} value={client.id}>{client.name}</option>)}</select></label>
@@ -86,7 +86,7 @@ export default async function ProjectsPage() {
 }
 
 function Summary({ label, value, detail, tone = "text-slate-950" }: { label: string; value: string; detail: string; tone?: string }) {
-  return <article className="rounded-2xl border border-slate-200 bg-white p-5"><p className="text-xs font-semibold text-slate-500">{label}</p><p className={`mt-3 text-2xl font-extrabold ${tone}`}>{value}</p><p className="mt-1 text-xs text-slate-400">{detail}</p></article>;
+  return <article className="rounded-lg border border-slate-200 bg-white p-5"><p className="text-xs font-semibold text-slate-500">{label}</p><p className={`mt-3 text-2xl font-extrabold ${tone}`}>{value}</p><p className="mt-1 text-xs text-slate-400">{detail}</p></article>;
 }
 
 function Fact({ label, value }: { label: string; value: string }) {

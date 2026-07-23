@@ -23,12 +23,12 @@ export default async function SalesPage({ searchParams }: { searchParams: Promis
   return (
     <div className="space-y-6">
       <section className="grid gap-4 sm:grid-cols-3">
-        <article className="rounded-2xl border border-slate-200 bg-white p-5"><p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">Open pipeline</p><p className="mt-3 text-2xl font-extrabold text-slate-950">{formatMoney(activePipeline.reduce((sum, lead) => sum + lead.estimatedValue, 0))}</p><p className="mt-1 text-xs text-slate-500">{activePipeline.length} live opportunities</p></article>
-        <article className="rounded-2xl border border-slate-200 bg-white p-5"><p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">Proposal value</p><p className="mt-3 text-2xl font-extrabold text-slate-950">{formatMoney(snapshot.leads.filter((lead) => lead.stage === "proposal").reduce((sum, lead) => sum + lead.estimatedValue, 0))}</p><p className="mt-1 text-xs text-slate-500">Ready for a commercial decision</p></article>
-        <article className="rounded-2xl border border-slate-200 bg-white p-5"><p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">Won opportunities</p><p className="mt-3 text-2xl font-extrabold text-slate-950">{snapshot.leads.filter((lead) => lead.stage === "won").length}</p><p className="mt-1 text-xs text-slate-500">Converted into delivery</p></article>
+        <article className="rounded-lg border border-slate-200 bg-white p-5"><p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">Open pipeline</p><p className="mt-3 text-2xl font-extrabold text-slate-950">{formatMoney(activePipeline.reduce((sum, lead) => sum + lead.estimatedValue, 0))}</p><p className="mt-1 text-xs text-slate-500">{activePipeline.length} live opportunities</p></article>
+        <article className="rounded-lg border border-slate-200 bg-white p-5"><p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">Proposal value</p><p className="mt-3 text-2xl font-extrabold text-slate-950">{formatMoney(snapshot.leads.filter((lead) => lead.stage === "proposal").reduce((sum, lead) => sum + lead.estimatedValue, 0))}</p><p className="mt-1 text-xs text-slate-500">Ready for a commercial decision</p></article>
+        <article className="rounded-lg border border-slate-200 bg-white p-5"><p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">Won opportunities</p><p className="mt-3 text-2xl font-extrabold text-slate-950">{snapshot.leads.filter((lead) => lead.stage === "won").length}</p><p className="mt-1 text-xs text-slate-500">Converted into delivery</p></article>
       </section>
 
-      <details className="group rounded-2xl border border-slate-200 bg-white">
+      <details className="group rounded-lg border border-slate-200 bg-white">
         <summary className="flex cursor-pointer list-none items-center justify-between px-5 py-4 text-sm font-semibold text-slate-800"><span className="flex items-center gap-2"><Plus className="h-4 w-4 text-ktf-blue" /> Add opportunity</span><span className="text-xs font-normal text-slate-500">Manual or referred lead</span></summary>
         <form action={createLeadAction} className="grid gap-4 border-t border-slate-200 p-5 sm:grid-cols-2 xl:grid-cols-4">
           <label><span className={labelClass}>Company</span><input className={inputClass} name="companyName" required /></label>
@@ -51,7 +51,7 @@ export default async function SalesPage({ searchParams }: { searchParams: Promis
         <form className="flex flex-col gap-3 border-b border-slate-100 p-4 sm:flex-row" action="/admin/sales">
           <label className="relative flex-1"><span className="sr-only">Search opportunities</span><Search className="pointer-events-none absolute left-3 top-3 h-4 w-4 text-slate-400" /><input className={`${inputClass} pl-9`} name="q" defaultValue={query} placeholder="Search company, contact, email, or service" /></label>
           <select className={`${inputClass} sm:w-44`} name="stage" defaultValue={stageFilter}><option value="open">Open stages</option><option value="all">All stages</option>{stages.map((stage) => <option key={stage} value={stage}>{stage.replaceAll("_", " ")}</option>)}</select>
-          <button className="h-10 rounded-xl border border-slate-200 bg-white px-4 text-xs font-semibold text-slate-600">Apply filters</button>
+          <button className="h-10 rounded-lg border border-slate-200 bg-white px-4 text-xs font-semibold text-slate-600">Apply filters</button>
         </form>
         {filtered.length === 0 ? <EmptyPanel title="No matching opportunities" body="Adjust the filters or add a new lead." /> : (
           <div className="divide-y divide-slate-100">

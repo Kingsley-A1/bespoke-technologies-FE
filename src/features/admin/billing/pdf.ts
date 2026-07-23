@@ -43,7 +43,7 @@ function header(page: PDFPage, regular: PDFFont, bold: PDFFont, document: Billin
   const scaled = logo.scale(0.21);
   page.drawImage(logo, { x: 46, y: 716, width: scaled.width, height: scaled.height });
   const label = document.type === "standard" ? "Invoice" : document.type === "proforma" ? "Proforma invoice" : "Recurring invoice";
-  drawRight(page, document.type === "proforma" ? "FOR APPROVAL" : "BILLING DOCUMENT", A4.width - 46, 778, bold, 7, blue);
+  drawRight(page, document.type === "proforma" ? "FOR APPROVAL" : "BILLING INVOICE", A4.width - 46, 778, bold, 7, blue);
   drawRight(page, label, A4.width - 46, 748, bold, 22, dark);
   drawRight(page, document.documentNumber, A4.width - 46, 720, bold, 8.5, dark);
   drawRight(page, `Issued ${formatAdminDate(document.issueDate)}`, A4.width - 46, 704, regular, 7.5, grey);

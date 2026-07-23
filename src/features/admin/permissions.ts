@@ -10,6 +10,14 @@ const managerPermissions: AdminPermission[] = [
   "reports.view",
   "publications.manage",
   "reviews.manage",
+  "learning.view",
+  "learning.manage",
+];
+
+const employeePermissions: AdminPermission[] = [
+  "dashboard.view",
+  "work.view",
+  "learning.view",
 ];
 
 const founderPermissions: AdminPermission[] = [
@@ -26,6 +34,7 @@ const founderPermissions: AdminPermission[] = [
 export const ROLE_PERMISSIONS: Record<AdminRole, ReadonlySet<AdminPermission>> = {
   admin_manager: new Set(managerPermissions),
   founder_admin: new Set(founderPermissions),
+  employee: new Set(employeePermissions),
 };
 
 export function hasPermission(role: AdminRole, permission: AdminPermission) {
@@ -33,6 +42,7 @@ export function hasPermission(role: AdminRole, permission: AdminPermission) {
 }
 
 export function roleLabel(role: AdminRole) {
-  return role === "founder_admin" ? "Founder Admin" : "Admin Manager";
+  if (role === "founder_admin") return "Founder Admin";
+  if (role === "admin_manager") return "Admin Manager";
+  return "Employee";
 }
-

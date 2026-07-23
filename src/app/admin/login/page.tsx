@@ -51,7 +51,7 @@ export default async function AdminLoginPage({ searchParams }: { searchParams: P
           <div className="mb-10 lg:hidden"><AdminLogo /></div>
           <span className="flex h-11 w-11 items-center justify-center rounded-md bg-blue-50 text-ktf-blue"><LockKeyhole className="h-5 w-5" /></span>
           <h2 className="mt-5 text-3xl font-extrabold tracking-[-0.04em] text-slate-950">Secure admin access</h2>
-          <p className="mt-2 text-sm leading-6 text-slate-500">Use your named Bespoke Technologies admin identity and the current 6-digit code from your authenticator.</p>
+          <p className="mt-2 text-sm leading-6 text-slate-500">Use your named Bespoke Technologies team identity and the current 6-digit code from your authenticator.</p>
           <form action="/admin/api/auth/login" method="post" className="mt-8 space-y-5">
             <label className="block">
               <span className="mb-1.5 block text-[13px] font-semibold text-slate-800">Work email</span>

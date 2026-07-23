@@ -78,7 +78,7 @@ export function HeroAssetManager({ configured, storageReady }: HeroAssetManagerP
           const isSet = configured.includes(slot.key);
           const isBusy = busy === slot.key;
           return (
-            <article key={slot.key} className="rounded-xl border border-slate-200 bg-white p-4">
+            <article key={slot.key} className="rounded-lg border border-slate-200 bg-white p-4">
               <div className="flex items-center justify-between gap-2">
                 <p className="text-xs font-bold text-slate-900">{slot.label}</p>
                 <Smartphone className="h-3.5 w-3.5 text-slate-400" aria-hidden="true" />

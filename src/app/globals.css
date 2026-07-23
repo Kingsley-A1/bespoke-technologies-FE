@@ -120,6 +120,12 @@
     0 4px 12px -6px rgba(10, 132, 255, 0.1),
     0 2px 6px -4px rgba(11, 31, 58, 0.05);
 
+  /* ---- Admin surfaces reuse the public design language ---- */
+  --color-admin-canvas: #f6f8fb;
+  --color-admin-panel: #ffffff;
+  --color-admin-border: #e8edf3;
+  --color-admin-muted: #66707d;
+
   /* ---- Transitions ---- */
   --duration-fast: 150ms;
   --duration-base: 200ms;
@@ -228,6 +234,37 @@ body {
 [data-bespoke-ai-chat-input="true"]:focus,
 [data-bespoke-ai-chat-input="true"]:focus-visible {
   outline: none;
+}
+
+/* The public AI empty state is intentionally compact on short desktop
+   viewports, keeping the question field wholly visible at the reference size. */
+@media (min-width: 640px) and (max-height: 650px) {
+  [data-bespoke-ai-empty-state="true"] {
+    justify-content: flex-start;
+  }
+
+  [data-bespoke-ai-empty-content="true"] {
+    padding-top: 1rem !important;
+  }
+
+  [data-bespoke-ai-empty-suggestions="true"] {
+    margin-top: 1rem;
+  }
+
+  [data-bespoke-ai-empty-suggestions="true"] button {
+    height: 78px;
+    min-height: 78px !important;
+    padding: 0.625rem !important;
+  }
+
+  [data-bespoke-ai-empty-suggestions="true"] button > span:last-child {
+    margin-top: 0.5rem;
+  }
+
+  [data-bespoke-ai-empty-state="true"] [data-bespoke-ai-composer="true"] textarea {
+    height: 52px;
+    min-height: 52px !important;
+  }
 }
 
 /* ---- Selection ---- */
@@ -352,6 +389,58 @@ body {
   animation: var(--animate-fade-in);
 }
 
+/* A precise card interaction: lift, then reveal a short brand signal rail.
+   The rail communicates interactivity without turning every panel into a toy. */
+.bt-card-motion {
+  position: relative;
+  isolation: isolate;
+  transition:
+    transform var(--duration-base) var(--ease-out),
+    border-color var(--duration-base) var(--ease-out),
+    box-shadow var(--duration-base) var(--ease-out);
+}
+
+.bt-card-motion::before {
+  position: absolute;
+  inset: 0 auto auto 0;
+  width: 2.75rem;
+  height: 2px;
+  border-radius: 0 0 2px 0;
+  background: linear-gradient(90deg, var(--ktf-blue-primary), var(--ktf-blue-deep));
+  content: "";
+  opacity: 0;
+  transform: scaleX(0.25);
+  transform-origin: left;
+  transition:
+    opacity var(--duration-base) var(--ease-out),
+    transform var(--duration-slow) var(--ease-out);
+}
+
+.bt-card-motion:hover {
+  transform: translateY(-2px);
+  border-color: rgba(10, 132, 255, 0.24);
+  box-shadow: var(--shadow-card-hover);
+}
+
+.bt-card-motion:hover::before {
+  opacity: 1;
+  transform: scaleX(1);
+}
+
+@keyframes btLoadingRail {
+  from { transform: translateX(-110%); }
+  to { transform: translateX(310%); }
+}
+
+.bt-loading-rail::after {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 36%;
+  background: linear-gradient(90deg, transparent, rgba(10, 132, 255, 0.9), transparent);
+  content: "";
+  animation: btLoadingRail 1.15s var(--ease-in) infinite;
+}
+
 /* ---- Delivery engine: traveling honeycomb glow ---- */
 @keyframes ktfHexPulse {
   0%,
@@ -377,5 +466,16 @@ body {
   .ktf-hex-pulse {
     animation: none;
     opacity: 0.1;
+  }
+
+  .bt-card-motion,
+  .bt-card-motion:hover {
+    transform: none;
+  }
+
+  .bt-card-motion::before,
+  .bt-loading-rail::after {
+    animation: none;
+    display: none;
   }
 }

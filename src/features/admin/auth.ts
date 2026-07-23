@@ -1,6 +1,6 @@
 import "server-only";
 
-import { createHmac, randomUUID, timingSafeEqual } from "node:crypto";
+import { createHmac, randomBytes, randomUUID, timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
 import { adminQuery, requireAdminRuntimeConfiguration } from "./db";
 import { configuredAdminUsers } from "./config";
@@ -84,18 +84,22 @@ function decodeSession(token?: string) {
 }
 
 function configuredTotpSecret(role: AdminRole) {
-  return role === "founder_admin" ? process.env.ADMIN_FOUNDER_TOTP_SECRET : process.env.ADMIN_MANAGER_TOTP_SECRET;
+  if (role === "founder_admin") return process.env.ADMIN_FOUNDER_TOTP_SECRET;
+  if (role === "admin_manager") return process.env.ADMIN_MANAGER_TOTP_SECRET;
+  return undefined;
 }
 
 function configuredRecoveryHashes(role: AdminRole) {
   const value = role === "founder_admin"
     ? process.env.ADMIN_FOUNDER_RECOVERY_HASHES
-    : process.env.ADMIN_MANAGER_RECOVERY_HASHES;
+    : role === "admin_manager" ? process.env.ADMIN_MANAGER_RECOVERY_HASHES : undefined;
   return (value ?? "").split(",").map((hash) => hash.trim()).filter(Boolean);
 }
 
 function configuredBootstrapCode(role: AdminRole) {
-  const configured = role === "founder_admin" ? process.env.ADMIN_FOUNDER_BOOTSTRAP_CODE : process.env.ADMIN_MANAGER_BOOTSTRAP_CODE;
+  const configured = role === "founder_admin"
+    ? process.env.ADMIN_FOUNDER_BOOTSTRAP_CODE
+    : role === "admin_manager" ? process.env.ADMIN_MANAGER_BOOTSTRAP_CODE : undefined;
   return configured ?? "";
 }
 
@@ -125,8 +129,7 @@ export async function syncConfiguredAdminUsers() {
     enrolled_at: Date | string | null;
     last_login_at: Date | string | null;
   }>(
-    "SELECT id, email, display_name, role, state, enrolled_at, last_login_at FROM admin_users WHERE email IN ($1, $2)",
-    [configured[0].email, configured[1].email],
+    "SELECT id, email, display_name, role, state, enrolled_at, last_login_at FROM admin_users ORDER BY created_at",
   );
   return result.rows.map((row) => ({
     id: row.id,
@@ -308,8 +311,20 @@ export async function beginTotpEnrollment(email: string, registrationCode: strin
 
   const configuredCode = process.env.ADMIN_REGISTRATION_CODE ?? "";
   const users = await syncConfiguredAdminUsers();
-  const user = users.find((candidate) => candidate.email === normalizedEmail && candidate.state === "active");
-  const codeValid = Boolean(configuredCode) && Boolean(registrationCode) && safeEqual(configuredCode, registrationCode);
+  const user = users.find((candidate) => candidate.email === normalizedEmail && ["invited", "active"].includes(candidate.state));
+  const inviteResult = user ? await adminQuery<{ enrollment_code_hash: string | null; enrollment_expires_at: Date | string | null }>(
+    "SELECT enrollment_code_hash, enrollment_expires_at FROM admin_users WHERE id = $1",
+    [user.id],
+  ) : undefined;
+  const invite = inviteResult?.rows[0];
+  const inviteValid = Boolean(
+    invite?.enrollment_code_hash
+      && invite.enrollment_expires_at
+      && new Date(invite.enrollment_expires_at).getTime() > Date.now()
+      && safeEqual(invite.enrollment_code_hash, hmac(registrationCode, codePepper())),
+  );
+  const configuredValid = user?.role !== "employee" && Boolean(configuredCode) && Boolean(registrationCode) && safeEqual(configuredCode, registrationCode);
+  const codeValid = inviteValid || configuredValid;
   if (!user || !codeValid) {
     await recordAttempt(normalizedEmail, request, "failure");
     await recordSecurityAudit({
@@ -349,7 +364,7 @@ export async function confirmTotpEnrollment(email: string, code: string, request
   }
 
   const users = await syncConfiguredAdminUsers();
-  const user = users.find((candidate) => candidate.email === normalizedEmail && candidate.state === "active");
+  const user = users.find((candidate) => candidate.email === normalizedEmail && ["invited", "active"].includes(candidate.state));
   if (!user || !/^\d{6}$/.test(code)) {
     await recordAttempt(normalizedEmail, request, "failure");
     return { ok: false as const, reason: "invalid" as const };
@@ -393,12 +408,39 @@ export async function confirmTotpEnrollment(email: string, code: string, request
     [user.id, row.id],
   );
   await adminQuery(
-    "UPDATE admin_users SET enrolled_at = COALESCE(enrolled_at, now()), updated_at = now() WHERE id = $1",
+    "UPDATE admin_users SET enrolled_at = COALESCE(enrolled_at, now()), state = 'active', enrollment_code_hash = NULL, enrollment_expires_at = NULL, updated_at = now() WHERE id = $1",
     [user.id],
   );
   await recordAttempt(normalizedEmail, request, "success");
   await recordSecurityAudit({ user, action: "admin.enrollment.confirmed", entityId: row.id });
   return { ok: true as const, user };
+}
+
+/** Founder-controlled identity provisioning. The employee receives a short-
+ * lived, single-use enrollment code; no password or shared admin secret is
+ * created. */
+export async function provisionEmployeeIdentity(displayName: string, email: string, actor: AdminSession) {
+  const normalizedEmail = email.trim().toLowerCase();
+  if (!normalizedEmail.endsWith("@bespoketech.com.ng")) throw new Error("Employee identities must use @bespoketech.com.ng.");
+  const existing = await adminQuery<{ role: AdminRole }>("SELECT role FROM admin_users WHERE email = $1 LIMIT 1", [normalizedEmail]);
+  if (existing.rows[0] && existing.rows[0].role !== "employee") throw new Error("That address belongs to an existing admin identity and cannot be reassigned.");
+  const enrollmentCode = randomBytes(18).toString("base64url");
+  const expiresAt = new Date(Date.now() + 72 * 60 * 60 * 1000).toISOString();
+  const result = await adminQuery<{ id: string }>(
+    `INSERT INTO admin_users (email, display_name, role, state, enrollment_code_hash, enrollment_expires_at)
+     VALUES ($1, $2, 'employee', 'invited', $3, $4)
+     ON CONFLICT (email) DO UPDATE SET display_name = excluded.display_name, role = 'employee', state = 'invited',
+       enrollment_code_hash = excluded.enrollment_code_hash, enrollment_expires_at = excluded.enrollment_expires_at, updated_at = now()
+     RETURNING id`,
+    [normalizedEmail, displayName.trim(), hmac(enrollmentCode, codePepper()), expiresAt],
+  );
+  const id = result.rows[0]?.id;
+  await adminQuery(
+    `INSERT INTO admin_audit_events (actor_user_id, actor_label, action, entity_type, entity_id, metadata)
+     VALUES ($1,$2,'employee.invited','admin_user',$3,$4)`,
+    [actor.userId, actor.displayName, id, JSON.stringify({ email: normalizedEmail, expiresAt })],
+  );
+  return { id, email: normalizedEmail, displayName: displayName.trim(), enrollmentCode, expiresAt };
 }
 
 export async function createAdminSession(user: AdminUser, request: Request) {

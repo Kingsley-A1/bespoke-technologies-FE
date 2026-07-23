@@ -2,7 +2,7 @@ import { COMPANY_SETTINGS } from "../config";
 import type { BillingDocument, Payment } from "../types";
 
 /**
- * A representative, self-contained billing document used only by the PDF
+ * A representative, self-contained billing invoice used only by the PDF
  * regression test. This is test scaffolding — it is never imported by the
  * application runtime.
  */

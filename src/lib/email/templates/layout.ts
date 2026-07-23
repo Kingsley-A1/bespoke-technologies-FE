@@ -43,8 +43,8 @@ export function paragraphsToHtml(text: string) {
 
 export function button(label: string, url: string) {
   return `<table role="presentation" cellpadding="0" cellspacing="0" style="margin:8px 0 4px;">
-    <tr><td style="border-radius:12px;background:${BLUE_DEEP};">
-      <a href="${escapeHtml(url)}" style="display:inline-block;padding:12px 24px;font-size:14px;font-weight:600;color:#ffffff;text-decoration:none;border-radius:12px;">${escapeHtml(label)}</a>
+    <tr><td style="border-radius:8px;background:${BLUE_DEEP};">
+      <a href="${escapeHtml(url)}" style="display:inline-block;padding:12px 22px;font-size:14px;font-weight:600;color:#ffffff;text-decoration:none;border-radius:8px;">${escapeHtml(label)}</a>
     </td></tr></table>`;
 }
 
@@ -73,19 +73,22 @@ export function renderLayout({ preheader, heading, contentHtml }: LayoutInput) {
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="color-scheme" content="light only" />
 </head>
-<body style="margin:0;padding:0;background:${SURFACE};">
+<body style="margin:0;padding:0;background:#ffffff;">
   <div style="display:none;max-height:0;overflow:hidden;opacity:0;">${escapeHtml(preheader)}</div>
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${SURFACE};padding:32px 12px;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#ffffff;padding:0;">
     <tr><td align="center">
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border-radius:16px;overflow:hidden;border:1px solid ${HAIRLINE};">
-        <tr><td style="background:${NAVY};padding:24px 32px;">
-          <a href="${SITE_URL}" style="text-decoration:none;color:#ffffff;font-size:18px;font-weight:700;letter-spacing:-.01em;">Bespoke<span style="color:${BLUE};">.</span>Technologies</a>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:760px;background:#ffffff;">
+        <tr><td style="height:4px;background:${BLUE};font-size:0;line-height:0;">&nbsp;</td></tr>
+        <tr><td style="padding:24px 32px 20px;border-bottom:1px solid ${HAIRLINE};">
+          <a href="${SITE_URL}" style="text-decoration:none;">
+            <img src="${SITE_URL}/brand/bespoke-technologies-logo.png" width="210" alt="Bespoke Technologies" style="display:block;width:210px;max-width:64%;height:auto;border:0;" />
+          </a>
         </td></tr>
-        <tr><td style="padding:32px 32px 8px;">
-          <h1 style="margin:0 0 20px;font-size:20px;line-height:1.3;font-weight:700;color:${NAVY};">${escapeHtml(heading)}</h1>
+        <tr><td style="padding:32px 32px 12px;">
+          <h1 style="margin:0 0 20px;font-size:24px;line-height:1.25;font-weight:700;letter-spacing:-.02em;color:${NAVY};">${escapeHtml(heading)}</h1>
           ${contentHtml}
         </td></tr>
-        <tr><td style="padding:24px 32px 28px;border-top:1px solid ${HAIRLINE};">
+        <tr><td style="padding:22px 32px 28px;border-top:1px solid ${HAIRLINE};background:${SURFACE};">
           <p style="margin:0 0 6px;font-size:12px;line-height:1.6;color:${MUTED};">Bespoke Technologies · Engineering the solutions for this, and The Next Generations_</p>
           <p style="margin:0;font-size:12px;line-height:1.6;color:${MUTED};">
             <a href="${SITE_URL}" style="color:${BLUE_DEEP};text-decoration:none;">www.bespoketech.com.ng</a>

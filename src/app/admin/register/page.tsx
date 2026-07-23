@@ -7,8 +7,9 @@ import { RegisterFlow } from "./register-flow";
 
 export const metadata = { title: "Admin registration" };
 
-export default async function AdminRegisterPage() {
+export default async function AdminRegisterPage({ searchParams }: { searchParams: Promise<{ email?: string }> }) {
   if (await getAdminSession()) redirect("/admin");
+  const email = (await searchParams).email ?? "";
 
   return (
     <div className="grid min-h-screen bg-white lg:grid-cols-[1fr_0.82fr]">
@@ -55,10 +56,10 @@ export default async function AdminRegisterPage() {
             Register your authenticator
           </h2>
           <p className="mt-2 text-sm leading-6 text-slate-500">
-            For pre-authorized Bespoke Technologies admins only.
+            For pre-authorized Bespoke Technologies team identities only.
           </p>
           <div className="mt-8">
-            <RegisterFlow />
+            <RegisterFlow defaultEmail={email} />
           </div>
           <p className="mt-6 text-xs text-slate-500">
             Already enrolled?{" "}

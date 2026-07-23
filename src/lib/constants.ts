@@ -1,3 +1,7 @@
+import type { PortfolioProject, ProjectType } from "@/types/portfolio";
+
+export type { ProjectType } from "@/types/portfolio";
+
 /**
  * Bespoke Technologies — Shared Constants
  */
@@ -403,8 +407,6 @@ export const PARTNERSHIP_TIERS = [
 //=========================================
 // Projects
 //=========================================
-export type ProjectType = "web" | "mobile" | "ios" | "desktop" | "web+mobile";
-
 export const PROJECTS = [
   {
     id: "down-below",
@@ -672,4 +674,4 @@ export const PROJECTS = [
     comingSoon: true,
     featured: true,
   },
-];
+] as const satisfies readonly PortfolioProject[];

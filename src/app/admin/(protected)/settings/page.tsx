@@ -4,14 +4,17 @@ import { listAdminSessions } from "@/features/admin/auth";
 import { isAdminDatabaseConfigured } from "@/features/admin/db";
 import { formatAdminDate, formatMoney } from "@/features/admin/billing/money";
 import { inputClass, labelClass, Panel, PanelHeader, primaryButtonClass, StatusPill, textareaClass } from "@/features/admin/components/admin-ui";
+import { SubmitButton } from "@/features/admin/components/admin-loading";
 import { getAdminSnapshot } from "@/features/admin/repository";
 import { listSiteAssetsSafe, SITE_ASSET_KEYS } from "@/features/admin/site-assets/repository";
 import { isR2Configured } from "@/lib/storage/r2";
-import { resolveApprovalAction, revokeSessionAction, setUserStateAction, updateSettingsAction } from "../actions";
+import { createEmployeeAction, resolveApprovalAction, revokeSessionAction, setUserStateAction, updateSettingsAction } from "../actions";
 import { HeroAssetManager } from "./hero-asset-manager";
+import { redirect } from "next/navigation";
 
 export default async function SettingsPage() {
   const session = await requireAdminPermission("dashboard.view");
+  if (session.role === "employee") redirect("/admin/unauthorized");
   const snapshot = await getAdminSnapshot();
   const founder = session.role === "founder_admin";
   const sessions = founder ? await listAdminSessions() : await listAdminSessions(session.userId);
@@ -30,7 +33,7 @@ export default async function SettingsPage() {
 
       <section className="grid gap-5 xl:grid-cols-[1.1fr_0.9fr]">
         <Panel>
-          <PanelHeader title="Verified company identity" description="Only approved facts flow into issued documents." />
+          <PanelHeader title="Verified company identity" description="Only approved facts flow into issued invoices." />
           {founder ? (
             <form action={updateSettingsAction} className="grid gap-4 p-5 sm:grid-cols-2 sm:p-6">
               <label><span className={labelClass}>Company name</span><input className={inputClass} name="name" defaultValue={snapshot.settings.name} required /></label>
@@ -59,6 +62,14 @@ export default async function SettingsPage() {
 
         <Panel>
           <PanelHeader title="Admin people and access" description="Named identities preserve accountability." action={<UserCog className="h-4 w-4 text-blue-700" />} />
+          {founder && (
+            <form action={createEmployeeAction} className="grid gap-3 border-b border-ktf-gray-200 bg-ktf-surface/70 p-5 sm:grid-cols-[1fr_1fr_auto]">
+              <label><span className={labelClass}>Employee name</span><input className={inputClass} name="displayName" placeholder="Full name" required /></label>
+              <label><span className={labelClass}>Company email</span><span className="flex"><input className={`${inputClass} rounded-r-none`} name="emailName" placeholder="employee.name" required /><span className="inline-flex h-10 items-center rounded-r-lg border border-l-0 border-ktf-gray-200 bg-white px-3 text-[11px] text-ktf-gray-500">@bespoketech.com.ng</span></span></label>
+              <div className="self-end"><SubmitButton className={primaryButtonClass} pendingLabel="Creating…">Create & invite</SubmitButton></div>
+              <p className="text-[11px] leading-5 text-ktf-gray-500 sm:col-span-3">Creates an employee-only identity and emails a single-use, 72-hour authenticator enrollment code. No password is generated.</p>
+            </form>
+          )}
           <div className="divide-y divide-slate-100">
             {snapshot.users.map((user) => (
               <article key={user.id} className="p-5">
@@ -130,5 +141,5 @@ export default async function SettingsPage() {
 }
 
 function HealthCard({ icon: Icon, label, ready, detail }: { icon: LucideIcon; label: string; ready: boolean; detail: string }) {
-  return <article className="rounded-2xl border border-slate-200 bg-white p-5"><div className="flex items-start justify-between"><span className={`flex h-10 w-10 items-center justify-center rounded-xl ${ready ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"}`}><Icon className="h-5 w-5" /></span>{ready ? <CheckCircle2 className="h-4 w-4 text-emerald-600" /> : <span className="h-2 w-2 rounded-full bg-amber-500" />}</div><p className="mt-4 text-sm font-bold text-slate-900">{label}</p><p className="mt-1 text-xs text-slate-500">{detail}</p></article>;
+  return <article className="rounded-lg border border-slate-200 bg-white p-5"><div className="flex items-start justify-between"><span className={`flex h-10 w-10 items-center justify-center rounded-lg ${ready ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"}`}><Icon className="h-5 w-5" /></span>{ready ? <CheckCircle2 className="h-4 w-4 text-emerald-600" /> : <span className="h-2 w-2 rounded-full bg-amber-500" />}</div><p className="mt-4 text-sm font-bold text-slate-900">{label}</p><p className="mt-1 text-xs text-slate-500">{detail}</p></article>;
 }

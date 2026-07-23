@@ -12,10 +12,10 @@ const labelClass = "mb-1.5 block text-[13px] font-semibold text-slate-800";
 
 type Step = "identify" | "confirm" | "done";
 
-export function RegisterFlow() {
+export function RegisterFlow({ defaultEmail = "" }: { defaultEmail?: string }) {
   const router = useRouter();
   const [step, setStep] = useState<Step>("identify");
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(defaultEmail);
   const [registrationCode, setRegistrationCode] = useState("");
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
   const [secret, setSecret] = useState<string | null>(null);

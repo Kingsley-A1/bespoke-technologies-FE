@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import type { PublicationKind } from "@/features/admin/types";
 import { inputClass, labelClass, primaryButtonClass, textareaClass } from "@/features/admin/components/admin-ui";
+import { UploadLoading } from "@/features/admin/components/admin-loading";
 
 const KIND_OPTIONS: { value: PublicationKind; label: string; help: string }[] = [
   { value: "handover", label: "Project handover doc", help: "Preview-only proof. Never downloadable by the public." },
@@ -91,7 +92,8 @@ export function PublicationUploader() {
       </label>
       <label>
         <span className={labelClass}>Document (PDF, ≤25 MB)</span>
-        <input className={inputClass} type="file" name="document" accept="application/pdf" required />
+        <input className={inputClass} type="file" name="document" accept="application/pdf" />
+        <span className="mt-1 block text-[11px] text-ktf-gray-500">Optional for drafts. Upload it later before publishing.</span>
       </label>
 
       <label>
@@ -179,6 +181,8 @@ export function PublicationUploader() {
           {success}
         </p>
       )}
+
+      {pending && <div className="sm:col-span-2"><UploadLoading label="Saving files and publication" /></div>}
 
       <div className="sm:col-span-2">
         <button type="submit" className={primaryButtonClass} disabled={pending}>

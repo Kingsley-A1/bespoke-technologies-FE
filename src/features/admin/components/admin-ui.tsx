@@ -22,14 +22,14 @@ export function MetricCard({
     rose: "bg-rose-50 text-rose-700",
   };
   return (
-    <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.03)] sm:p-6">
+    <article className="bt-card-motion rounded-lg border border-ktf-gray-200 bg-white p-5 shadow-card sm:p-6">
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-sm font-medium text-slate-500">{label}</p>
           <p className="mt-3 text-2xl font-extrabold tracking-[-0.035em] text-slate-950">{value}</p>
           <p className="mt-2 text-xs leading-5 text-slate-500">{detail}</p>
         </div>
-        <span className={cn("flex h-11 w-11 shrink-0 items-center justify-center rounded-xl", tones[tone])}><Icon className="h-5 w-5" strokeWidth={1.8} /></span>
+        <span className={cn("flex h-11 w-11 shrink-0 items-center justify-center rounded-lg", tones[tone])}><Icon className="h-5 w-5" strokeWidth={1.8} /></span>
       </div>
     </article>
   );
@@ -51,7 +51,7 @@ export function StatusPill({ value }: { value: string }) {
 }
 
 export function Panel({ children, className }: { children: React.ReactNode; className?: string }) {
-  return <section className={cn("overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.03)]", className)}>{children}</section>;
+  return <section className={cn("overflow-hidden rounded-lg border border-ktf-gray-200 bg-white shadow-card", className)}>{children}</section>;
 }
 
 export function PanelHeader({
@@ -86,6 +86,5 @@ export function EmptyPanel({ title, body }: { title: string; body: string }) {
 export const inputClass = "h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-ktf-blue focus:ring-2 focus:ring-ktf-blue/20";
 export const textareaClass = "min-h-24 w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-ktf-blue focus:ring-2 focus:ring-ktf-blue/20";
 export const labelClass = "mb-1.5 block text-xs font-semibold text-slate-700";
-export const primaryButtonClass = "inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-ktf-blue px-4 text-xs font-semibold text-white transition hover:bg-ktf-blue-deep disabled:cursor-not-allowed disabled:opacity-50";
+export const primaryButtonClass = "inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-ktf-blue px-4 text-xs font-semibold text-white transition hover:bg-ktf-blue-deep disabled:cursor-not-allowed disabled:opacity-50";
 export const secondaryButtonClass = "inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-600 transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700";
-

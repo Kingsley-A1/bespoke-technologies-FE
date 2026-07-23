@@ -201,6 +201,10 @@ export async function createPublication(input: CreatePublicationInput, session: 
 }
 
 export async function setPublicationStatus(id: string, status: PublicationStatus, session: AdminSession) {
+  if (status === "published") {
+    const current = await getPublicationById(id);
+    if (!current?.documentKey) throw new Error("Upload the PDF before publishing this draft.");
+  }
   await adminQuery(
     `UPDATE publications SET status = $2,
        published_at = CASE WHEN $2 = 'published' AND published_at IS NULL THEN now() ELSE published_at END,
@@ -210,6 +214,12 @@ export async function setPublicationStatus(id: string, status: PublicationStatus
   );
   await appendAudit(session, "publication.status.changed", "publication", id, undefined, { status });
   return (await getPublicationById(id))!;
+}
+
+export async function attachPublicationDocument(id: string, documentKey: string, documentMime: string, session: AdminSession) {
+  const result = await adminQuery<{ id: string }>(`UPDATE publications SET document_key=$2,document_mime=$3,updated_at=now() WHERE id=$1 AND status='draft' RETURNING id`, [id, documentKey, documentMime]);
+  if (!result.rows[0]) throw new Error("Publication draft not found.");
+  await appendAudit(session, "publication.document.attached", "publication", id);
 }
 
 /** Deletes the row and returns the R2 object keys the caller should clean up. */

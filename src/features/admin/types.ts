@@ -1,4 +1,4 @@
-export type AdminRole = "founder_admin" | "admin_manager";
+export type AdminRole = "founder_admin" | "admin_manager" | "employee";
 export type AdminUserState = "invited" | "active" | "suspended";
 export type CurrencyCode = "NGN" | "USD" | "GBP" | "EUR";
 export type LeadStage = "new" | "qualified" | "discovery" | "proposal" | "negotiation" | "won" | "lost" | "archived";
@@ -27,7 +27,10 @@ export type AdminPermission =
   | "exports.all"
   | "approvals.resolve"
   | "publications.manage"
-  | "reviews.manage";
+  | "reviews.manage"
+  | "work.view"
+  | "learning.view"
+  | "learning.manage";
 
 export type PublicationKind = "handover" | "book" | "research";
 export type PublicationStatus = "draft" | "published" | "archived";
@@ -185,6 +188,50 @@ export interface AdminTask {
   priority: Priority;
   status: TaskStatus;
   dueDate?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface InvoiceDraft {
+  id: string;
+  ownerUserId: string;
+  title: string;
+  payload: Record<string, unknown>;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface LearningPlanStep {
+  title: string;
+  targetDate?: string;
+  completed: boolean;
+}
+
+export interface LearningAssignment {
+  id: string;
+  goalId: string;
+  userId: string;
+  status: "not_started" | "in_progress" | "completed";
+  progress: number;
+  plan: LearningPlanStep[];
+  certificationKey?: string;
+  certificationMime?: string;
+  certificationUploadedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface LearningGoal {
+  id: string;
+  title: string;
+  description: string;
+  provider: string;
+  courseUrl?: string;
+  startDate?: string;
+  dueDate?: string;
+  state: "planned" | "active" | "completed" | "archived";
+  createdBy: string;
+  assignments: LearningAssignment[];
   createdAt: string;
   updatedAt: string;
 }

@@ -31,7 +31,7 @@ export function CodeInput() {
           {Array.from({ length: 6 }, (_, index) => (
             <span
               key={index}
-              className={`flex aspect-square max-h-14 items-center justify-center rounded-xl border bg-white text-xl font-bold shadow-sm transition ${
+              className={`flex aspect-square max-h-14 items-center justify-center rounded-lg border bg-white text-xl font-bold shadow-sm transition ${
                 focused && index === Math.min(value.length, 5) ? "border-ktf-blue ring-2 ring-ktf-blue/20" : "border-slate-200"
               }`}
             >

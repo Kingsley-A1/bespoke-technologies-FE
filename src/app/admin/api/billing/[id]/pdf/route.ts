@@ -11,7 +11,7 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
   const id = (await params).id;
   const snapshot = await getAdminSnapshot();
   const document = snapshot.documents.find((candidate) => candidate.id === id);
-  if (!document) return NextResponse.json({ error: "Billing document not found" }, { status: 404 });
+  if (!document) return NextResponse.json({ error: "Billing invoice not found" }, { status: 404 });
   const [logo, regularFont, boldFont] = await Promise.all([
     readFile(path.join(process.cwd(), "public", "brand", "bespoke-technologies-logo.png")),
     readFile(path.join(process.cwd(), "public", "fonts", "DejaVuSans.ttf")),

@@ -120,3 +120,40 @@ export function contactAcknowledgementEmail(
     text,
   };
 }
+
+export function employeeInvitationEmail(input: { name: string; email: string; enrollmentCode: string; expiresAt: string }): RenderedEmail {
+  const registerUrl = `https://www.bespoketech.com.ng/admin/register?email=${encodeURIComponent(input.email)}`;
+  const contentHtml = `
+    <p style="margin:0 0 16px;font-size:15px;line-height:1.65;color:#1a1d23;">Hi ${escapeHtml(input.name.split(/\s+/)[0] || input.name)},</p>
+    <p style="margin:0 0 16px;font-size:15px;line-height:1.65;color:#1a1d23;">Your Bespoke Technologies employee identity has been created. You will set up your own authenticator; no password has been assigned to you.</p>
+    <div style="margin:20px 0;padding:16px;border-left:3px solid #0a84ff;background:#f6f8fb;">
+      <p style="margin:0 0 6px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#66707d;">Employee email</p>
+      <p style="margin:0 0 14px;font-size:15px;color:#0b1f3a;">${escapeHtml(input.email)}</p>
+      <p style="margin:0 0 6px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#66707d;">Single-use enrollment code</p>
+      <p style="margin:0;font-family:monospace;font-size:16px;font-weight:700;color:#0b1f3a;word-break:break-all;">${escapeHtml(input.enrollmentCode)}</p>
+    </div>
+    ${button("Set up authenticator", registerUrl)}
+    <p style="margin:18px 0 0;font-size:12px;line-height:1.6;color:#66707d;">This invitation expires ${escapeHtml(new Date(input.expiresAt).toUTCString())}. If you did not expect it, contact the founder admin.</p>`;
+  return {
+    subject: "Set up your Bespoke Technologies employee access",
+    html: renderLayout({ preheader: "Your employee identity is ready for authenticator setup.", heading: "Your employee access is ready", contentHtml }),
+    text: `Hi ${input.name},\n\nYour employee identity is ready. Open ${registerUrl} and use this single-use enrollment code:\n\n${input.enrollmentCode}\n\nIt expires ${new Date(input.expiresAt).toUTCString()}.`,
+  };
+}
+
+export function taskAssignmentEmail(input: { assigneeName: string; taskTitle: string; projectName?: string; dueDate?: string; assignedBy: string }): RenderedEmail {
+  const contentHtml = `
+    <p style="margin:0 0 16px;font-size:15px;line-height:1.65;color:#1a1d23;">Hi ${escapeHtml(input.assigneeName.split(/\s+/)[0] || input.assigneeName)},</p>
+    <p style="margin:0 0 20px;font-size:15px;line-height:1.65;color:#1a1d23;">${escapeHtml(input.assignedBy)} assigned a task to you.</p>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 20px;border-top:1px solid #e8edf3;border-bottom:1px solid #e8edf3;">
+      ${detailRow("Task", escapeHtml(input.taskTitle))}
+      ${input.projectName ? detailRow("Project", escapeHtml(input.projectName)) : ""}
+      ${input.dueDate ? detailRow("Due", escapeHtml(input.dueDate)) : ""}
+    </table>
+    ${button("Open my work", "https://www.bespoketech.com.ng/admin")}`;
+  return {
+    subject: `Task assigned: ${input.taskTitle}`,
+    html: renderLayout({ preheader: `${input.taskTitle}${input.dueDate ? ` · due ${input.dueDate}` : ""}`, heading: "A task has been assigned to you", contentHtml }),
+    text: `Hi ${input.assigneeName},\n\n${input.assignedBy} assigned you: ${input.taskTitle}${input.projectName ? `\nProject: ${input.projectName}` : ""}${input.dueDate ? `\nDue: ${input.dueDate}` : ""}\n\nOpen: https://www.bespoketech.com.ng/admin`,
+  };
+}

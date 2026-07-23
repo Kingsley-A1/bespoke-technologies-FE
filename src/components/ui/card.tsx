@@ -27,7 +27,7 @@ export function Card({
   return (
     <Tag
       className={cn(
-        "rounded-md border transition-shadow duration-200",
+        "bt-card-motion rounded-md border",
         paddingMap[padding],
         variant === "default" && [
           "border-ktf-gray-200 bg-white",

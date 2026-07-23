@@ -25,13 +25,6 @@ export async function POST(request: Request) {
   const access = await assertRecentAdminPermission("publications.manage");
   if (!access.ok) return NextResponse.json({ error: access.error }, { status: access.status });
   if (!isSameOrigin(request)) return NextResponse.json({ error: "Invalid origin" }, { status: 403 });
-  if (!isR2Configured()) {
-    return NextResponse.json(
-      { error: "Document storage is not configured. Add the Cloudflare R2 environment variables." },
-      { status: 503 },
-    );
-  }
-
   let form: FormData;
   try {
     form = await request.formData();
@@ -60,11 +53,19 @@ export async function POST(request: Request) {
 
   const cover = form.get("cover");
   const document = form.get("document");
+  const hasCover = cover instanceof File && cover.size > 0;
+  const hasDocument = document instanceof File && document.size > 0;
+  if ((hasCover || hasDocument) && !isR2Configured()) {
+    return NextResponse.json(
+      { error: "Document storage is not configured. Save without files as a draft, or add the Cloudflare R2 environment variables." },
+      { status: 503 },
+    );
+  }
   const keyPrefix = randomUUID();
 
   let coverKey: string | undefined;
   let coverUrl: string | undefined;
-  if (cover instanceof File && cover.size > 0) {
+  if (hasCover && cover instanceof File) {
     if (!ALLOWED_COVER_MIME.includes(cover.type)) {
       return NextResponse.json({ error: "Cover must be a PNG, JPEG, or WebP image." }, { status: 400 });
     }
@@ -81,7 +82,7 @@ export async function POST(request: Request) {
 
   let documentKey: string | undefined;
   let documentMime = "application/pdf";
-  if (document instanceof File && document.size > 0) {
+  if (hasDocument && document instanceof File) {
     if (!ALLOWED_DOCUMENT_MIME.includes(document.type)) {
       return NextResponse.json({ error: "The document must be a PDF." }, { status: 400 });
     }
@@ -97,8 +98,8 @@ export async function POST(request: Request) {
     });
   }
 
-  if (!documentKey) {
-    return NextResponse.json({ error: "A PDF document is required." }, { status: 400 });
+  if (!documentKey && data.publish) {
+    return NextResponse.json({ error: "Add a PDF before publishing. You can save an incomplete upload as a draft." }, { status: 400 });
   }
 
   const publication = await createPublication(

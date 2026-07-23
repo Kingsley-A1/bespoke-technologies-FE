@@ -7,6 +7,7 @@ import { isR2Configured } from "@/lib/storage/r2";
 import type { Publication, PublicationKind } from "@/features/admin/types";
 import { PublicationUploader } from "./publication-uploader";
 import { deletePublicationAction, setPublicationStatusAction } from "./actions";
+import { PublicationDraftUploader } from "@/features/admin/publications/publication-draft-uploader";
 
 const KIND_META: Record<PublicationKind, { label: string; icon: typeof BookOpen }> = {
   handover: { label: "Handover doc", icon: FileText },
@@ -22,7 +23,7 @@ export default async function AdminPublicationsPage() {
   return (
     <div className="space-y-6">
       {!storageReady && (
-        <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-xs text-amber-800">
+        <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-xs text-amber-800">
           <p className="font-semibold">Document storage is not configured.</p>
           <p className="mt-1 leading-5">
             Add the Cloudflare R2 environment variables (R2_ACCOUNT_ID, R2_ACCESS_KEY_ID,
@@ -83,7 +84,7 @@ function PublicationCard({ publication }: { publication: Publication }) {
         : formatMoney(publication.priceAmount ?? 0, publication.priceCurrency);
 
   return (
-    <article className="flex flex-col rounded-2xl border border-slate-200 bg-white p-4">
+    <article className="flex flex-col rounded-lg border border-slate-200 bg-white p-4">
       <div className="flex items-start justify-between gap-3">
         <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-500">
           <Icon className="h-4 w-4 text-ktf-blue-deep" /> {meta.label}
@@ -104,15 +105,15 @@ function PublicationCard({ publication }: { publication: Publication }) {
       </p>
 
       <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-slate-100 pt-3">
-        <a
+        {publication.documentKey ? <a
           href={`/admin/api/publications/${publication.id}/file`}
           target="_blank"
           rel="noreferrer"
           className="inline-flex h-8 items-center rounded-lg border border-slate-200 px-2.5 text-[11px] font-semibold text-slate-600 hover:bg-slate-50"
         >
           View file
-        </a>
-        {publication.status !== "published" && (
+        </a> : <PublicationDraftUploader publicationId={publication.id} />}
+        {publication.status !== "published" && publication.documentKey && (
           <form action={setPublicationStatusAction}>
             <input type="hidden" name="id" value={publication.id} />
             <input type="hidden" name="status" value="published" />

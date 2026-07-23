@@ -1,6 +1,9 @@
 "use client";
 
+import Image from "next/image";
 import { useActionState, useRef, useState } from "react";
+import { Send } from "lucide-react";
+import { LoadingSpinner } from "@/features/admin/components/admin-loading";
 import { inputClass, labelClass, primaryButtonClass } from "@/features/admin/components/admin-ui";
 import { sendAdminEmailAction, type ComposeResult } from "./actions";
 
@@ -38,6 +41,7 @@ export function ComposeForm({ templates, senders, defaultSignOff }: ComposeFormP
     body: templates[0]?.defaults.body ?? "",
     ctaLabel: templates[0]?.defaults.ctaLabel ?? "",
     ctaUrl: templates[0]?.defaults.ctaUrl ?? "",
+    signOffName: defaultSignOff,
   });
 
   const [state, formAction, pending] = useActionState<ComposeResult | null, FormData>(
@@ -59,6 +63,7 @@ export function ComposeForm({ templates, senders, defaultSignOff }: ComposeFormP
       body: template.defaults.body,
       ctaLabel: template.defaults.ctaLabel ?? "",
       ctaUrl: template.defaults.ctaUrl ?? "",
+      signOffName: fields.signOffName,
     });
   }
 
@@ -68,7 +73,8 @@ export function ComposeForm({ templates, senders, defaultSignOff }: ComposeFormP
   }
 
   return (
-    <form ref={formRef} action={formAction} className="space-y-5">
+    <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,0.86fr)_minmax(420px,1.14fr)]">
+    <form ref={formRef} action={formAction} className="space-y-5 rounded-lg border border-ktf-gray-200 bg-white p-5 sm:p-6">
       <input type="hidden" name="templateKey" value={templateKey} />
 
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
@@ -142,7 +148,7 @@ export function ComposeForm({ templates, senders, defaultSignOff }: ComposeFormP
 
       <div>
         <label className={labelClass} htmlFor="signOffName">Sign-off name</label>
-        <input id="signOffName" name="signOffName" required defaultValue={defaultSignOff} className={inputClass} />
+        <input id="signOffName" name="signOffName" required value={fields.signOffName} onChange={update("signOffName")} className={inputClass} />
       </div>
 
       {state && (
@@ -159,8 +165,30 @@ export function ComposeForm({ templates, senders, defaultSignOff }: ComposeFormP
       )}
 
       <button type="submit" className={primaryButtonClass} disabled={pending}>
-        {pending ? "Sending…" : "Send email"}
+        {pending ? <><LoadingSpinner /> Sending…</> : <><Send className="h-4 w-4" /> Send email</>}
       </button>
     </form>
+    <aside className="overflow-hidden rounded-lg border border-ktf-gray-200 bg-[#f6f8fb] shadow-card xl:sticky xl:top-28" aria-label="Live email preview">
+      <div className="flex items-center justify-between border-b border-ktf-gray-200 bg-white px-4 py-3">
+        <div><p className="text-xs font-bold text-ktf-navy">Live inbox preview</p><p className="mt-0.5 max-w-[300px] truncate text-[10px] text-ktf-gray-500">{fields.subject || "Email subject"}</p></div>
+        <span className="rounded-full bg-ktf-blue/10 px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider text-ktf-blue">Updates live</span>
+      </div>
+      <div className="p-3 sm:p-5">
+        <div className="mx-auto max-w-[760px] bg-white shadow-sm">
+          <div className="h-1 bg-ktf-blue" />
+          <div className="border-b border-ktf-gray-200 px-6 py-5"><Image src="/brand/bespoke-technologies-logo.png" alt="Bespoke Technologies" width={210} height={70} className="h-auto w-[190px] max-w-[64%]" /></div>
+          <div className="px-6 py-7 sm:px-8">
+            <h2 className="text-xl font-bold tracking-[-0.02em] text-ktf-navy">{fields.heading || "Email heading"}</h2>
+            <div className="mt-5 space-y-4 text-sm leading-6 text-ktf-gray-800">
+              {(fields.body || "Your message will appear here as you type.").split(/\n{2,}/).map((paragraph, index) => <p key={`${index}-${paragraph.slice(0, 12)}`}>{paragraph}</p>)}
+            </div>
+            {fields.ctaLabel && fields.ctaUrl && <span className="mt-5 inline-flex h-10 items-center rounded-lg bg-ktf-blue-deep px-5 text-xs font-semibold text-white">{fields.ctaLabel}</span>}
+            <p className="mt-6 text-sm leading-6 text-ktf-gray-800">Warm regards,<br />{fields.signOffName}<br /><span className="text-ktf-gray-600">Bespoke Technologies</span></p>
+          </div>
+          <div className="border-t border-ktf-gray-200 bg-ktf-surface px-6 py-5 text-[10px] leading-5 text-ktf-gray-500">Bespoke Technologies · Engineering the solutions for this, and The Next Generations_<br />www.bespoketech.com.ng</div>
+        </div>
+      </div>
+    </aside>
+    </div>
   );
 }

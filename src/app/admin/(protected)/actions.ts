@@ -4,7 +4,11 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { requireAdminPermission, requireRecentAdminPermission } from "@/features/admin/access";
-import { revokeAdminSession } from "@/features/admin/auth";
+import { provisionEmployeeIdentity, revokeAdminSession } from "@/features/admin/auth";
+import { sendEmail } from "@/lib/email/client";
+import { EMAIL_ADDRESSES } from "@/lib/email/addresses";
+import { employeeInvitationEmail, taskAssignmentEmail } from "@/lib/email/templates/transactional";
+import { createLearningGoal, updateLearningProgress } from "@/features/admin/learning/repository";
 import {
   createClientRecord,
   updateClientState,
@@ -15,6 +19,7 @@ import {
   updateMilestoneState,
   updateProjectState,
   createTaskRecord,
+  getAdminSnapshot,
   convertSubmissionToLead,
   convertProformaToInvoice,
   createBillingRevision,
@@ -31,6 +36,7 @@ import {
   updateLeadStage,
   updateRecurringScheduleState,
   updateTaskState,
+  updateAssignedTaskState,
 } from "@/features/admin/repository";
 import type { BillingStatus, LeadStage, ProjectHealth, ProjectStatus, TaskStatus } from "@/features/admin/types";
 
@@ -158,7 +164,21 @@ export async function createTaskAction(formData: FormData) {
     status: z.enum(["todo", "in_progress", "blocked", "done"]),
     dueDate: z.string().optional(),
   }).parse(Object.fromEntries(formData));
-  await createTaskRecord({ ...input, projectId: input.projectId || undefined, assigneeUserId: input.assigneeUserId || undefined }, session);
+  const task = await createTaskRecord({ ...input, projectId: input.projectId || undefined, assigneeUserId: input.assigneeUserId || undefined }, session);
+  const snapshot = await getAdminSnapshot();
+  const assignee = snapshot.users.find((user) => user.id === task.assigneeUserId && user.state === "active");
+  if (assignee) {
+    const project = snapshot.projects.find((item) => item.id === task.projectId);
+    const rendered = taskAssignmentEmail({ assigneeName: assignee.displayName, taskTitle: task.title, projectName: project?.name, dueDate: task.dueDate, assignedBy: session.displayName });
+    await sendEmail({
+      from: { address: EMAIL_ADDRESSES.noReply, name: "Bespoke Technologies" },
+      to: assignee.email,
+      subject: rendered.subject,
+      html: rendered.html,
+      text: rendered.text,
+      replyTo: EMAIL_ADDRESSES.support,
+    });
+  }
   revalidatePath("/admin");
   revalidatePath("/admin/projects");
 }
@@ -171,6 +191,13 @@ export async function updateTaskStatusAction(formData: FormData) {
   revalidatePath("/admin/projects");
 }
 
+export async function updateMyTaskStatusAction(formData: FormData) {
+  const session = await requireAdminPermission("work.view");
+  const input = z.object({ id: z.string().uuid(), status: z.enum(["todo", "in_progress", "blocked", "done"]) }).parse(Object.fromEntries(formData));
+  await updateAssignedTaskState(input.id, input.status, session);
+  revalidatePath("/admin");
+}
+
 export async function transitionBillingAction(formData: FormData) {
   const status = String(formData.get("status"));
   const session = status === "voided" ? await requireRecentAdminPermission("billing.void") : await requireAdminPermission("billing.issue");
@@ -181,7 +208,7 @@ export async function transitionBillingAction(formData: FormData) {
     confirmed: z.string().optional(),
   }).parse(Object.fromEntries(formData));
   if (input.status === "voided" && !input.reason) throw new Error("A void reason is required.");
-  if (input.status === "sent" && input.confirmed !== "yes") throw new Error("Confirm that the document was actually delivered before marking it sent.");
+  if (input.status === "sent" && input.confirmed !== "yes") throw new Error("Confirm that the invoice was actually delivered before marking it sent.");
   await transitionBillingDocument(input.id, input.status as BillingStatus, session, input.reason || undefined);
   revalidatePath("/admin");
   revalidatePath("/admin/billing");
@@ -265,6 +292,47 @@ export async function setUserStateAction(formData: FormData) {
   const input = z.object({ id: z.string().uuid(), state: z.enum(["invited", "active", "suspended"]), reason: z.string().trim().min(5).max(500) }).parse(Object.fromEntries(formData));
   await setAdminUserState(input.id, input.state, session, input.reason);
   revalidatePath("/admin/settings");
+}
+
+export async function createEmployeeAction(formData: FormData) {
+  const session = await requireRecentAdminPermission("users.manage");
+  const input = z.object({
+    displayName: z.string().trim().min(2).max(120),
+    emailName: z.string().trim().toLowerCase().regex(/^[a-z0-9]+(?:[._-][a-z0-9]+)*$/, "Use letters, numbers, dots, hyphens, or underscores."),
+  }).parse(Object.fromEntries(formData));
+  const invite = await provisionEmployeeIdentity(input.displayName, `${input.emailName}@bespoketech.com.ng`, session);
+  const rendered = employeeInvitationEmail({ ...invite, name: invite.displayName });
+  const delivery = await sendEmail({
+    from: { address: EMAIL_ADDRESSES.noReply, name: "Bespoke Technologies" },
+    to: invite.email,
+    subject: rendered.subject,
+    html: rendered.html,
+    text: rendered.text,
+    replyTo: EMAIL_ADDRESSES.support,
+  });
+  if (!delivery.ok) throw new Error(delivery.skipped
+    ? "Employee identity created, but email delivery is not configured. Configure RESEND_API_KEY, then invite this employee again."
+    : `Employee created, but invitation delivery failed: ${delivery.error}`);
+  revalidatePath("/admin/settings");
+}
+
+export async function createLearningGoalAction(formData: FormData) {
+  const session = await requireAdminPermission("learning.manage");
+  const input = z.object({
+    title: z.string().trim().min(3).max(180), description: z.string().trim().max(1200), provider: z.string().trim().max(180),
+    courseUrl: z.union([z.url(), z.literal("")]).optional(), startDate: z.string().optional(), dueDate: z.string().optional(),
+  }).parse(Object.fromEntries(formData));
+  const assigneeIds = z.array(z.string().uuid()).min(1, "Choose at least one team member.").parse(formData.getAll("assigneeIds"));
+  await createLearningGoal({ ...input, courseUrl: input.courseUrl || undefined, assigneeIds }, session);
+  revalidatePath("/admin/learning");
+}
+
+export async function updateLearningProgressAction(formData: FormData) {
+  const session = await requireAdminPermission("learning.view");
+  const input = z.object({ assignmentId: z.string().uuid(), progress: z.coerce.number().int().min(0).max(100) }).parse(Object.fromEntries(formData));
+  await updateLearningProgress(input, session);
+  revalidatePath("/admin/learning");
+  revalidatePath("/admin");
 }
 
 export async function createBillingRedirectAction() {

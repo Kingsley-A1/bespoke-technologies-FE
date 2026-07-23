@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { assertAdminPermission, isSameOrigin } from "@/features/admin/access";
-import { createBillingRecord, getAdminSnapshot } from "@/features/admin/repository";
+import { createBillingRecord, createClientRecord, createProjectRecord, getAdminSnapshot } from "@/features/admin/repository";
 
 const itemSchema = z.object({
   id: z.string().min(1),
@@ -15,8 +15,10 @@ const itemSchema = z.object({
 
 const inputSchema = z.object({
   type: z.enum(["standard", "proforma", "recurring"]),
-  clientId: z.string().uuid(),
+  clientId: z.string().uuid().optional(),
+  clientName: z.string().trim().min(2).max(160).optional(),
   projectId: z.string().uuid().optional(),
+  projectName: z.string().trim().min(2).max(180).optional(),
   issueDate: z.iso.date(),
   dueDate: z.iso.date(),
   currency: z.enum(["NGN", "USD", "GBP", "EUR"]),
@@ -34,6 +36,9 @@ const inputSchema = z.object({
     state: z.enum(["draft", "active", "paused", "ended", "failed"]),
   }).optional(),
 }).superRefine((value, context) => {
+  if (!value.clientId && !value.clientName) context.addIssue({ code: "custom", message: "Choose a client or enter a new client name.", path: ["clientId"] });
+  if (value.clientId && value.clientName) context.addIssue({ code: "custom", message: "Choose an existing client or enter a new one, not both.", path: ["clientId"] });
+  if (value.projectId && value.projectName) context.addIssue({ code: "custom", message: "Choose an existing project or enter a new one, not both.", path: ["projectId"] });
   if (value.type === "recurring" && !value.recurrence) context.addIssue({ code: "custom", message: "Choose a recurring schedule.", path: ["recurrence"] });
   if (value.type !== "recurring" && value.recurrence) context.addIssue({ code: "custom", message: "Only recurring templates can include a schedule.", path: ["recurrence"] });
   if (value.dueDate < value.issueDate) context.addIssue({ code: "custom", message: "Due date cannot be before issue date.", path: ["dueDate"] });
@@ -56,11 +61,25 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "The request body must be valid JSON." }, { status: 400 });
   }
   const parsed = inputSchema.safeParse(body);
-  if (!parsed.success) return NextResponse.json({ error: parsed.error.issues[0]?.message ?? "Check the document fields." }, { status: 400 });
+  if (!parsed.success) return NextResponse.json({ error: parsed.error.issues[0]?.message ?? "Check the invoice fields." }, { status: 400 });
   try {
-    const document = await createBillingRecord(parsed.data, access.session);
+    let clientId = parsed.data.clientId;
+    if (!clientId && parsed.data.clientName) {
+      const client = await createClientRecord({ name: parsed.data.clientName, contactName: parsed.data.clientName, email: "", phone: "", address: "", currency: parsed.data.currency, paymentTermsDays: 14 }, access.session);
+      clientId = client.id;
+    }
+    if (!clientId) throw new Error("A client is required.");
+    let projectId = parsed.data.projectId;
+    if (!projectId && parsed.data.projectName) {
+      const project = await createProjectRecord({ clientId, name: parsed.data.projectName, service: "Invoice-linked project", summary: "Created while preparing an invoice.", status: "planned", health: "on_track", priority: "medium", commercialValue: 0, currency: parsed.data.currency }, access.session);
+      projectId = project.id;
+    }
+    const invoiceInput = { ...parsed.data };
+    delete invoiceInput.clientName;
+    delete invoiceInput.projectName;
+    const document = await createBillingRecord({ ...invoiceInput, clientId, projectId }, access.session);
     return NextResponse.json({ document }, { status: 201 });
   } catch (error) {
-    return NextResponse.json({ error: error instanceof Error ? error.message : "The document could not be saved." }, { status: 500 });
+    return NextResponse.json({ error: error instanceof Error ? error.message : "The invoice could not be saved." }, { status: 500 });
   }
 }

@@ -655,6 +655,12 @@ export async function updateTaskState(id: string, status: TaskStatus, session: A
   return (await getAdminSnapshot()).tasks.find((task) => task.id === id) ?? null;
 }
 
+export async function updateAssignedTaskState(id: string, status: TaskStatus, session: AdminSession) {
+  const result = await adminQuery<{ id: string }>("UPDATE admin_tasks SET status=$2,updated_at=now() WHERE id=$1 AND assignee_user_id=$3 RETURNING id", [id, status, session.userId]);
+  if (!result.rows[0]) throw new Error("Assigned task not found.");
+  await appendAudit(session, "task.status.changed", "task", id, undefined, { to: status, scope: "self" });
+}
+
 async function allocateDocumentNumber(type: BillingDocumentType) {
   const prefix = type === "standard" ? "BT-INV" : type === "proforma" ? "BT-PRO" : "BT-REC";
   const year = new Date().getFullYear();
@@ -691,7 +697,7 @@ export async function createBillingRecord(input: CreateBillingInput, session: Ad
   const snapshot = await getAdminSnapshot();
   const client = snapshot.clients.find((candidate) => candidate.id === input.clientId);
   if (!client) throw new Error("Client not found.");
-  if (client.state !== "active") throw new Error("Archived clients cannot receive new billing documents.");
+  if (client.state !== "active") throw new Error("Archived clients cannot receive new invoices.");
   if (input.projectId && !snapshot.projects.some((project) => project.id === input.projectId && project.clientId === input.clientId)) {
     throw new Error("The linked project must belong to the selected client.");
   }
@@ -768,9 +774,9 @@ export async function createBillingRecord(input: CreateBillingInput, session: Ad
 export async function updateBillingDraft(id: string, input: CreateBillingInput, session: AdminSession) {
   const snapshot = await getAdminSnapshot();
   const current = snapshot.documents.find((document) => document.id === id);
-  if (!current) throw new Error("Billing document not found.");
-  if (current.status !== "draft") throw new Error("Only draft documents can be edited.");
-  if (current.type !== input.type) throw new Error("The document type cannot change after its number is allocated.");
+  if (!current) throw new Error("Billing invoice not found.");
+  if (current.status !== "draft") throw new Error("Only draft invoices can be edited.");
+  if (current.type !== input.type) throw new Error("The invoice type cannot change after its number is allocated.");
   const client = snapshot.clients.find((candidate) => candidate.id === input.clientId);
   if (!client || client.state !== "active") throw new Error("Choose an active client.");
   if (input.projectId && !snapshot.projects.some((project) => project.id === input.projectId && project.clientId === input.clientId)) {
@@ -918,7 +924,7 @@ export async function transitionBillingDocument(
 
 export async function createBillingRevision(id: string, session: AdminSession) {
   const source = await getBillingDocument(id);
-  if (!source || source.type === "recurring") throw new Error("A client-facing billing document is required.");
+  if (!source || source.type === "recurring") throw new Error("A client-facing billing invoice is required.");
   if (source.status === "draft") throw new Error("Edit the existing draft instead of creating a revision.");
   const existingRevision = (await getAdminSnapshot()).documents.find((document) => document.parentDocumentId === source.id && document.type === source.type);
   if (existingRevision) throw new Error(`Revision ${existingRevision.documentNumber} already exists for this document.`);

@@ -24,9 +24,9 @@ export default async function AdminOutreachPage() {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-2xl border border-blue-100 bg-blue-50 p-5">
+      <section className="rounded-lg border border-blue-100 bg-blue-50 p-5">
         <div className="flex items-start gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-blue-700">
+          <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-white text-blue-700">
             <Send className="h-5 w-5" />
           </span>
           <div>
@@ -40,7 +40,7 @@ export default async function AdminOutreachPage() {
       </section>
 
       {!isEmailConfigured() && (
-        <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs font-medium text-amber-800">
+        <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-xs font-medium text-amber-800">
           Email is not configured yet — set <code>RESEND_API_KEY</code> to enable sending.
         </div>
       )}
