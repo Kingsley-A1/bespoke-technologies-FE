@@ -22,24 +22,24 @@ type ConversationState = {
   conversations: BespokeAIConversation[];
 };
 
-const STORAGE_KEY = "bespoke-ai-conversations:v1";
+const PUBLIC_STORAGE_KEY = "bespoke-ai-conversations:v1";
 const MAX_CONVERSATIONS = 24;
 const UNTITLED_CONVERSATION = "New conversation";
 
-export function useBespokeAIConversations() {
+export function useBespokeAIConversations(storageKey: string | null = PUBLIC_STORAGE_KEY) {
   const [conversationState, setConversationState] = useState<ConversationState>(
-    () => createInitialConversationState(),
+    () => createInitialConversationState(storageKey),
   );
   const { activeConversationId, conversations } = conversationState;
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    if (typeof window === "undefined" || !storageKey) return;
 
     window.localStorage.setItem(
-      STORAGE_KEY,
+      storageKey,
       JSON.stringify(conversations.slice(0, MAX_CONVERSATIONS)),
     );
-  }, [conversations]);
+  }, [conversations, storageKey]);
 
   const activeConversation = conversations.find(
     (conversation) => conversation.id === activeConversationId,
@@ -178,8 +178,8 @@ export function useBespokeAIConversations() {
   };
 }
 
-function createInitialConversationState(): ConversationState {
-  const storedConversations = readStoredConversations();
+function createInitialConversationState(storageKey: string | null): ConversationState {
+  const storedConversations = readStoredConversations(storageKey);
   const conversations =
     storedConversations.length > 0
       ? sortConversations(storedConversations)
@@ -198,7 +198,7 @@ function createConversation(conversationId = createConversationId()) {
     id: conversationId,
     title: UNTITLED_CONVERSATION,
     titleSource: "generated",
-    preview: "Start a new Bespoke AI conversation.",
+    preview: "Start a new conversation.",
     createdAt: now,
     updatedAt: now,
     messageCount: 0,
@@ -231,7 +231,7 @@ function buildConversationFromMessages({
       ? previousTitle
       : createConversationTopic(getMessageText(firstUserMessage));
   const preview =
-    getMessageText(latestMessage) || "Start a new Bespoke AI conversation.";
+    getMessageText(latestMessage) || "Start a new conversation.";
 
   return {
     id: conversationId,
@@ -249,11 +249,11 @@ function buildConversationFromMessages({
   } satisfies BespokeAIConversation;
 }
 
-function readStoredConversations() {
+function readStoredConversations(storageKey: string | null) {
   try {
-    if (typeof window === "undefined") return [];
+    if (typeof window === "undefined" || !storageKey) return [];
 
-    const storedValue = window.localStorage.getItem(STORAGE_KEY);
+    const storedValue = window.localStorage.getItem(storageKey);
     if (!storedValue) return [];
 
     const parsedValue = JSON.parse(storedValue);
@@ -292,7 +292,7 @@ function normalizeStoredConversation(value: unknown) {
     preview:
       conversation.preview ||
       getMessageText(conversation.messages[conversation.messages.length - 1]) ||
-      "Start a new Bespoke AI conversation.",
+      "Start a new conversation.",
     createdAt: conversation.createdAt,
     updatedAt: conversation.updatedAt,
     messageCount:

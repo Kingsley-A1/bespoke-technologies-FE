@@ -13,16 +13,18 @@ export function PublicExperience({ children }: { children: React.ReactNode }) {
   if (pathname.startsWith("/admin")) {
     return <>{children}</>;
   }
+  if (pathname === "/bespoke-ai") {
+    return <main className="flex min-h-dvh flex-col">{children}</main>;
+  }
   // The Bespoke AI page is a focused, app-like workspace — the marketing
   // footer would compete with the composer, so it is hidden there.
-  const hideFooter = pathname === "/bespoke-ai";
   return (
     <>
       <Header />
       <main className="flex flex-1 flex-col">
         <PageTransition>{children}</PageTransition>
       </main>
-      {hideFooter ? null : <Footer />}
+      <Footer />
       <BespokeAILauncher />
       <InstallPrompt />
       <ServiceWorkerRegistration />

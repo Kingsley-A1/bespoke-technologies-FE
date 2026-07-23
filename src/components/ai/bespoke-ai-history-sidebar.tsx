@@ -16,6 +16,7 @@ import { cn } from "@/lib/utils";
 import type { BespokeAIConversation } from "./use-bespoke-ai-conversations";
 
 type BespokeAIHistorySidebarProps = {
+  assistantName?: string;
   activeConversationId: string;
   className?: string;
   conversations: BespokeAIConversation[];
@@ -29,6 +30,7 @@ type BespokeAIHistorySidebarProps = {
 };
 
 export function BespokeAIHistorySidebar({
+  assistantName = "Bespoke AI",
   activeConversationId,
   className,
   conversations,
@@ -71,12 +73,12 @@ export function BespokeAIHistorySidebar({
         "flex h-full min-h-0 w-80 max-w-[86vw] shrink-0 flex-col border-r border-ktf-gray-200 bg-ktf-surface",
         className,
       )}
-      aria-label="Bespoke AI conversation history"
+      aria-label={`${assistantName} conversation history`}
     >
       <div className="flex h-16 shrink-0 items-center justify-between border-b border-ktf-gray-200 px-4">
         <div className="min-w-0">
           <h2 className="truncate text-sm font-bold text-ktf-obsidian">
-            Bespoke AI
+            {assistantName}
           </h2>
           <p className="mt-0.5 truncate text-xs font-medium text-ktf-gray-500">
             Conversation history
@@ -256,7 +258,7 @@ export function BespokeAIHistorySidebar({
               No conversations yet
             </p>
             <p className="mt-1 text-xs leading-relaxed text-ktf-gray-600">
-              Start with Bespoke AI and your chats will appear here.
+              Start with {assistantName} and your chats will appear here.
             </p>
           </div>
         )}

@@ -1,0 +1,49 @@
+{
+  "browser": "Microsoft Edge",
+  "baseUrl": "http://127.0.0.1:3000",
+  "capturedAt": "2026-07-23T00:24:18.256Z",
+  "checks": {
+    "desktopNoHorizontalOverflow": true,
+    "exactlyThreeQuickStarts": true,
+    "composerVisible": true,
+    "primaryInputLabel": true,
+    "greetingVisible": true,
+    "inputAcceptsText": true,
+    "mobileNoHorizontalOverflow": true,
+    "mobileComposerVisible": true,
+    "noConsoleErrors": true,
+    "allPassed": true
+  },
+  "screenshots": [
+    "C:\\Users\\hp\\Documents\\Bespoke Technologies\\bespoke-technologies-FE\\qa\\ai\\bespoke-ai-empty-desktop.png",
+    "C:\\Users\\hp\\Documents\\Bespoke Technologies\\bespoke-technologies-FE\\qa\\ai\\bespoke-ai-empty-mobile.png"
+  ],
+  "layout": {
+    "viewport": {
+      "width": 752,
+      "height": 564
+    },
+    "header": {
+      "top": 13,
+      "bottom": 69,
+      "height": 56
+    },
+    "emptyState": {
+      "top": 69,
+      "bottom": 592,
+      "height": 523
+    },
+    "content": {
+      "top": 97,
+      "bottom": 564,
+      "height": 467
+    },
+    "composer": {
+      "top": 381,
+      "bottom": 538,
+      "height": 158
+    },
+    "documentScrollTop": 0
+  },
+  "consoleErrors": []
+}

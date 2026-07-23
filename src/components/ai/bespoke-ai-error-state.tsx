@@ -15,23 +15,28 @@ import {
 import { cn } from "@/lib/utils";
 
 type BespokeAIErrorStateProps = {
+  assistantName?: string;
   error: Error;
   onRetry?: () => void;
   className?: string;
+  showContactAction?: boolean;
 };
 
 export function BespokeAIErrorState({
+  assistantName = "Bespoke AI",
   error,
   onRetry,
   className,
+  showContactAction = true,
 }: BespokeAIErrorStateProps) {
   const payload = getBespokeAIErrorPayload(error);
   const icon = getErrorIcon(payload);
+  const title = payload.title.replace("Bespoke AI", assistantName);
 
   return (
     <div
       className={cn(
-        "rounded-2xl border border-ktf-gray-200 bg-ktf-surface/70 p-4 shadow-xs sm:p-5",
+        "rounded-lg border border-ktf-gray-200 bg-ktf-surface/70 p-4 shadow-xs sm:p-5",
         className,
       )}
       role="alert"
@@ -46,7 +51,7 @@ export function BespokeAIErrorState({
             Assistant unavailable for the moment
           </p>
           <h3 className="mt-2 text-base font-semibold text-ktf-obsidian">
-            {payload.title}
+            {title}
           </h3>
           <p className="mt-2 text-sm leading-relaxed text-ktf-gray-700">
             {payload.message}
@@ -66,7 +71,7 @@ export function BespokeAIErrorState({
                 Try again
               </button>
             ) : null}
-            {payload.contactRecommended ? (
+            {payload.contactRecommended && showContactAction ? (
               <Link
                 href="/contact"
                 className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-ktf-gray-300 bg-white px-4 text-sm font-semibold text-ktf-obsidian transition-colors hover:border-ktf-blue/35 hover:text-ktf-blue focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ktf-blue"

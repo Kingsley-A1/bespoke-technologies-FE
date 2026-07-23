@@ -2,132 +2,46 @@
 
 import Link from "next/link";
 import type { ReactNode } from "react";
-import {
-  ArrowRight,
-  ArrowUpRight,
-  BriefcaseBusiness,
-  ExternalLink,
-  Mail,
-  MessageCircle,
-  Phone,
-  ShieldCheck,
-  Sparkles,
-} from "lucide-react";
+import { ArrowRight, ArrowUpRight, BriefcaseBusiness, Mail, MessageCircle, Phone, ShieldCheck, Sparkles } from "lucide-react";
 import type { BespokeAIActionResult } from "@/lib/ai/bespoke-ai-types";
-import { cn } from "@/lib/utils";
 
-type BespokeAIActionCardProps = {
-  result: BespokeAIActionResult;
-};
-
-export function BespokeAIActionCard({ result }: BespokeAIActionCardProps) {
+export function BespokeAIActionCard({ result }: { result: BespokeAIActionResult }) {
   if (result.type === "internal-link") {
-    return (
-      <ActionShell
-        eyebrow="Page action"
-        icon={<ArrowUpRight aria-hidden="true" />}
-        title={result.label}
-      >
-        <p className="text-sm leading-relaxed text-ktf-gray-700">
-          {result.reason}
-        </p>
-        <ActionLink href={result.path}>Open page</ActionLink>
-      </ActionShell>
-    );
+    return <ActionShell eyebrow="Suggested next step" icon={<ArrowUpRight />} title={result.label}><p className="text-sm leading-6 text-slate-600">{result.reason}</p><ActionLink href={result.path}>Open page</ActionLink></ActionShell>;
   }
 
   if (result.type === "contact") {
     return (
-      <ActionShell
-        eyebrow="Contact"
-        icon={<MessageCircle aria-hidden="true" />}
-        title="Contact Bespoke Technologies"
-      >
-        <p className="text-sm leading-relaxed text-ktf-gray-700">
-          {result.message}
-        </p>
-        <div className="mt-3 grid gap-2 sm:grid-cols-3">
-          <ExternalAction href={result.whatsappUrl} icon={<MessageCircle />}>
-            WhatsApp
-          </ExternalAction>
-          <ExternalAction href={`tel:${result.phone}`} icon={<Phone />}>
-            {result.phone}
-          </ExternalAction>
-          <ExternalAction href={`mailto:${result.email}`} icon={<Mail />}>
-            Email
-          </ExternalAction>
+      <ActionShell eyebrow="Contact" icon={<MessageCircle />} title="Talk to Bespoke Technologies">
+        <p className="text-sm leading-6 text-slate-600">{result.message}</p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <CompactAction href={result.whatsappUrl} icon={<MessageCircle />}>WhatsApp</CompactAction>
+          <CompactAction href={`tel:${result.phone}`} icon={<Phone />}>Call</CompactAction>
+          <CompactAction href={`mailto:${result.email}`} icon={<Mail />}>Email</CompactAction>
         </div>
-        <ActionLink href={result.contactPath}>Open contact page</ActionLink>
       </ActionShell>
     );
   }
 
-  if (
-    result.type === "project-list" ||
-    result.type === "project-recommendations"
-  ) {
+  if (result.type === "project-list" || result.type === "project-recommendations") {
     return (
-      <ActionShell
-        eyebrow="Projects"
-        icon={<BriefcaseBusiness aria-hidden="true" />}
-        title={
-          result.type === "project-list"
-            ? result.label
-            : "Recommended project examples"
-        }
-      >
-        {result.type === "project-recommendations" ? (
-          <p className="text-sm leading-relaxed text-ktf-gray-700">
-            Matched to: {result.need}
-          </p>
-        ) : null}
-        <div className="mt-3 grid gap-3 sm:grid-cols-2">
+      <ActionShell eyebrow="Relevant work" icon={<BriefcaseBusiness />} title={result.type === "project-list" ? result.label : "Project references for your idea"}>
+        {result.type === "project-recommendations" ? <p className="mb-3 text-xs leading-5 text-slate-500">Matched to: {result.need}</p> : null}
+        <div className="divide-y divide-slate-100 overflow-hidden rounded-lg border border-slate-200 bg-white">
           {result.projects.map((project) => (
-            <article
-              key={project.id}
-              className="rounded-lg border border-ktf-gray-200 bg-white p-3 shadow-xs"
-            >
+            <article key={project.id} className="group px-3.5 py-3 transition-colors hover:bg-[#f8fbff]">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <h4 className="truncate text-sm font-bold text-ktf-obsidian">
-                    {project.name}
-                  </h4>
-                  <p className="mt-1 text-xs font-semibold text-ktf-blue">
-                    {project.category} · {project.year}
-                  </p>
+                  <h4 className="truncate text-sm font-bold text-slate-950">{project.name}</h4>
+                  <p className="mt-0.5 truncate text-[11px] font-medium text-slate-500">{project.category} · {project.year}</p>
                 </div>
-                {project.comingSoon ? (
-                  <span className="shrink-0 rounded-full bg-ktf-warning/10 px-2.5 py-1 text-[11px] font-bold text-ktf-gray-800">
-                    Coming soon
-                  </span>
-                ) : null}
+                <Link href={project.path} className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-slate-400 transition hover:bg-white hover:text-ktf-blue" aria-label={`Open ${project.name}`}><ArrowUpRight className="h-3.5 w-3.5" /></Link>
               </div>
-              <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-ktf-gray-700">
-                {project.reason ?? project.description}
-              </p>
-              <div className="mt-3 flex flex-wrap gap-1.5">
-                {project.tags.slice(0, 3).map((tag) => (
-                  <span
-                    key={tag}
-                    className="rounded-full bg-ktf-surface px-2.5 py-1 text-[11px] font-semibold text-ktf-gray-700"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-              <div className="mt-3 flex flex-wrap items-center gap-3">
-                <InlineLink href={project.path}>Open case study</InlineLink>
-                {project.liveUrl ? (
-                  <a
-                    className="inline-flex min-h-9 items-center gap-1.5 text-sm font-bold text-ktf-blue hover:text-ktf-blue-deep"
-                    href={project.liveUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    Live project
-                    <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
-                  </a>
-                ) : null}
+              <p className="mt-2 line-clamp-2 text-xs leading-5 text-slate-600">{project.reason ?? project.description}</p>
+              <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                {project.tags.slice(0, 2).map((tag) => <span key={tag} className="rounded-md bg-slate-100 px-2 py-1 text-[10px] font-semibold text-slate-600">{tag}</span>)}
+                {project.comingSoon ? <span className="text-[10px] font-semibold text-amber-700">Coming soon</span> : null}
+                {project.liveUrl ? <a href={project.liveUrl} target="_blank" rel="noreferrer" className="ml-auto text-[11px] font-bold text-ktf-blue hover:text-ktf-blue-deep">View live</a> : null}
               </div>
             </article>
           ))}
@@ -139,25 +53,9 @@ export function BespokeAIActionCard({ result }: BespokeAIActionCardProps) {
 
   if (result.type === "reviews") {
     return (
-      <ActionShell
-        eyebrow="Proof"
-        icon={<ShieldCheck aria-hidden="true" />}
-        title="Client review highlights"
-      >
-        <div className="mt-3 grid gap-3 sm:grid-cols-2">
-          {result.testimonials.map((item) => (
-            <blockquote
-              key={`${item.author}-${item.company}`}
-              className="rounded-lg border border-ktf-gray-200 bg-white p-3 shadow-xs"
-            >
-              <p className="line-clamp-3 text-sm leading-relaxed text-ktf-gray-700">
-                &ldquo;{item.quote}&rdquo;
-              </p>
-              <footer className="mt-2 text-xs font-bold text-ktf-obsidian">
-                {item.author}, {item.role}
-              </footer>
-            </blockquote>
-          ))}
+      <ActionShell eyebrow="Client proof" icon={<ShieldCheck />} title="What clients say">
+        <div className="divide-y divide-slate-100 rounded-lg border border-slate-200 bg-white px-3.5">
+          {result.testimonials.map((item) => <blockquote key={`${item.author}-${item.company}`} className="py-3"><p className="line-clamp-2 text-xs leading-5 text-slate-600">“{item.quote}”</p><footer className="mt-1 text-[11px] font-bold text-slate-900">{item.author} · {item.company}</footer></blockquote>)}
         </div>
         <ActionLink href={result.path}>{result.label}</ActionLink>
       </ActionShell>
@@ -165,119 +63,33 @@ export function BespokeAIActionCard({ result }: BespokeAIActionCardProps) {
   }
 
   return (
-    <ActionShell
-      eyebrow="Services"
-      icon={<Sparkles aria-hidden="true" />}
-      title="Relevant Bespoke services"
-    >
-      <p className="text-sm leading-relaxed text-ktf-gray-700">
-        For: {result.need}
-      </p>
-      <div className="mt-3 grid gap-3 sm:grid-cols-2">
-        {result.services.map((service) => (
-          <article
-            key={service.id}
-            className="rounded-lg border border-ktf-gray-200 bg-white p-3 shadow-xs"
-          >
-            <h4 className="text-sm font-bold text-ktf-obsidian">
-              {service.title}
-            </h4>
-            <p className="mt-1 text-xs font-semibold text-ktf-blue">
-              {service.tagline}
-            </p>
-            <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-ktf-gray-700">
-              {service.description}
-            </p>
-            <InlineLink href={service.path}>Open service</InlineLink>
-          </article>
-        ))}
+    <ActionShell eyebrow="Suggested capabilities" icon={<Sparkles />} title="A practical service fit">
+      <p className="mb-3 text-xs leading-5 text-slate-500">For: {result.need}</p>
+      <div className="divide-y divide-slate-100 rounded-lg border border-slate-200 bg-white px-3.5">
+        {result.services.map((service) => <article key={service.id} className="py-3"><div className="flex items-center justify-between gap-3"><h4 className="text-sm font-bold text-slate-950">{service.title}</h4><Link href={service.path} className="text-[11px] font-bold text-ktf-blue">Explore</Link></div><p className="mt-1 line-clamp-2 text-xs leading-5 text-slate-600">{service.tagline}. {service.description}</p></article>)}
       </div>
-      <ActionLink href={result.recommendedAction.path}>
-        {result.recommendedAction.label}
-      </ActionLink>
+      <ActionLink href={result.recommendedAction.path}>{result.recommendedAction.label}</ActionLink>
     </ActionShell>
   );
 }
 
-function ActionShell({
-  children,
-  eyebrow,
-  icon,
-  title,
-}: {
-  children: ReactNode;
-  eyebrow: string;
-  icon: ReactNode;
-  title: string;
-}) {
+function ActionShell({ children, eyebrow, icon, title }: { children: ReactNode; eyebrow: string; icon: ReactNode; title: string }) {
   return (
-    <div className="mt-3 overflow-hidden rounded-xl border border-ktf-gray-200 bg-ktf-surface shadow-sm">
-      <div className="border-b border-ktf-gray-200 bg-white px-4 py-3">
-        <div className="flex items-center gap-3">
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-ktf-blue/15 bg-ktf-blue/8 text-ktf-blue [&>svg]:h-4 [&>svg]:w-4">
-            {icon}
-          </span>
-          <div className="min-w-0">
-            <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-ktf-gray-500">
-              {eyebrow}
-            </p>
-            <h3 className="truncate text-sm font-bold text-ktf-obsidian">
-              {title}
-            </h3>
-          </div>
-        </div>
+    <section className="mt-3 rounded-lg border border-slate-200 bg-[#fbfdff] p-3.5 shadow-[0_12px_32px_-26px_rgba(15,38,71,0.5)]">
+      <div className="mb-3 flex items-center gap-2.5">
+        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-ktf-blue/8 text-ktf-blue [&>svg]:h-3.5 [&>svg]:w-3.5">{icon}</span>
+        <div className="min-w-0"><p className="text-[9px] font-bold uppercase tracking-[0.14em] text-slate-400">{eyebrow}</p><h3 className="truncate text-sm font-bold text-slate-950">{title}</h3></div>
       </div>
-      <div className="p-4">{children}</div>
-    </div>
+      {children}
+    </section>
   );
 }
 
 function ActionLink({ children, href }: { children: ReactNode; href: string }) {
-  return (
-    <Link
-      href={href}
-      className="mt-3 inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-ktf-blue px-4 text-sm font-bold text-white transition-colors hover:bg-ktf-blue-deep focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ktf-blue"
-    >
-      {children}
-      <ArrowRight className="h-4 w-4" aria-hidden="true" />
-    </Link>
-  );
+  return <Link href={href} className="mt-3 inline-flex h-9 items-center gap-1.5 rounded-lg bg-ktf-blue px-3 text-xs font-bold text-white transition hover:bg-ktf-blue-deep">{children}<ArrowRight className="h-3.5 w-3.5" /></Link>;
 }
 
-function InlineLink({ children, href }: { children: ReactNode; href: string }) {
-  return (
-    <Link
-      href={href}
-      className="mt-3 inline-flex min-h-9 items-center gap-1.5 text-sm font-bold text-ktf-blue hover:text-ktf-blue-deep focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ktf-blue"
-    >
-      {children}
-      <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
-    </Link>
-  );
-}
-
-function ExternalAction({
-  children,
-  href,
-  icon,
-}: {
-  children: ReactNode;
-  href: string;
-  icon: ReactNode;
-}) {
-  const isExternal = href.startsWith("http");
-
-  return (
-    <a
-      className={cn(
-        "flex min-h-11 items-center justify-center gap-2 rounded-lg border border-ktf-gray-200 bg-white px-3 text-sm font-bold text-ktf-navy transition-colors hover:border-ktf-blue/40 hover:text-ktf-blue focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ktf-blue [&>svg]:h-4 [&>svg]:w-4",
-      )}
-      href={href}
-      target={isExternal ? "_blank" : undefined}
-      rel={isExternal ? "noreferrer" : undefined}
-    >
-      {icon}
-      <span className="truncate">{children}</span>
-    </a>
-  );
+function CompactAction({ children, href, icon }: { children: ReactNode; href: string; icon: ReactNode }) {
+  const external = href.startsWith("http");
+  return <a href={href} target={external ? "_blank" : undefined} rel={external ? "noreferrer" : undefined} className="inline-flex h-9 items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 text-xs font-bold text-slate-700 transition hover:border-ktf-blue/30 hover:text-ktf-blue [&>svg]:h-3.5 [&>svg]:w-3.5">{icon}{children}</a>;
 }

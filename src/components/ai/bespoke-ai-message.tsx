@@ -7,10 +7,11 @@ import { BespokeAIIcon } from "./bespoke-ai-icon";
 import { BespokeAIMarkdown } from "./bespoke-ai-markdown";
 
 type BespokeAIMessageProps = {
+  assistantName?: string;
   message: BespokeAIUIMessage;
 };
 
-export function BespokeAIMessage({ message }: BespokeAIMessageProps) {
+export function BespokeAIMessage({ assistantName = "Bespoke AI", message }: BespokeAIMessageProps) {
   const isUser = message.role === "user";
   const textParts = message.parts.filter((part) => part.type === "text");
   const toolParts = message.parts.filter((part) => part.type.startsWith("tool-"));
@@ -21,12 +22,12 @@ export function BespokeAIMessage({ message }: BespokeAIMessageProps) {
         "flex w-full flex-col gap-2",
         isUser ? "items-end" : "items-start",
       )}
-      aria-label={isUser ? "Your message" : "Bespoke AI message"}
+      aria-label={isUser ? "Your message" : `${assistantName} message`}
     >
       {textParts.length > 0 ? (
         isUser ? (
           // User turn — a quiet, compact pill.
-          <div className="max-w-[85%] rounded-2xl rounded-br-md bg-ktf-surface px-4 py-2.5 text-sm leading-relaxed text-ktf-obsidian">
+          <div className="max-w-[85%] rounded-lg bg-[#edf5ff] px-4 py-2.5 text-sm leading-relaxed text-ktf-obsidian">
             <div className="grid gap-2">
               {textParts.map((part, index) => {
                 if (part.type !== "text") return null;
@@ -42,7 +43,7 @@ export function BespokeAIMessage({ message }: BespokeAIMessageProps) {
           // Assistant turn — flat, document-like, no bubble chrome.
           <div className="flex w-full gap-3">
             <span
-              className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-ktf-blue to-ktf-blue-deep text-white shadow-sm"
+              className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-ktf-blue text-white shadow-sm"
               aria-hidden="true"
             >
               <BespokeAIIcon className="h-4 w-4" inverse />
@@ -60,7 +61,7 @@ export function BespokeAIMessage({ message }: BespokeAIMessageProps) {
       ) : null}
 
       {toolParts.length > 0 ? (
-        <div className={cn("w-full", !isUser && "pl-10")}>
+        <div className={cn("w-full", !isUser && "sm:pl-10")}>
           {toolParts.map((part, index) => {
             if (part.type === "text") {
               return null;

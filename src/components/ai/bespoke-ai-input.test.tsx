@@ -4,51 +4,30 @@ import { describe, expect, it, vi } from "vitest";
 import { BespokeAIInput } from "./bespoke-ai-input";
 
 describe("BespokeAIInput", () => {
-  it("uses conversion-focused placeholder copy", () => {
-    render(<BespokeAIInput onSubmit={vi.fn()} onStop={vi.fn()} />);
-
-    expect(
-      screen.getByPlaceholderText("Describe what you want to build"),
-    ).toBeInTheDocument();
-  });
-
-  it("fills the composer from a quick action and submits it", async () => {
+  it("makes the public action obvious and sends the message", async () => {
     const user = userEvent.setup();
     const onSubmit = vi.fn();
     render(<BespokeAIInput onSubmit={onSubmit} onStop={vi.fn()} />);
 
-    await user.click(
-      screen.getByRole("button", { name: "Open Bespoke AI actions" }),
-    );
-    await user.click(screen.getByRole("menuitem", { name: "Choose build path" }));
-
     const input = screen.getByLabelText("Message Bespoke AI");
-    expect(input).toHaveValue(
-      "Help me choose the right build path for my product or business idea.",
-    );
+    expect(input).toHaveAttribute("placeholder", "What would you like to build?");
+    expect(screen.getByRole("button", { name: "Send message" })).toBeDisabled();
 
+    await user.type(input, "Help me plan a client portal");
     await user.click(screen.getByRole("button", { name: "Send message" }));
 
-    expect(onSubmit).toHaveBeenCalledWith(
-      "Help me choose the right build path for my product or business idea.",
-    );
+    expect(onSubmit).toHaveBeenCalledWith("Help me plan a client portal");
+    expect(input).toHaveValue("");
   });
 
-  it("closes open menus with Escape", async () => {
-    const user = userEvent.setup();
-    render(<BespokeAIInput onSubmit={vi.fn()} onStop={vi.fn()} />);
+  it("adapts its accessible language for Bespoke Coworker", () => {
+    render(<BespokeAIInput assistantName="Bespoke Coworker" placeholder="Ask about your work" onSubmit={vi.fn()} onStop={vi.fn()} />);
+    expect(screen.getByLabelText("Message Bespoke Coworker")).toHaveAttribute("placeholder", "Ask about your work");
+    expect(screen.getByText("Ask Bespoke Coworker")).toBeInTheDocument();
+  });
 
-    await user.click(
-      screen.getByRole("button", { name: "Open Bespoke AI actions" }),
-    );
-    expect(
-      screen.getByRole("menu", { name: "Bespoke AI quick actions" }),
-    ).toBeInTheDocument();
-
-    await user.keyboard("{Escape}");
-
-    expect(
-      screen.queryByRole("menu", { name: "Bespoke AI quick actions" }),
-    ).not.toBeInTheDocument();
+  it("turns the primary action into a stop control while streaming", () => {
+    render(<BespokeAIInput isStreaming onSubmit={vi.fn()} onStop={vi.fn()} />);
+    expect(screen.getByRole("button", { name: "Stop Bespoke AI response" })).toBeEnabled();
   });
 });
