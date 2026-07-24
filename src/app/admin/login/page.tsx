@@ -61,7 +61,11 @@ export default async function AdminLoginPage({ searchParams }: { searchParams: P
             <CodeInput />
             {error && (
               <p role="alert" className="rounded-md border border-rose-200 bg-rose-50 p-3 text-xs leading-5 text-rose-700">
-                {error === "locked" ? "Access is temporarily locked after repeated attempts. Wait 15 minutes and try again." : "The identity or code could not be verified."}
+                {error === "locked"
+                  ? "Access is temporarily locked after repeated attempts. Wait 15 minutes and try again."
+                  : error === "unavailable"
+                    ? "Secure access is temporarily unavailable. Please retry in a moment."
+                    : "The identity or code could not be verified."}
               </p>
             )}
             <AuthSubmitButton pendingLabel="Verifying access…" className="h-11 w-full rounded-md bg-ktf-blue text-sm font-semibold text-white shadow-sm transition hover:bg-ktf-blue-deep">Continue securely</AuthSubmitButton>

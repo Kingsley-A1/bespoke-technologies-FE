@@ -79,7 +79,7 @@ function PortfolioCard({ project, onEdit }: { project: PortfolioProject; onEdit:
           <span className={`rounded-full px-2.5 py-1 text-[10px] font-bold ${project.published ? "bg-emerald-600 text-white" : "bg-slate-900 text-white"}`}>
             {project.published ? "Published" : "Draft"}
           </span>
-          {project.featured && <span className="rounded-full bg-white/90 px-2.5 py-1 text-[10px] font-bold text-slate-800">Featured</span>}
+          {project.featured && <span className="rounded-full bg-white/90 px-2.5 py-1 text-[10px] font-bold text-slate-800">Homepage hero</span>}
         </div>
       </div>
       <div className="p-4">
@@ -173,8 +173,11 @@ export function PortfolioForm({ project, onSaved }: { project?: PortfolioProject
       <Field label="Tags" hint="Comma-separated; up to 12 tags."><input name="tags" required defaultValue={project?.tags.join(", ")} placeholder="Next.js, Product Design, Cloud" className={inputClass} /></Field>
       <div className="flex flex-wrap gap-x-6 gap-y-3 rounded-lg border border-slate-200 bg-slate-50 p-4">
         <Check name="published" label="Published on website" defaultChecked={project?.published !== false} />
-        <Check name="featured" label="Featured project" defaultChecked={project?.featured} />
+        <Check name="featured" label="Show in homepage hero" defaultChecked={project?.featured} />
         <Check name="comingSoon" label="Coming soon" defaultChecked={project?.comingSoon} />
+        <p className="w-full text-[10px] leading-4 text-slate-500">
+          Hero projects are added to the existing rotation. There is no three-project limit.
+        </p>
       </div>
       {saving && <UploadLoading label={project ? "Saving project changes" : "Uploading project and metadata"} />}
       {message && <p role="status" className={`text-xs font-medium ${message.tone === "error" ? "text-rose-700" : "text-emerald-700"}`}>{message.text}</p>}

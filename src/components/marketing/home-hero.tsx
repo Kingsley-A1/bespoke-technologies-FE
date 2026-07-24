@@ -18,9 +18,8 @@ const PROOF_POINTS = [
 ] as const;
 
 /**
- * Baked-in fallback screens: real delivered Bespoke projects, captured at a
- * mobile viewport. The admin can replace any slot from Settings → Homepage
- * hero screenshots.
+ * Baked-in hero screens remain in the rotation even when administrators add
+ * more finished portfolio projects.
  */
 const FALLBACK_SCREENS: Record<
   SiteAssetKey,
@@ -59,7 +58,7 @@ export async function HomeHero() {
     listPublishedPortfolioProjectsSafe(),
   ]);
 
-  const phones = (Object.keys(FALLBACK_SCREENS) as SiteAssetKey[]).map((slot) => {
+  const fallbackPhones = (Object.keys(FALLBACK_SCREENS) as SiteAssetKey[]).map((slot) => {
     const fallback = FALLBACK_SCREENS[slot];
     const hasAsset = Boolean(assets[slot]);
     const project = projects.find((entry) => entry.id === fallback.projectId);
@@ -73,7 +72,27 @@ export async function HomeHero() {
       name: project?.name ?? fallback.discipline,
       discipline: fallback.discipline,
     } satisfies HeroPhone;
-  }) as [HeroPhone, HeroPhone, HeroPhone];
+  });
+
+  /*
+   * `featured` is the existing portfolio metadata switch for homepage
+   * promotion. Every published, finished project selected by an administrator
+   * is added to the rotation; it never replaces an existing hero screen.
+   */
+  const portfolioPhones = projects
+    .filter((project) => project.featured && !project.comingSoon)
+    .map((project) => ({
+      slot: `portfolio-${project.id}`,
+      src: project.image,
+      alt: `${project.name} — ${project.category} delivered by Bespoke Technologies`,
+      unoptimized: Boolean(project.imageKey),
+      href: project.liveUrl,
+      label: project.liveUrl ? `View the live ${project.name} project` : undefined,
+      name: project.name,
+      discipline: project.category,
+    } satisfies HeroPhone));
+
+  const phones = [...portfolioPhones, ...fallbackPhones];
 
   return (
     <section

@@ -1,7 +1,7 @@
 {
   "browser": "Microsoft Edge",
-  "baseUrl": "http://127.0.0.1:3000",
-  "capturedAt": "2026-07-23T22:41:50.770Z",
+  "baseUrl": "http://localhost:3000",
+  "capturedAt": "2026-07-24T09:57:56.929Z",
   "checks": {
     "desktopNoHorizontalOverflow": true,
     "exactlyThreeQuickStarts": true,
@@ -11,6 +11,9 @@
     "inputAcceptsText": true,
     "mobileNoHorizontalOverflow": true,
     "mobileComposerVisible": true,
+    "desktopHeroAlwaysShowsThree": true,
+    "desktopHeroRotatesEveryFiveSeconds": true,
+    "mobileHeroHasCircularEdges": true,
     "opensDockedByDefault": true,
     "dockedWidthIsUsable": true,
     "heroSupportClearsPhones": true,

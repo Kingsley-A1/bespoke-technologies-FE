@@ -73,7 +73,7 @@ export async function listPortfolioProjects(includeUnpublished = true) {
   return result.rows.map(mapProject);
 }
 
-export async function listPublishedPortfolioProjectsSafe() {
+export async function listPublishedPortfolioProjectsSafe(): Promise<PortfolioProject[]> {
   try {
     return await listPortfolioProjects(false);
   } catch {

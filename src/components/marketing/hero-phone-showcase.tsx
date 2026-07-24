@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { PhoneFrame } from "@/components/marketing/phone-frame";
 import { cn } from "@/lib/utils";
 
@@ -21,13 +21,27 @@ export interface HeroPhone {
 }
 
 interface HeroPhoneShowcaseProps {
-  /** Exactly three phones; the second one is the lead device on desktop. */
-  phones: readonly [HeroPhone, HeroPhone, HeroPhone];
+  /** All admin-selected and fallback screens in their display order. */
+  phones: readonly HeroPhone[];
 }
 
-const ROTATE_INTERVAL_MS = 3000;
+const MOBILE_ROTATE_INTERVAL_MS = 3000;
+const DESKTOP_ROTATE_INTERVAL_MS = 5000;
 /** How long autoplay stays paused after the user touches the carousel. */
 const INTERACTION_GRACE_MS = 6000;
+
+export function circularWindow<T>(items: readonly T[], offset: number, size: number) {
+  if (items.length === 0 || size <= 0) return [];
+  return Array.from(
+    { length: size },
+    (_, index) => items[(offset + index) % items.length],
+  );
+}
+
+export function logicalMobileIndex(physicalIndex: number, itemCount: number) {
+  if (itemCount <= 0) return 0;
+  return (physicalIndex - 1 + itemCount) % itemCount;
+}
 
 function PhoneScreen({ phone }: { phone: HeroPhone }) {
   return (
@@ -43,43 +57,118 @@ function PhoneScreen({ phone }: { phone: HeroPhone }) {
 }
 
 /**
- * The hero's three delivered-project phones.
+ * The homepage's rotating delivered-project showcase.
  *
- * Desktop: the side devices start tucked behind the lead phone and slide out
- * into a fanned, fully readable trio shortly after load — no hover required.
- * Mobile: a swipeable, snap-aligned carousel that rotates to the next phone
- * every 3 seconds, pausing while the user interacts and honoring
- * reduced-motion preferences. Every frame links to its live project.
+ * Desktop always renders a circular window of three screens and advances that
+ * window every five seconds. Mobile uses cloned boundary slides so swiping and
+ * autoplay can continue from the final project back to the first without a
+ * visible dead end.
  */
 export function HeroPhoneShowcase({ phones }: HeroPhoneShowcaseProps) {
   const [fanned, setFanned] = useState(false);
+  const [desktopOffset, setDesktopOffset] = useState(0);
+  const [desktopCycle, setDesktopCycle] = useState(0);
   const [active, setActive] = useState(0);
+  const stageRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
+  const activeRef = useRef(0);
   const lastInteractionRef = useRef(Number.NEGATIVE_INFINITY);
+  const settleTimerRef = useRef<number | undefined>(undefined);
 
-  // Desktop: fan the side phones out deliberately once the hero has settled.
+  const desktopPhones = useMemo(
+    () => circularWindow(phones, desktopOffset, 3),
+    [desktopOffset, phones],
+  );
+  const mobileSlides = useMemo(() => {
+    if (phones.length <= 1) {
+      return phones.map((phone, logicalIndex) => ({
+        phone,
+        logicalIndex,
+        clone: false,
+      }));
+    }
+    return [
+      { phone: phones[phones.length - 1], logicalIndex: phones.length - 1, clone: true },
+      ...phones.map((phone, logicalIndex) => ({ phone, logicalIndex, clone: false })),
+      { phone: phones[0], logicalIndex: 0, clone: true },
+    ];
+  }, [phones]);
+
   useEffect(() => {
-    const id = window.setTimeout(() => setFanned(true), 450);
-    return () => window.clearTimeout(id);
+    stageRef.current?.setAttribute("data-hero-hydrated", "true");
   }, []);
 
-  // Mobile: rotate to the next phone every 3 seconds.
+  // Fan the current desktop trio after each circular-window change.
   useEffect(() => {
+    const id = window.setTimeout(
+      () => setFanned(true),
+      desktopCycle === 0 ? 450 : 100,
+    );
+    return () => window.clearTimeout(id);
+  }, [desktopCycle]);
+
+  useEffect(() => {
+    if (phones.length <= 1) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    const id = window.setInterval(() => {
+      if (document.hidden) return;
+      setFanned(false);
+      setDesktopOffset((current) => (current + 3) % phones.length);
+      setDesktopCycle((current) => current + 1);
+    }, DESKTOP_ROTATE_INTERVAL_MS);
+
+    return () => window.clearInterval(id);
+  }, [phones.length]);
+
+  // Keep the first real mobile slide in view, including after viewport changes.
+  useEffect(() => {
+    const track = trackRef.current;
+    if (!track) return;
+
+    const positionAtLogicalSlide = () => {
+      const width = track.clientWidth;
+      if (width === 0) return;
+      const physicalIndex = phones.length > 1 ? activeRef.current + 1 : 0;
+      track.scrollTo({ left: physicalIndex * width, behavior: "auto" });
+    };
+
+    const frame = window.requestAnimationFrame(positionAtLogicalSlide);
+    const observer = new ResizeObserver(positionAtLogicalSlide);
+    observer.observe(track);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      observer.disconnect();
+    };
+  }, [phones.length]);
+
+  // Mobile autoplay walks onto a cloned edge, then the scroll-settle handler
+  // silently repositions it to the equivalent real slide.
+  useEffect(() => {
+    if (phones.length <= 1) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     const id = window.setInterval(() => {
       const track = trackRef.current;
       if (!track || document.hidden) return;
       const width = track.clientWidth;
-      // Width is 0 when the carousel is display:none on desktop.
       if (width === 0) return;
       if (performance.now() - lastInteractionRef.current < INTERACTION_GRACE_MS) return;
-      const next = (Math.round(track.scrollLeft / width) + 1) % phones.length;
-      track.scrollTo({ left: next * width, behavior: "smooth" });
-    }, ROTATE_INTERVAL_MS);
+      const physicalIndex = Math.round(track.scrollLeft / width);
+      track.scrollTo({ left: (physicalIndex + 1) * width, behavior: "smooth" });
+    }, MOBILE_ROTATE_INTERVAL_MS);
 
     return () => window.clearInterval(id);
   }, [phones.length]);
+
+  useEffect(
+    () => () => {
+      if (settleTimerRef.current !== undefined) {
+        window.clearTimeout(settleTimerRef.current);
+      }
+    },
+    [],
+  );
 
   function pauseAutoplay(event: { timeStamp: number }) {
     lastInteractionRef.current = event.timeStamp;
@@ -87,15 +176,37 @@ export function HeroPhoneShowcase({ phones }: HeroPhoneShowcaseProps) {
 
   function handleTrackScroll() {
     const track = trackRef.current;
-    if (!track || track.clientWidth === 0) return;
-    setActive(Math.round(track.scrollLeft / track.clientWidth));
+    if (!track || track.clientWidth === 0 || phones.length === 0) return;
+    const physicalIndex = Math.round(track.scrollLeft / track.clientWidth);
+    const logicalIndex =
+      phones.length > 1
+        ? logicalMobileIndex(physicalIndex, phones.length)
+        : 0;
+    activeRef.current = logicalIndex;
+    setActive(logicalIndex);
+
+    if (settleTimerRef.current !== undefined) {
+      window.clearTimeout(settleTimerRef.current);
+    }
+    settleTimerRef.current = window.setTimeout(() => {
+      const width = track.clientWidth;
+      if (physicalIndex === 0) {
+        track.scrollTo({ left: phones.length * width, behavior: "auto" });
+      } else if (physicalIndex === phones.length + 1) {
+        track.scrollTo({ left: width, behavior: "auto" });
+      }
+    }, 120);
   }
 
   function goTo(index: number, event: { timeStamp: number }) {
     const track = trackRef.current;
     if (!track) return;
     pauseAutoplay(event);
-    track.scrollTo({ left: index * track.clientWidth, behavior: "smooth" });
+    const physicalIndex = phones.length > 1 ? index + 1 : index;
+    track.scrollTo({
+      left: physicalIndex * track.clientWidth,
+      behavior: "smooth",
+    });
   }
 
   const sidePhoneBase =
@@ -107,11 +218,16 @@ export function HeroPhoneShowcase({ phones }: HeroPhoneShowcaseProps) {
     "right-[7%] top-[38%]",
   ] as const;
 
+  if (phones.length === 0) return null;
+
   return (
     <>
-      {/* Desktop — lead device centered, side devices fanned out by default */}
+      {/* Desktop — always three devices, sourced from a circular project window. */}
       <div
+        ref={stageRef}
         data-hero-phone-stage="desktop"
+        data-hero-desktop-cycle={desktopCycle}
+        data-hero-hydrated="false"
         className="ktf-hero-console group relative hidden min-h-[650px] items-start justify-center pt-14 lg:flex"
       >
         <div aria-hidden="true" className="absolute inset-x-[11%] top-[52%] h-px bg-gradient-to-r from-transparent via-ktf-blue/35 to-transparent" />
@@ -119,37 +235,44 @@ export function HeroPhoneShowcase({ phones }: HeroPhoneShowcaseProps) {
           <span key={position} aria-hidden="true" className={cn("absolute h-2.5 w-2.5 rounded-full border-2 border-white bg-ktf-blue shadow-[0_0_0_4px_rgba(10,132,255,0.12)]", position)} />
         ))}
         <PhoneFrame
-          href={phones[0].href}
-          label={phones[0].label}
+          key={`${desktopCycle}-${desktopPhones[0].slot}-left`}
+          href={desktopPhones[0].href}
+          label={desktopPhones[0].label}
           className={cn(
             sidePhoneBase,
-            "-mr-[7rem]",
+            "-mr-[7rem] animate-fade-in",
             fanned
               ? "-translate-x-20 -rotate-[7deg] group-hover:-translate-x-24 group-hover:-rotate-[8deg]"
               : "translate-x-0 rotate-0",
           )}
         >
-          <PhoneScreen phone={phones[0]} />
-        </PhoneFrame>
-        <PhoneFrame href={phones[1].href} label={phones[1].label} className="z-10 w-[242px] transition-transform duration-500 group-hover:-translate-y-2 motion-reduce:transition-none">
-          <PhoneScreen phone={phones[1]} />
+          <PhoneScreen phone={desktopPhones[0]} />
         </PhoneFrame>
         <PhoneFrame
-          href={phones[2].href}
-          label={phones[2].label}
+          key={`${desktopCycle}-${desktopPhones[1].slot}-center`}
+          href={desktopPhones[1].href}
+          label={desktopPhones[1].label}
+          className="z-10 w-[242px] animate-fade-in transition-transform duration-500 group-hover:-translate-y-2 motion-reduce:transition-none"
+        >
+          <PhoneScreen phone={desktopPhones[1]} />
+        </PhoneFrame>
+        <PhoneFrame
+          key={`${desktopCycle}-${desktopPhones[2].slot}-right`}
+          href={desktopPhones[2].href}
+          label={desktopPhones[2].label}
           className={cn(
             sidePhoneBase,
-            "-ml-[7rem]",
+            "-ml-[7rem] animate-fade-in",
             fanned
               ? "translate-x-20 rotate-[7deg] group-hover:translate-x-24 group-hover:rotate-[8deg]"
               : "translate-x-0 rotate-0",
           )}
         >
-          <PhoneScreen phone={phones[2]} />
+          <PhoneScreen phone={desktopPhones[2]} />
         </PhoneFrame>
         <div className="absolute inset-x-0 bottom-0 grid grid-cols-3 gap-4">
-          {phones.map((phone, index) => (
-            <a key={phone.slot} href={phone.href} target="_blank" rel="noreferrer" className="mx-auto w-full max-w-[245px] rounded-lg border border-ktf-gray-200/90 bg-white/90 px-4 py-3 text-left shadow-sm backdrop-blur transition hover:border-ktf-blue/30 hover:shadow-card-hover">
+          {desktopPhones.map((phone, index) => (
+            <a key={`${desktopCycle}-${phone.slot}-${index}`} href={phone.href} target="_blank" rel="noreferrer" className="mx-auto w-full max-w-[245px] animate-fade-in rounded-lg border border-ktf-gray-200/90 bg-white/90 px-4 py-3 text-left shadow-sm backdrop-blur transition hover:border-ktf-blue/30 hover:shadow-card-hover">
               <span className="flex items-center gap-2 text-[9px] font-bold uppercase tracking-[0.14em] text-ktf-blue"><span className="font-mono text-ktf-gray-400">0{index + 1}</span>{phone.discipline}</span>
               <span className="mt-1.5 block truncate text-xs font-semibold text-ktf-navy">{phone.name}</span>
             </a>
@@ -157,7 +280,7 @@ export function HeroPhoneShowcase({ phones }: HeroPhoneShowcaseProps) {
         </div>
       </div>
 
-      {/* Mobile — swipeable carousel, one device in full view at a time */}
+      {/* Mobile — cloned edge slides make manual and automatic swiping circular. */}
       <div
         className="ktf-hero-console relative lg:hidden"
         role="region"
@@ -172,19 +295,21 @@ export function HeroPhoneShowcase({ phones }: HeroPhoneShowcaseProps) {
           onWheel={pauseAutoplay}
           className="flex snap-x snap-mandatory overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
-          {phones.map((phone, index) => (
+          {mobileSlides.map((slide, physicalIndex) => (
             <div
-              key={phone.slot}
-              role="group"
-              aria-roledescription="slide"
-              aria-label={`${index + 1} of ${phones.length}`}
+              key={`${slide.phone.slot}-${physicalIndex}`}
+              role={slide.clone ? undefined : "group"}
+              aria-hidden={slide.clone || undefined}
+              inert={slide.clone || undefined}
+              aria-roledescription={slide.clone ? undefined : "slide"}
+              aria-label={slide.clone ? undefined : `${slide.logicalIndex + 1} of ${phones.length}`}
               className="flex w-full shrink-0 snap-center justify-center px-6 py-1"
             >
               <div className="flex flex-col items-center">
-                <PhoneFrame href={phone.href} label={phone.label} className="w-[180px] sm:w-[210px]"><PhoneScreen phone={phone} /></PhoneFrame>
+                <PhoneFrame href={slide.phone.href} label={slide.phone.label} className="w-[180px] sm:w-[210px]"><PhoneScreen phone={slide.phone} /></PhoneFrame>
                 <div className="mt-4 w-[min(260px,82vw)] rounded-lg border border-ktf-gray-200 bg-white/90 px-4 py-3 text-center shadow-sm">
-                  <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-ktf-blue">{phone.discipline}</p>
-                  <p className="mt-1 truncate text-xs font-semibold text-ktf-navy">{phone.name}</p>
+                  <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-ktf-blue">{slide.phone.discipline}</p>
+                  <p className="mt-1 truncate text-xs font-semibold text-ktf-navy">{slide.phone.name}</p>
                 </div>
               </div>
             </div>

@@ -6,7 +6,7 @@ import path from "node:path";
 const repo = process.cwd();
 const outputDirectory = path.join(repo, "qa", "ai");
 const edgePath = process.env.EDGE_PATH || "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe";
-const baseUrl = process.env.AI_QA_BASE_URL || "http://127.0.0.1:3000";
+const baseUrl = process.env.AI_QA_BASE_URL || "http://localhost:3000";
 const debuggingPort = Number(process.env.AI_QA_DEBUG_PORT || 9335);
 const profileDirectory = mkdtempSync(path.join(tmpdir(), "bespoke-ai-edge-"));
 mkdirSync(outputDirectory, { recursive: true });
@@ -164,6 +164,36 @@ try {
 
   await setViewport(client, 1365, 768);
   await navigate(client, `${baseUrl}/`);
+  for (let attempt = 0; attempt < 60; attempt += 1) {
+    if (await evaluate(client, "document.querySelector('[data-hero-phone-stage=\"desktop\"]')?.dataset.heroHydrated === 'true'")) break;
+    await delay(250);
+  }
+  results.checks.desktopHeroAlwaysShowsThree = await evaluate(client, `(() => {
+    const stage = document.querySelector('[data-hero-phone-stage="desktop"]');
+    if (!stage) return false;
+    return stage.querySelectorAll(':scope > a, :scope > div.block').length === 3;
+  })()`);
+  const initialDesktopCycle = await evaluate(client, "Number(document.querySelector('[data-hero-phone-stage=\"desktop\"]')?.dataset.heroDesktopCycle)");
+  await delay(5_250);
+  results.checks.desktopHeroRotatesEveryFiveSeconds = await evaluate(client, `Number(document.querySelector('[data-hero-phone-stage="desktop"]')?.dataset.heroDesktopCycle) > ${initialDesktopCycle}`);
+
+  await setViewport(client, 390, 844, true);
+  await delay(350);
+  results.checks.mobileHeroHasCircularEdges = await evaluate(client, `(() => {
+    const carousel = document.querySelector('[aria-label="Delivered projects"]');
+    if (!carousel) return false;
+    const track = carousel.firstElementChild;
+    const dots = carousel.lastElementChild;
+    return Boolean(
+      track &&
+      dots &&
+      track.children.length === dots.children.length + 2 &&
+      track.firstElementChild?.getAttribute('aria-hidden') === 'true' &&
+      track.lastElementChild?.getAttribute('aria-hidden') === 'true'
+    );
+  })()`);
+  await setViewport(client, 1365, 768);
+  await delay(350);
   for (let attempt = 0; attempt < 12; attempt += 1) {
     await evaluate(client, "document.querySelector('[aria-label=\"Ask Bespoke AI for a build recommendation\"]')?.click()");
     await delay(250);

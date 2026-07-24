@@ -59,6 +59,7 @@ async function resolveQaSecret(email, fallback) {
     connectionString: process.env.DATABASE_URL,
     ssl: process.env.DATABASE_URL.includes("sslmode=disable") ? false : { rejectUnauthorized: false },
     max: 1,
+    connectionTimeoutMillis: 5_000,
   });
   try {
     const result = await pool.query(
@@ -75,6 +76,8 @@ async function resolveQaSecret(email, fallback) {
       [email],
     );
     return decryptTotpSecret(result.rows[0]?.secret_ciphertext ?? "") ?? fallback;
+  } catch {
+    return fallback;
   } finally {
     await pool.end();
   }

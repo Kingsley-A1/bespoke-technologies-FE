@@ -19,6 +19,8 @@ function getPool() {
     ssl: process.env.DATABASE_URL.includes("sslmode=disable") ? false : { rejectUnauthorized: false },
     max: 5,
     connectionTimeoutMillis: 5_000,
+    query_timeout: 20_000,
+    statement_timeout: 20_000,
     idleTimeoutMillis: 30_000,
   });
   return globalThis.__bespokeAdminPool;
