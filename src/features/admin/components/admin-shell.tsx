@@ -11,6 +11,7 @@ import {
   Building2,
   ChevronDown,
   CircleDollarSign,
+  ExternalLink,
   FilePlus2,
   Inbox,
   Images,
@@ -109,7 +110,9 @@ export function AdminShell({
         )}
       >
         <div className="flex h-[86px] items-center justify-between border-b border-slate-100 px-5">
-          <AdminLogo />
+          <a href="/" target="_blank" rel="noreferrer" aria-label="Open Bespoke Technologies website" title="Open main website" className="rounded-lg transition-opacity hover:opacity-80">
+            <AdminLogo />
+          </a>
           <button type="button" className="rounded-lg p-2 text-slate-500 lg:hidden" onClick={() => setMobileOpen(false)} aria-label="Close navigation">
             <X className="h-5 w-5" />
           </button>
@@ -160,6 +163,9 @@ export function AdminShell({
             </div>
           </div>
           <div className="flex items-center gap-2 sm:gap-3">
+            <a href="/" target="_blank" rel="noreferrer" className="hidden h-10 items-center gap-2 rounded-lg border border-slate-200 px-3 text-sm font-semibold text-slate-600 transition hover:border-ktf-blue/30 hover:text-ktf-blue sm:flex" aria-label="Open main website">
+              <ExternalLink className="h-4 w-4" /> Main website
+            </a>
             <Link href="/admin/search" className="hidden h-10 items-center gap-2 rounded-lg border border-slate-200 px-3 text-sm text-slate-500 xl:flex">
               <Search className="h-4 w-4" /> Search
               <span className="rounded-md border border-slate-200 bg-slate-50 px-1.5 py-0.5 text-[10px]">⌘ K</span>

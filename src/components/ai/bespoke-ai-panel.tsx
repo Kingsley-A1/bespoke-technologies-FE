@@ -178,11 +178,11 @@ export function BespokeAIPanel({ mode = "page", isDocked = false, onClose, onHea
         "flex min-h-0 flex-1 overflow-hidden bg-white",
         isStandalone && "h-dvh bg-[#f7f9fc] p-0 sm:p-3 lg:p-5",
         mode === "panel" && "h-full",
-        isAdmin && "h-[calc(100dvh-9.5rem)] min-h-[580px] rounded-lg border border-slate-200 shadow-card",
+        isAdmin && "h-[calc(100dvh-86px)] min-h-[620px]",
       )}
       aria-labelledby="bespoke-ai-panel-title"
     >
-      <div className={cn("mx-auto flex min-h-0 flex-1 overflow-hidden bg-white", isStandalone && "max-w-[1440px] sm:rounded-lg sm:border sm:border-slate-200 sm:shadow-[0_30px_90px_-45px_rgba(15,38,71,0.45)]") }>
+      <div className={cn("flex min-h-0 flex-1 overflow-hidden bg-white", isStandalone && "mx-auto max-w-[1440px] sm:rounded-lg sm:border sm:border-slate-200 sm:shadow-[0_30px_90px_-45px_rgba(15,38,71,0.45)]") }>
         {isDesktop && isHistoryDockOpen ? historySidebar : null}
         {mobileHistoryDrawer}
 

@@ -16,9 +16,11 @@ interface HeroAssetManagerProps {
   /** Slot keys that currently have an uploaded screenshot. */
   configured: SlotKey[];
   storageReady: boolean;
+  /** Project logos shown until a slot receives an explicit screenshot. */
+  defaultAssets?: Partial<Record<SlotKey, { src: string; alt: string; name: string }>>;
 }
 
-export function HeroAssetManager({ configured, storageReady }: HeroAssetManagerProps) {
+export function HeroAssetManager({ configured, storageReady, defaultAssets = {} }: HeroAssetManagerProps) {
   const router = useRouter();
   const [busy, setBusy] = useState<SlotKey | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -77,6 +79,8 @@ export function HeroAssetManager({ configured, storageReady }: HeroAssetManagerP
         {SLOTS.map((slot) => {
           const isSet = configured.includes(slot.key);
           const isBusy = busy === slot.key;
+          const defaultAsset = defaultAssets[slot.key];
+          const previewSrc = isSet ? `/api/site-assets/${slot.key}?v=${version}` : defaultAsset?.src;
           return (
             <article key={slot.key} className="rounded-lg border border-slate-200 bg-white p-4">
               <div className="flex items-center justify-between gap-2">
@@ -84,11 +88,11 @@ export function HeroAssetManager({ configured, storageReady }: HeroAssetManagerP
                 <Smartphone className="h-3.5 w-3.5 text-slate-400" aria-hidden="true" />
               </div>
               <div className="mt-3 flex aspect-[9/16] items-center justify-center overflow-hidden rounded-lg border border-slate-100 bg-slate-50">
-                {isSet ? (
+                {previewSrc ? (
                   // eslint-disable-next-line @next/next/no-img-element -- streamed private-route image with cache-busting
                   <img
-                    src={`/api/site-assets/${slot.key}?v=${version}`}
-                    alt={`${slot.label} screenshot`}
+                    src={previewSrc}
+                    alt={isSet ? `${slot.label} screenshot` : defaultAsset?.alt ?? `${slot.label} project logo`}
                     className="h-full w-full object-cover"
                   />
                 ) : (
@@ -97,7 +101,9 @@ export function HeroAssetManager({ configured, storageReady }: HeroAssetManagerP
                   </p>
                 )}
               </div>
-              <p className="mt-2 text-[11px] leading-4 text-slate-400">{slot.hint}</p>
+              <p className="mt-2 text-[11px] leading-4 text-slate-400">
+                {isSet ? slot.hint : `${defaultAsset?.name ?? "Project logo"} is the default. Upload a portrait screenshot to replace it.`}
+              </p>
               <input
                 ref={(node) => {
                   inputs.current[slot.key] = node;
@@ -119,7 +125,7 @@ export function HeroAssetManager({ configured, storageReady }: HeroAssetManagerP
                   className="inline-flex h-8 flex-1 items-center justify-center gap-1.5 rounded-lg bg-slate-950 px-2.5 text-[11px] font-semibold text-white transition disabled:opacity-40"
                 >
                   {isBusy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ImagePlus className="h-3.5 w-3.5" />}
-                  {isSet ? "Replace" : "Upload"}
+                  {isSet ? "Replace screenshot" : "Replace with screenshot"}
                 </button>
                 {isSet && (
                   <button

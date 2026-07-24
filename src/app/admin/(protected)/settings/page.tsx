@@ -13,7 +13,8 @@ import {
   textareaClass,
 } from "@/features/admin/components/admin-ui";
 import { getAdminSnapshot } from "@/features/admin/repository";
-import { listSiteAssetsSafe, SITE_ASSET_KEYS } from "@/features/admin/site-assets/repository";
+import { listSiteAssetsSafe, SITE_ASSET_KEYS, type SiteAssetKey } from "@/features/admin/site-assets/repository";
+import { listPublishedPortfolioProjectsSafe } from "@/features/admin/portfolio/repository";
 import { isR2Configured } from "@/lib/storage/r2";
 import { resolveApprovalAction, updateSettingsAction } from "../actions";
 import { HeroAssetManager } from "./hero-asset-manager";
@@ -24,7 +25,24 @@ export default async function SettingsPage() {
   const snapshot = await getAdminSnapshot();
   const founder = session.role === "founder_admin";
   const siteAssets = founder ? await listSiteAssetsSafe() : {};
+  const projects = founder ? await listPublishedPortfolioProjectsSafe() : [];
   const configuredHeroSlots = SITE_ASSET_KEYS.filter((key) => Boolean(siteAssets[key]));
+  const defaultHeroProjectIds = {
+    "hero-phone-1": "luminary-college",
+    "hero-phone-2": "maxit-autos",
+    "hero-phone-3": "down-below",
+  } as const;
+  const defaultHeroAssets = SITE_ASSET_KEYS.reduce<Partial<Record<SiteAssetKey, { src: string; alt: string; name: string }>>>((assets, key) => {
+    const project = projects.find((entry) => entry.id === defaultHeroProjectIds[key]);
+    if (project) {
+      assets[key] = {
+        src: project.image,
+        alt: `${project.name} project logo`,
+        name: project.name,
+      };
+    }
+    return assets;
+  }, {});
 
   return (
     <div className="space-y-6">
@@ -65,8 +83,8 @@ export default async function SettingsPage() {
 
       {founder ? (
         <Panel>
-          <PanelHeader title="Homepage hero screenshots" description="The three phone screens on the public homepage. Empty slots render the designed fallback." />
-          <HeroAssetManager configured={configuredHeroSlots} storageReady={isR2Configured()} />
+          <PanelHeader title="Homepage hero screens" description="Published project logos are used by default. Replace any one with a portrait screenshot when the project needs a richer preview." />
+          <HeroAssetManager configured={configuredHeroSlots} defaultAssets={defaultHeroAssets} storageReady={isR2Configured()} />
         </Panel>
       ) : null}
 

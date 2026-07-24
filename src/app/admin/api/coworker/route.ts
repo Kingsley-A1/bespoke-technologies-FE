@@ -37,7 +37,10 @@ export async function POST(request: Request) {
       system,
       messages: await convertToModelMessages(messages),
       maxRetries: 1,
-      maxOutputTokens: 900,
+      // Admin answers need enough room for multi-step operational guidance.
+      // Public Bespoke AI remains concise; this larger private budget prevents
+      // Coworker from ending mid-procedure while retaining a bounded response.
+      maxOutputTokens: 3200,
       experimental_transform: smoothStream(),
     });
     return result.toUIMessageStreamResponse({

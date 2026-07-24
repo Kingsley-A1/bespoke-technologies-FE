@@ -64,9 +64,9 @@ export async function HomeHero() {
     const project = projects.find((entry) => entry.id === fallback.projectId);
     return {
       slot,
-      src: hasAsset ? `/api/site-assets/${slot}` : fallback.src,
+      src: hasAsset ? `/api/site-assets/${slot}` : project?.image ?? fallback.src,
       alt: fallback.alt,
-      unoptimized: hasAsset,
+      unoptimized: hasAsset || Boolean(project?.imageKey),
       href: project?.liveUrl,
       label: project ? `View the live ${project.name} project` : undefined,
       name: project?.name ?? fallback.discipline,
