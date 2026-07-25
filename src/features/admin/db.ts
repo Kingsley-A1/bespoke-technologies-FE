@@ -73,10 +73,11 @@ export function requireAdminRuntimeConfiguration() {
       "ADMIN_MANAGER_EMAIL",
       "ADMIN_MANAGER_TOTP_SECRET",
       "ADMIN_CRON_SECRET",
+      "DIGITAL_AUDIT_HASH_PEPPER",
     ] as const;
     const missing = required.filter((key) => !process.env[key]);
     if (missing.length > 0) throw new Error(`Missing required admin configuration: ${missing.join(", ")}`);
-    const weakSecrets = ["ADMIN_SESSION_SECRET", "ADMIN_CODE_PEPPER", "ADMIN_CRON_SECRET"].filter((key) => (process.env[key]?.length ?? 0) < 32);
+    const weakSecrets = ["ADMIN_SESSION_SECRET", "ADMIN_CODE_PEPPER", "ADMIN_CRON_SECRET", "DIGITAL_AUDIT_HASH_PEPPER"].filter((key) => (process.env[key]?.length ?? 0) < 32);
     if (weakSecrets.length > 0) throw new Error(`Admin secrets must be at least 32 characters: ${weakSecrets.join(", ")}`);
     const invalidTotp = ["ADMIN_FOUNDER_TOTP_SECRET", "ADMIN_MANAGER_TOTP_SECRET"].filter((key) => !/^[A-Z2-7]{16,}$/i.test(process.env[key] ?? ""));
     if (invalidTotp.length > 0) throw new Error(`Invalid base32 TOTP configuration: ${invalidTotp.join(", ")}`);

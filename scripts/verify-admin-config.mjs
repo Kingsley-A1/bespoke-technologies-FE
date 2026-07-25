@@ -9,6 +9,7 @@ const required = [
   "ADMIN_MANAGER_EMAIL",
   "ADMIN_MANAGER_TOTP_SECRET",
   "ADMIN_CRON_SECRET",
+  "DIGITAL_AUDIT_HASH_PEPPER",
 ];
 
 if (!enabled) {
@@ -22,7 +23,7 @@ if (missing.length > 0) {
   process.stderr.write(`Admin configuration is incomplete: ${missing.join(", ")}\n`);
   process.exit(1);
 }
-const weakSecrets = ["ADMIN_SESSION_SECRET", "ADMIN_CODE_PEPPER", "ADMIN_CRON_SECRET"].filter((key) => process.env[key].length < 32);
+const weakSecrets = ["ADMIN_SESSION_SECRET", "ADMIN_CODE_PEPPER", "ADMIN_CRON_SECRET", "DIGITAL_AUDIT_HASH_PEPPER"].filter((key) => process.env[key].length < 32);
 if (weakSecrets.length > 0) {
   process.stderr.write(`Admin secrets must be at least 32 characters: ${weakSecrets.join(", ")}\n`);
   process.exit(1);

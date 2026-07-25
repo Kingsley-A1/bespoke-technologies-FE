@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: true },
 };
 
-const LAST_UPDATED = "1 July 2025";
+const LAST_UPDATED = "25 July 2026";
 
 const sections = [
   {
@@ -28,6 +28,8 @@ We believe in minimal data collection, radical transparency, and treating your p
     content: `We collect only the minimum information necessary to operate the Site and respond to your enquiries:
 
 Contact Form Submissions: When you complete our contact form, we collect your name, email address, and the content of your message. This information is submitted voluntarily and is used solely to respond to your enquiry.
+
+Digital Readiness Audits: When you start an audit, we store the business name, industry, team size, six assessment responses, progress and generated result. Email and phone are optional. If provided, email may be used to deliver the requested report. We only use contact details for personal follow-up when you explicitly consent.
 
 Voluntarily Provided Information: If you contact us directly via email, WhatsApp, or phone, we may retain a record of that communication in order to respond to you and maintain accurate business records.
 
@@ -50,7 +52,7 @@ Our hosting provider (Vercel) may collect basic server-side access logs (IP addr
     title: "4. Cookies",
     content: `We do not use tracking cookies, advertising cookies, or persistent session cookies for user profiling purposes.
 
-The Site may use essential, functional cookies required for core website operation (for example, temporary session state for the contact form). These do not store personal identifying information and are deleted when your browser session ends.
+The Site may use essential, functional cookies required for core website operation. The Digital Readiness Audit uses an HTTP-only resume cookie for up to 30 days so the same browser can recover saved progress. It contains a random credential rather than your assessment answers or contact details.
 
 You can configure your browser to refuse all cookies. Doing so may affect some functional aspects of the Site.`,
   },
@@ -61,6 +63,8 @@ You can configure your browser to refuse all cookies. Doing so may affect some f
 
 • Respond to your enquiry or project request.
 • Maintain internal records of client communications.
+• Save, resume, complete and share a Digital Readiness Audit.
+• Deliver a requested audit report and, only with explicit consent, follow up about that assessment.
 • Comply with legal and regulatory obligations where required.
 
 We do not use your personal information to send unsolicited marketing communications. If you contact us, we may follow up regarding your specific enquiry — but we will not add you to any mailing list without your explicit consent.`,
@@ -82,6 +86,8 @@ Business Transfers: In the event of a merger, acquisition, or sale of all or sub
     id: "data-retention",
     title: "7. Data Retention",
     content: `Contact form submissions are retained for as long as is necessary to fully respond to your enquiry and for a reasonable period thereafter to maintain accurate business records (typically no longer than 24 months).
+
+Incomplete Digital Readiness Audits are deleted after 90 days without completion. Completed audits are retained for up to 24 months, then anonymised unless they have been converted into an active business lead or another retention obligation applies. Share links can be revoked by Bespoke Technologies.
 
 You may request deletion of your data at any time by contacting us at ${CONTACT_EMAIL}. We will confirm receipt of your request and action it within 30 days.`,
   },
@@ -156,7 +162,7 @@ export default function PrivacyPage() {
           </h1>
           <p className="text-body text-ktf-gray-400 leading-body">
             Last updated:{" "}
-            <time dateTime="2025-07-01" className="font-medium text-ktf-silver">
+            <time dateTime="2026-07-25" className="font-medium text-ktf-silver">
               {LAST_UPDATED}
             </time>
           </p>
@@ -252,7 +258,7 @@ export default function PrivacyPage() {
           <div className="mt-16 rounded-2xl border border-ktf-gray-200 bg-ktf-surface p-8 text-center">
             <p className="text-body-sm text-ktf-gray-600 leading-body">
               This Privacy Policy applies to {SITE_NAME} and is effective from{" "}
-              <strong className="text-ktf-navy">1 July 2025</strong>. For
+              <strong className="text-ktf-navy">25 July 2026</strong>. For
               questions, contact us at{" "}
               <a
                 href={`mailto:${CONTACT_EMAIL}`}

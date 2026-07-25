@@ -77,4 +77,10 @@ export const PUBLIC_SITEMAP_ROUTES = [
     changeFrequency: "weekly",
     priority: 0.8,
   },
+  {
+    path: "/digital-readiness-audit",
+    lastModified: "2026-07-25",
+    changeFrequency: "monthly",
+    priority: 0.9,
+  },
 ] satisfies SitemapRoute[];

@@ -8,6 +8,8 @@ const managerPermissions: AdminPermission[] = [
   "billing.issue",
   "payments.record",
   "reports.view",
+  "digital_audits.view",
+  "digital_audits.manage",
   "publications.manage",
   "reviews.manage",
   "learning.view",
@@ -28,6 +30,7 @@ const founderPermissions: AdminPermission[] = [
   "users.manage",
   "settings.manage",
   "exports.all",
+  "digital_audits.export",
   "approvals.resolve",
 ];
 

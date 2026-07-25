@@ -24,6 +24,7 @@ The official marketing website for Bespoke Technologies (BT), built with Next.js
 | `/partnerships`  | Partnership tiers and current partners                                |
 | `/reviews`       | Client testimonials and ratings                                       |
 | `/contact`       | Contact form with validation                                          |
+| `/digital-readiness-audit` | DB-backed readiness assessment with resumable progress and shareable reports |
 | `/design-system` | Bespoke Technologies design token reference                           |
 | `/admin`         | Protected Bespoke Technologies operating system                      |
 
@@ -41,6 +42,7 @@ pnpm migrate          # apply CockroachDB migrations after DATABASE_URL is set
 ```
 
 See [`docs/admin/OPERATIONS.md`](docs/admin/OPERATIONS.md) for setup, deployment, recovery, and verification.
+See [`docs/digital-audits/OPERATIONS.md`](docs/digital-audits/OPERATIONS.md) for audit lifecycle, retention, deployment, and QA.
 
 ## Getting Started
 

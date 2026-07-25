@@ -121,6 +121,39 @@ export function contactAcknowledgementEmail(
   };
 }
 
+export function digitalAuditReportEmail(input: {
+  businessName: string;
+  score: number;
+  tier: string;
+  reportUrl: string;
+}): RenderedEmail {
+  const subject = `Your Digital Readiness Report — ${input.businessName}`;
+  const text = `Your Digital Readiness Audit is complete.
+
+Score: ${input.score}/100
+Readiness tier: ${input.tier}
+
+View and share the report:
+${input.reportUrl}
+
+This is a strategic self-assessment, not a formal security or compliance audit.`;
+  const html = renderLayout({
+    preheader: `Your digital readiness score is ${input.score}/100.`,
+    heading: "Your Digital Readiness Report",
+    contentHtml: `
+      <p style="margin:0 0 18px;font-size:15px;line-height:1.7;color:#49515c;">
+        ${escapeHtml(input.businessName)} completed the Bespoke Digital Readiness Audit.
+      </p>
+      ${detailRow("Score", `${input.score}/100`)}
+      ${detailRow("Readiness tier", escapeHtml(input.tier))}
+      <div style="margin:24px 0;">${button("View and share the report", input.reportUrl)}</div>
+      <p style="margin:20px 0 0;font-size:12px;line-height:1.6;color:#66707d;">
+        This is a strategic self-assessment, not a formal security or compliance audit.
+      </p>`,
+  });
+  return { subject, html, text };
+}
+
 export function employeeInvitationEmail(input: { name: string; email: string; enrollmentCode: string; expiresAt: string }): RenderedEmail {
   const registerUrl = `https://www.bespoketech.com.ng/admin/register?email=${encodeURIComponent(input.email)}`;
   const contentHtml = `

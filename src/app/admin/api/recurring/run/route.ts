@@ -3,6 +3,7 @@ import { isSameOrigin } from "@/features/admin/access";
 import { applyAdminSecurityRetention, getAdminSession, syncConfiguredAdminUsers } from "@/features/admin/auth";
 import { reconcileOverdueDocuments, runRecurringSchedules } from "@/features/admin/repository";
 import type { AdminSession } from "@/features/admin/types";
+import { applyDigitalAuditRetention } from "@/features/digital-audits/repository";
 
 export async function POST(request: Request) {
   const authorization = request.headers.get("authorization");
@@ -24,6 +25,7 @@ export async function POST(request: Request) {
   // two allowed users before the first production cron run to satisfy FKs.
   if (cronAuthorized) await syncConfiguredAdminUsers();
   await applyAdminSecurityRetention();
+  await applyDigitalAuditRetention();
   const overdue = await reconcileOverdueDocuments(session);
   const result = await runRecurringSchedules(session);
   return NextResponse.json({ overdue, due: result.due, generated: result.generated.length });

@@ -16,6 +16,15 @@ export function PublicExperience({ children }: { children: React.ReactNode }) {
   if (pathname === "/bespoke-ai") {
     return <main className="flex min-h-dvh flex-col">{children}</main>;
   }
+  if (pathname.startsWith("/digital-readiness-audit")) {
+    return (
+      <>
+        <div className="print:hidden"><Header /></div>
+        <main className="flex flex-1 flex-col">{children}</main>
+        <div className="print:hidden"><Footer /></div>
+      </>
+    );
+  }
   // The Bespoke AI page is a focused, app-like workspace — the marketing
   // footer would compete with the composer, so it is hidden there.
   return (
