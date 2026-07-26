@@ -79,6 +79,7 @@ function mapSummary(row: Row): DigitalAuditSummary {
     overallScore:
       value(row, "overall_score") === null ? undefined : number(row, "overall_score"),
     tier: optionalText(row, "tier") as DigitalAuditTier | undefined,
+    shareToken: optionalText(row, "share_token"),
     leadId: optionalText(row, "lead_id"),
     ownerUserId: optionalText(row, "owner_user_id"),
     lastActivityAt: iso(row, "last_activity_at") ?? new Date().toISOString(),

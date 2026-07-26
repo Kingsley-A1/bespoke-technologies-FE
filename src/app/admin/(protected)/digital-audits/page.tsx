@@ -22,6 +22,7 @@ import {
   getDigitalAuditMetrics,
   listDigitalAudits,
 } from "@/features/digital-audits/repository";
+import { DigitalAuditAdminShareLink } from "@/features/digital-audits/share-actions";
 
 const STATUS_FILTERS = [
   ["All", ""],
@@ -121,7 +122,7 @@ export default async function DigitalAuditsAdminPage({
           <EmptyPanel title="No matching digital audits" body="New assessments appear after the visitor submits the business context step." />
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[920px] text-left text-xs">
+            <table className="w-full min-w-[1040px] text-left text-xs">
               <thead className="bg-slate-50 text-[10px] uppercase tracking-wider text-slate-500">
                 <tr>
                   <th className="px-5 py-3 font-semibold">Business</th>
@@ -130,6 +131,7 @@ export default async function DigitalAuditsAdminPage({
                   <th className="px-4 py-3 font-semibold">Contact</th>
                   <th className="px-4 py-3 font-semibold">Management</th>
                   <th className="px-5 py-3 font-semibold">Last activity</th>
+                  <th className="px-5 py-3 font-semibold">Share</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -163,6 +165,27 @@ export default async function DigitalAuditsAdminPage({
                     </td>
                     <td className="px-4 py-4"><StatusPill value={audit.managementState} /></td>
                     <td className="px-5 py-4 text-slate-500">{formatAdminDate(audit.lastActivityAt)}</td>
+                    <td className="px-5 py-4">
+                      {audit.shareToken ? (
+                        <div className="flex items-center gap-2">
+                          <Link
+                            href={`/digital-readiness-audit/report/${audit.shareToken}`}
+                            target="_blank"
+                            className="font-semibold text-blue-700 hover:text-blue-900"
+                          >
+                            View
+                          </Link>
+                          <DigitalAuditAdminShareLink
+                            shareToken={audit.shareToken}
+                            className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-slate-200 px-2.5 text-[11px] font-semibold text-slate-600 hover:border-blue-200 hover:text-blue-700"
+                          />
+                        </div>
+                      ) : (
+                        <span className="text-slate-400">
+                          {audit.status === "completed" ? "Generate in record" : "Available when complete"}
+                        </span>
+                      )}
+                    </td>
                   </tr>
                 ))}
               </tbody>

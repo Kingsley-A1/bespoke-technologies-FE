@@ -94,6 +94,7 @@ export interface DigitalAuditSummary {
   progressCount: number;
   overallScore?: number;
   tier?: DigitalAuditTier;
+  shareToken?: string;
   leadId?: string;
   ownerUserId?: string;
   lastActivityAt: string;

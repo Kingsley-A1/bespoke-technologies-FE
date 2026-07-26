@@ -94,3 +94,33 @@ export function DigitalAuditShareActions({ businessName }: { businessName: strin
     </div>
   );
 }
+
+export function DigitalAuditAdminShareLink({
+  shareToken,
+  className,
+}: {
+  shareToken: string;
+  className?: string;
+}) {
+  const [copied, setCopied] = useState(false);
+
+  async function copy() {
+    const url = `${window.location.origin}/digital-readiness-audit/report/${shareToken}`;
+    if (await copyUrl(url)) {
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 2000);
+    }
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={() => void copy()}
+      className={className || "inline-flex h-9 items-center gap-2 rounded-lg border border-slate-200 px-3 text-xs font-semibold text-slate-600"}
+      aria-label={copied ? "Audit report link copied" : "Copy audit report link"}
+    >
+      {copied ? <Check className="h-3.5 w-3.5 text-emerald-600" /> : <Copy className="h-3.5 w-3.5" />}
+      {copied ? "Copied" : "Copy link"}
+    </button>
+  );
+}

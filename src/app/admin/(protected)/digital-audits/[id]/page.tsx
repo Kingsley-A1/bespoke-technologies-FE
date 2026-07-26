@@ -22,6 +22,7 @@ import {
   DIGITAL_AUDIT_QUESTIONS,
   DIGITAL_AUDIT_RECOMMENDATIONS,
 } from "@/features/digital-audits/definition";
+import { DigitalAuditAdminShareLink } from "@/features/digital-audits/share-actions";
 import {
   addDigitalAuditNoteAction,
   convertDigitalAuditAction,
@@ -66,9 +67,12 @@ export default async function DigitalAuditDetailPage({
               <p><strong className="text-slate-800">Source:</strong> {audit.source}</p>
             </div>
             {audit.shareToken && (
-              <Link href={`/digital-readiness-audit/report/${audit.shareToken}`} target="_blank" className={secondaryButtonClass}>
-                View shared report <ExternalLink className="h-3.5 w-3.5" />
-              </Link>
+              <div className="flex flex-wrap gap-2">
+                <Link href={`/digital-readiness-audit/report/${audit.shareToken}`} target="_blank" className={secondaryButtonClass}>
+                  View shared report <ExternalLink className="h-3.5 w-3.5" />
+                </Link>
+                <DigitalAuditAdminShareLink shareToken={audit.shareToken} className={secondaryButtonClass} />
+              </div>
             )}
           </div>
           <form action={manageDigitalAuditAction} className="rounded-lg bg-slate-50 p-4">
