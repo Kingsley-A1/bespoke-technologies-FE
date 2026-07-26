@@ -168,6 +168,26 @@ export function PortfolioForm({ project, onSaved }: { project?: PortfolioProject
             <input name="image" type="file" required={!project} accept="image/png,image/jpeg,image/webp" className="sr-only" />
           </label>
         </Field>
+        <Field
+          asDiv
+          label={project?.heroScreenshot ? "Replace mobile hero screenshot" : "Mobile hero screenshot"}
+          hint="Optional portrait product screenshot. On mobile, the project mark reveals this screen before the carousel advances."
+        >
+          <label className="flex min-h-10 cursor-pointer items-center gap-2 rounded-lg border border-dashed border-slate-300 px-3 py-2 text-xs font-semibold leading-4 text-slate-600 hover:border-ktf-blue">
+            <ImageUp className="h-4 w-4 shrink-0" />
+            <span className="min-w-0 break-words">
+              {project?.heroScreenshot
+                ? "Choose a replacement screenshot"
+                : "Choose a portrait screenshot (optional)"}
+            </span>
+            <input
+              name="heroScreenshot"
+              type="file"
+              accept="image/png,image/jpeg,image/webp"
+              className="sr-only"
+            />
+          </label>
+        </Field>
       </div>
       <Field label="Description"><textarea name="description" required minLength={20} maxLength={1200} defaultValue={project?.description} className={textareaClass} /></Field>
       <Field label="Tags" hint="Comma-separated; up to 12 tags."><input name="tags" required defaultValue={project?.tags.join(", ")} placeholder="Next.js, Product Design, Cloud" className={inputClass} /></Field>
@@ -176,7 +196,7 @@ export function PortfolioForm({ project, onSaved }: { project?: PortfolioProject
         <Check name="featured" label="Show in homepage hero" defaultChecked={project?.featured} />
         <Check name="comingSoon" label="Coming soon" defaultChecked={project?.comingSoon} />
         <p className="w-full text-[10px] leading-4 text-slate-500">
-          Hero projects are added to the existing rotation. There is no three-project limit.
+          Hero projects are added to the existing rotation. A supplied mobile screenshot reveals after the project mark; projects without one retain the existing single-image behavior.
         </p>
       </div>
       {saving && <UploadLoading label={project ? "Saving project changes" : "Uploading project and metadata"} />}

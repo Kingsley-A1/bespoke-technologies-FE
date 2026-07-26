@@ -18,6 +18,9 @@ export interface PortfolioProject {
   sortOrder?: number;
   imageKey?: string;
   imageMime?: string;
+  heroScreenshot?: string;
+  heroScreenshotKey?: string;
+  heroScreenshotMime?: string;
   createdAt?: string;
   updatedAt?: string;
 }

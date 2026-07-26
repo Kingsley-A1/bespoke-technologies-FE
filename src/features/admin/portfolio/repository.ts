@@ -16,6 +16,8 @@ interface PortfolioRow extends QueryResultRow {
   image_url: string;
   image_key: string | null;
   image_mime: string | null;
+  hero_screenshot_key: string | null;
+  hero_screenshot_mime: string | null;
   live_url: string | null;
   tags: unknown;
   year: string;
@@ -52,6 +54,11 @@ function mapProject(row: PortfolioRow): PortfolioProject {
     imageUrl: row.image_url,
     imageKey,
     imageMime: row.image_mime || undefined,
+    heroScreenshot: row.hero_screenshot_key
+      ? `/api/portfolio-projects/${encodeURIComponent(row.id)}/hero-screenshot`
+      : undefined,
+    heroScreenshotKey: row.hero_screenshot_key || undefined,
+    heroScreenshotMime: row.hero_screenshot_mime || undefined,
     liveUrl: row.live_url || undefined,
     tags: parseTags(row.tags),
     year: row.year,
@@ -92,7 +99,13 @@ export async function getPortfolioProject(id: string) {
 
 export type PortfolioProjectInput = Omit<
   PortfolioProject,
-  "image" | "imageUrl" | "imageKey" | "imageMime" | "createdAt" | "updatedAt"
+  | "image"
+  | "imageUrl"
+  | "imageKey"
+  | "imageMime"
+  | "heroScreenshot"
+  | "createdAt"
+  | "updatedAt"
 > & {
   imageUrl: string;
   imageKey?: string;
@@ -107,8 +120,9 @@ export async function createPortfolioProject(input: PortfolioProjectInput, sessi
   await adminQuery(
     `INSERT INTO portfolio_projects
       (id, name, project_type, category, description, image_url, image_key, image_mime,
-       live_url, tags, year, coming_soon, featured, published, sort_order, created_by)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10::JSONB,$11,$12,$13,$14,$15,$16)`,
+       hero_screenshot_key, hero_screenshot_mime, live_url, tags, year, coming_soon,
+       featured, published, sort_order, created_by)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12::JSONB,$13,$14,$15,$16,$17,$18)`,
     [
       input.id,
       input.name,
@@ -118,6 +132,8 @@ export async function createPortfolioProject(input: PortfolioProjectInput, sessi
       input.imageUrl,
       input.imageKey ?? null,
       input.imageMime ?? null,
+      input.heroScreenshotKey ?? null,
+      input.heroScreenshotMime ?? null,
       input.liveUrl || null,
       JSON.stringify(input.tags),
       input.year,
@@ -142,8 +158,9 @@ export async function updatePortfolioProject(
   await adminQuery(
     `UPDATE portfolio_projects SET
        name=$2, project_type=$3, category=$4, description=$5, image_url=$6,
-       image_key=$7, image_mime=$8, live_url=$9, tags=$10::JSONB, year=$11,
-       coming_soon=$12, featured=$13, published=$14, sort_order=$15, updated_at=now()
+       image_key=$7, image_mime=$8, hero_screenshot_key=$9, hero_screenshot_mime=$10,
+       live_url=$11, tags=$12::JSONB, year=$13, coming_soon=$14, featured=$15,
+       published=$16, sort_order=$17, updated_at=now()
      WHERE id=$1`,
     [
       id,
@@ -154,6 +171,8 @@ export async function updatePortfolioProject(
       input.imageUrl,
       input.imageKey ?? null,
       input.imageMime ?? null,
+      input.heroScreenshotKey ?? null,
+      input.heroScreenshotMime ?? null,
       input.liveUrl || null,
       JSON.stringify(input.tags),
       input.year,
@@ -164,13 +183,20 @@ export async function updatePortfolioProject(
     ],
   );
   await appendAudit(session, "portfolio_project.updated", "portfolio_project", id);
-  return { project: (await getPortfolioProject(id))!, previousImageKey: existing.imageKey };
+  return {
+    project: (await getPortfolioProject(id))!,
+    previousImageKey: existing.imageKey,
+    previousHeroScreenshotKey: existing.heroScreenshotKey,
+  };
 }
 
 export async function deletePortfolioProject(id: string, session: AdminSession) {
   const existing = await getPortfolioProject(id);
-  if (!existing) return { imageKey: undefined };
+  if (!existing) return { imageKey: undefined, heroScreenshotKey: undefined };
   await adminQuery("DELETE FROM portfolio_projects WHERE id = $1", [id]);
   await appendAudit(session, "portfolio_project.deleted", "portfolio_project", id);
-  return { imageKey: existing.imageKey };
+  return {
+    imageKey: existing.imageKey,
+    heroScreenshotKey: existing.heroScreenshotKey,
+  };
 }

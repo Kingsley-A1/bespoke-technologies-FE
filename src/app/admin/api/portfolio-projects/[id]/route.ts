@@ -34,18 +34,28 @@ export async function PUT(request: Request, context: { params: Promise<{ id: str
   }
   const imageResult = validatePortfolioImage(form.get("image"));
   if ("error" in imageResult) return NextResponse.json({ error: imageResult.error }, { status: 400 });
-  if (imageResult.file && !isR2Configured()) {
+  const screenshotResult = validatePortfolioImage(form.get("heroScreenshot"));
+  if ("error" in screenshotResult) {
+    return NextResponse.json({ error: screenshotResult.error }, { status: 400 });
+  }
+  if ((imageResult.file || screenshotResult.file) && !isR2Configured()) {
     return NextResponse.json({ error: "Project image storage is not configured." }, { status: 503 });
   }
 
   const nextImageKey = imageResult.file
     ? `portfolio/${id}-${randomUUID()}.${imageExtension(imageResult.file.type)}`
     : existing.imageKey;
+  const nextHeroScreenshotKey = screenshotResult.file
+    ? `portfolio/hero/${id}-${randomUUID()}.${imageExtension(screenshotResult.file.type)}`
+    : existing.heroScreenshotKey;
   const parsed = parsePortfolioForm(form, {
     id,
     imageUrl: existing.imageUrl || (existing.imageKey ? "" : existing.image),
     imageKey: nextImageKey,
     imageMime: imageResult.file?.type || existing.imageMime,
+    heroScreenshotKey: nextHeroScreenshotKey,
+    heroScreenshotMime:
+      screenshotResult.file?.type || existing.heroScreenshotMime,
   });
   if ("error" in parsed) return NextResponse.json({ error: parsed.error }, { status: 400 });
 
@@ -57,14 +67,31 @@ export async function PUT(request: Request, context: { params: Promise<{ id: str
         contentType: imageResult.file.type,
       });
     }
+    if (screenshotResult.file && nextHeroScreenshotKey) {
+      await putR2Object({
+        key: nextHeroScreenshotKey,
+        body: Buffer.from(await screenshotResult.file.arrayBuffer()),
+        contentType: screenshotResult.file.type,
+      });
+    }
     const result = await updatePortfolioProject(id, parsed.input, access.session);
     if (imageResult.file && result.previousImageKey && result.previousImageKey !== nextImageKey) {
       await deleteR2Object(result.previousImageKey).catch(() => undefined);
+    }
+    if (
+      screenshotResult.file
+      && result.previousHeroScreenshotKey
+      && result.previousHeroScreenshotKey !== nextHeroScreenshotKey
+    ) {
+      await deleteR2Object(result.previousHeroScreenshotKey).catch(() => undefined);
     }
     refreshPortfolio();
     return NextResponse.json({ ok: true, project: result.project });
   } catch (error) {
     if (imageResult.file && nextImageKey) await deleteR2Object(nextImageKey).catch(() => undefined);
+    if (screenshotResult.file && nextHeroScreenshotKey) {
+      await deleteR2Object(nextHeroScreenshotKey).catch(() => undefined);
+    }
     console.error("Portfolio project update failed", error);
     return NextResponse.json({ error: "The project could not be updated." }, { status: 500 });
   }
@@ -77,6 +104,9 @@ export async function DELETE(request: Request, context: { params: Promise<{ id: 
   const { id } = await context.params;
   const result = await deletePortfolioProject(id, access.session);
   if (result.imageKey && isR2Configured()) await deleteR2Object(result.imageKey).catch(() => undefined);
+  if (result.heroScreenshotKey && isR2Configured()) {
+    await deleteR2Object(result.heroScreenshotKey).catch(() => undefined);
+  }
   refreshPortfolio();
   return NextResponse.json({ ok: true });
 }

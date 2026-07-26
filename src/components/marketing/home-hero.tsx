@@ -58,13 +58,22 @@ export async function HomeHero() {
     listPublishedPortfolioProjectsSafe(),
   ]);
 
-  const fallbackPhones = (Object.keys(FALLBACK_SCREENS) as SiteAssetKey[]).map((slot) => {
+  const fallbackOrder: SiteAssetKey[] = [
+    "hero-phone-2",
+    "hero-phone-3",
+    "hero-phone-1",
+  ];
+  const fallbackPhones = fallbackOrder.map((slot) => {
     const fallback = FALLBACK_SCREENS[slot];
     const hasAsset = Boolean(assets[slot]);
     const project = projects.find((entry) => entry.id === fallback.projectId);
     return {
       slot,
       src: hasAsset ? `/api/site-assets/${slot}` : project?.image ?? fallback.src,
+      logoSrc: project?.image ?? fallback.src,
+      logoUnoptimized: Boolean(project?.imageKey),
+      screenshotSrc: hasAsset ? `/api/site-assets/${slot}` : fallback.src,
+      screenshotUnoptimized: hasAsset,
       alt: fallback.alt,
       unoptimized: hasAsset || Boolean(project?.imageKey),
       href: project?.liveUrl,
@@ -84,6 +93,10 @@ export async function HomeHero() {
     .map((project) => ({
       slot: `portfolio-${project.id}`,
       src: project.image,
+      logoSrc: project.image,
+      logoUnoptimized: Boolean(project.imageKey),
+      screenshotSrc: project.heroScreenshot,
+      screenshotUnoptimized: Boolean(project.heroScreenshotKey),
       alt: `${project.name} — ${project.category} delivered by Bespoke Technologies`,
       unoptimized: Boolean(project.imageKey),
       href: project.liveUrl,
@@ -92,7 +105,15 @@ export async function HomeHero() {
       discipline: project.category,
     } satisfies HeroPhone));
 
-  const phones = [...portfolioPhones, ...fallbackPhones];
+  const fallbackProjectIds = new Set(
+    Object.values(FALLBACK_SCREENS).map((screen) => screen.projectId),
+  );
+  const phones = [
+    ...fallbackPhones,
+    ...portfolioPhones.filter(
+      (phone) => !fallbackProjectIds.has(phone.slot.replace("portfolio-", "")),
+    ),
+  ];
 
   return (
     <section

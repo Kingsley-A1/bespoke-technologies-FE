@@ -32,7 +32,14 @@ export function validatePortfolioImage(value: FormDataEntryValue | null) {
 
 export function parsePortfolioForm(
   form: FormData,
-  options: { id?: string; imageUrl: string; imageKey?: string; imageMime?: string },
+  options: {
+    id?: string;
+    imageUrl: string;
+    imageKey?: string;
+    imageMime?: string;
+    heroScreenshotKey?: string;
+    heroScreenshotMime?: string;
+  },
 ): { input: PortfolioProjectInput } | { error: string } {
   const id = options.id || text(form, "id").toLowerCase();
   const name = text(form, "name");
@@ -74,6 +81,8 @@ export function parsePortfolioForm(
       imageUrl: options.imageUrl,
       imageKey: options.imageKey,
       imageMime: options.imageMime,
+      heroScreenshotKey: options.heroScreenshotKey,
+      heroScreenshotMime: options.heroScreenshotMime,
       liveUrl: liveUrl || undefined,
       tags,
       year,

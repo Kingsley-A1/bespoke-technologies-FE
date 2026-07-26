@@ -23,10 +23,23 @@ export async function POST(request: Request) {
   const imageResult = validatePortfolioImage(form.get("image"));
   if ("error" in imageResult) return NextResponse.json({ error: imageResult.error }, { status: 400 });
   if (!imageResult.file) return NextResponse.json({ error: "Upload a finished-project image." }, { status: 400 });
+  const screenshotResult = validatePortfolioImage(form.get("heroScreenshot"));
+  if ("error" in screenshotResult) {
+    return NextResponse.json({ error: screenshotResult.error }, { status: 400 });
+  }
 
   const id = String(form.get("id") ?? "").trim().toLowerCase();
   const imageKey = `portfolio/${id || "project"}-${randomUUID()}.${imageExtension(imageResult.file.type)}`;
-  const parsed = parsePortfolioForm(form, { imageUrl: "", imageKey, imageMime: imageResult.file.type });
+  const heroScreenshotKey = screenshotResult.file
+    ? `portfolio/hero/${id || "project"}-${randomUUID()}.${imageExtension(screenshotResult.file.type)}`
+    : undefined;
+  const parsed = parsePortfolioForm(form, {
+    imageUrl: "",
+    imageKey,
+    imageMime: imageResult.file.type,
+    heroScreenshotKey,
+    heroScreenshotMime: screenshotResult.file?.type,
+  });
   if ("error" in parsed) return NextResponse.json({ error: parsed.error }, { status: 400 });
 
   try {
@@ -35,6 +48,13 @@ export async function POST(request: Request) {
       body: Buffer.from(await imageResult.file.arrayBuffer()),
       contentType: imageResult.file.type,
     });
+    if (screenshotResult.file && heroScreenshotKey) {
+      await putR2Object({
+        key: heroScreenshotKey,
+        body: Buffer.from(await screenshotResult.file.arrayBuffer()),
+        contentType: screenshotResult.file.type,
+      });
+    }
     const project = await createPortfolioProject(parsed.input, access.session);
     revalidatePath("/");
     revalidatePath("/projects");
@@ -42,6 +62,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true, project }, { status: 201 });
   } catch (error) {
     await deleteR2Object(imageKey).catch(() => undefined);
+    if (heroScreenshotKey) {
+      await deleteR2Object(heroScreenshotKey).catch(() => undefined);
+    }
     console.error("Portfolio project creation failed", error);
     const code = typeof error === "object" && error && "code" in error ? String(error.code) : "";
     const message = code === "23505" ? "A portfolio project already uses this ID." : "The project could not be saved.";
