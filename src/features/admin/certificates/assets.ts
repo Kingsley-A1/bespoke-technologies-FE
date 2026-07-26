@@ -17,26 +17,49 @@ async function readSignature() {
   }
 }
 
-function arrayBuffer(buffer: Buffer) {
+function arrayBuffer(buffer: Uint8Array) {
   return buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength) as ArrayBuffer;
 }
 
+async function readProjectLogo(certificate: OwnershipCertificate) {
+  if (certificate.project.projectLogoKey) {
+    const stored = await getR2ObjectBytes(certificate.project.projectLogoKey);
+    if (!stored) throw new Error("The stored project logo could not be read.");
+    return {
+      bytes: stored.bytes,
+      mime: stored.contentType || certificate.project.projectLogoMime || "",
+    };
+  }
+
+  const logoUrl = certificate.project.projectLogoUrl;
+  if (!logoUrl?.startsWith("/") || logoUrl.includes("..") || !/\.(png|jpe?g)$/i.test(logoUrl)) {
+    throw new Error("The project logo is required before issuing a certificate.");
+  }
+  const publicRoot = path.resolve(process.cwd(), "public");
+  const logoPath = path.resolve(publicRoot, `.${logoUrl}`);
+  if (!logoPath.startsWith(`${publicRoot}${path.sep}`)) {
+    throw new Error("The project logo path is invalid.");
+  }
+  return {
+    bytes: await readFile(logoPath),
+    mime: /\.jpe?g$/i.test(logoPath) ? "image/jpeg" : "image/png",
+  };
+}
+
 export async function loadCertificatePdfAssets(certificate: OwnershipCertificate, verificationUrl: string) {
-  if (!certificate.project.projectLogoKey) throw new Error("The project logo is required before issuing a certificate.");
   const [brandLogo, regularFont, boldFont, signature, projectLogo, qrBuffer] = await Promise.all([
     readFile(path.join(process.cwd(), "public", "brand", "bespoke-technologies-logo.png")),
     readFile(path.join(process.cwd(), "public", "fonts", "DejaVuSans.ttf")),
     readFile(path.join(process.cwd(), "public", "fonts", "DejaVuSans-Bold.ttf")),
     readSignature(),
-    getR2ObjectBytes(certificate.project.projectLogoKey),
+    readProjectLogo(certificate),
     QRCode.toBuffer(verificationUrl, { type: "png", width: 320, margin: 1, color: { dark: "#071321", light: "#ffffff" } }),
   ]);
-  if (!projectLogo) throw new Error("The stored project logo could not be read.");
-  const projectMime = projectLogo.contentType || certificate.project.projectLogoMime || "";
+  const projectMime = projectLogo.mime;
   if (!["image/png", "image/jpeg"].includes(projectMime)) throw new Error("Project logo must be PNG or JPEG.");
   return {
     brandLogo: arrayBuffer(brandLogo),
-    projectLogo: projectLogo.bytes.buffer.slice(projectLogo.bytes.byteOffset, projectLogo.bytes.byteOffset + projectLogo.bytes.byteLength) as ArrayBuffer,
+    projectLogo: arrayBuffer(projectLogo.bytes),
     projectLogoMime: projectMime,
     signature,
     qrCode: arrayBuffer(qrBuffer),
@@ -44,4 +67,3 @@ export async function loadCertificatePdfAssets(certificate: OwnershipCertificate
     boldFont: arrayBuffer(boldFont),
   };
 }
-

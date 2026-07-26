@@ -50,9 +50,10 @@ const certificate: OwnershipCertificate = {
 };
 
 describe("ownership certificate PDF", () => {
-  it("generates one landscape A4 page without requiring a signature asset", async () => {
-    const [logo, regular, bold] = await Promise.all([
+  it("generates one signed landscape A4 page", async () => {
+    const [logo, signature, regular, bold] = await Promise.all([
       readFile(path.join(process.cwd(), "public", "brand", "bespoke-technologies-logo.png")),
+      readFile(path.join(process.cwd(), "public", "ceo-signature.png")),
       readFile(path.join(process.cwd(), "public", "fonts", "DejaVuSans.ttf")),
       readFile(path.join(process.cwd(), "public", "fonts", "DejaVuSans-Bold.ttf")),
     ]);
@@ -60,6 +61,7 @@ describe("ownership certificate PDF", () => {
       brandLogo: logo.buffer.slice(logo.byteOffset, logo.byteOffset + logo.byteLength) as ArrayBuffer,
       projectLogo: logo.buffer.slice(logo.byteOffset, logo.byteOffset + logo.byteLength) as ArrayBuffer,
       projectLogoMime: "image/png",
+      signature: signature.buffer.slice(signature.byteOffset, signature.byteOffset + signature.byteLength) as ArrayBuffer,
       qrCode: logo.buffer.slice(logo.byteOffset, logo.byteOffset + logo.byteLength) as ArrayBuffer,
       regularFont: regular.buffer.slice(regular.byteOffset, regular.byteOffset + regular.byteLength) as ArrayBuffer,
       boldFont: bold.buffer.slice(bold.byteOffset, bold.byteOffset + bold.byteLength) as ArrayBuffer,

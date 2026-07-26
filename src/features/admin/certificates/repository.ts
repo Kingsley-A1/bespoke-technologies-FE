@@ -4,10 +4,13 @@ import { randomUUID } from "node:crypto";
 import type { QueryResultRow } from "pg";
 import { calculateDocumentTotals } from "../billing/money";
 import { adminQuery, withAdminTransaction } from "../db";
+import { getPortfolioProject } from "../portfolio/repository";
 import { appendAudit, getAdminSnapshot } from "../repository";
 import type {
   AdminSession,
   CertificateOwnerKind,
+  CommercialMode,
+  CurrencyCode,
   OwnershipCertificate,
 } from "../types";
 import { hashCertificateToken } from "./security";
@@ -36,8 +39,9 @@ function mapCertificate(row: Row): OwnershipCertificate {
   return {
     id: String(row.id),
     certificateNumber: String(row.certificate_number),
-    projectId: String(row.project_id),
-    clientId: String(row.client_id),
+    projectId: optional(row.project_id),
+    portfolioProjectId: optional(row.portfolio_project_id),
+    clientId: optional(row.client_id),
     billingDocumentId: optional(row.billing_document_id),
     status: String(row.status) as OwnershipCertificate["status"],
     owner: json(row.owner_snapshot),
@@ -117,27 +121,82 @@ async function allocateCertificateNumber(client: Parameters<Parameters<typeof wi
 
 export async function createOwnershipCertificateDraft(
   input: {
-    projectId: string;
+    projectId?: string;
+    portfolioProjectId?: string;
     ownerKind: CertificateOwnerKind;
     ownerName: string;
     ownerEmail?: string;
     ownerAddress?: string;
     ownershipStatement?: string;
     invoiceTotalIncludesTaxAndDiscounts: boolean;
+    portfolioStartDate?: string;
+    portfolioCompletionDate?: string;
+    portfolioCommercialMode?: CommercialMode;
+    portfolioAmount?: number;
+    portfolioCurrency?: CurrencyCode;
+    portfolioDisplayValuePublicly?: boolean;
+    portfolioValueNote?: string;
   },
   session: AdminSession,
 ) {
   const snapshot = await getAdminSnapshot();
-  const project = snapshot.projects.find((candidate) => candidate.id === input.projectId);
-  if (!project) throw new Error("Project not found.");
-  const readiness = certificateReadiness(project, snapshot.documents);
-  if (!readiness.ready) throw new Error(`Certificate is not ready: ${readiness.missing.join(", ")}.`);
-  const client = snapshot.clients.find((candidate) => candidate.id === project.clientId);
-  if (!client) throw new Error("Project client not found.");
-  const totals = readiness.invoice ? calculateDocumentTotals(readiness.invoice, snapshot.payments) : undefined;
+  if (Boolean(input.projectId) === Boolean(input.portfolioProjectId)) {
+    throw new Error("Choose one delivery project or portfolio project.");
+  }
+
+  const deliveryProject = input.projectId
+    ? snapshot.projects.find((candidate) => candidate.id === input.projectId)
+    : undefined;
+  if (input.projectId && !deliveryProject) throw new Error("Project not found.");
+
+  const portfolioProject = input.portfolioProjectId
+    ? await getPortfolioProject(input.portfolioProjectId)
+    : undefined;
+  if (input.portfolioProjectId && !portfolioProject) throw new Error("Portfolio project not found.");
+
+  const readiness = deliveryProject
+    ? certificateReadiness(deliveryProject, snapshot.documents)
+    : undefined;
+  if (readiness && !readiness.ready) {
+    throw new Error(`Certificate is not ready: ${readiness.missing.join(", ")}.`);
+  }
+
+  const client = deliveryProject
+    ? snapshot.clients.find((candidate) => candidate.id === deliveryProject.clientId)
+    : undefined;
+  if (deliveryProject && !client) throw new Error("Project client not found.");
+  if (portfolioProject?.comingSoon) {
+    throw new Error("Coming-soon portfolio projects cannot receive ownership certificates.");
+  }
+  if (portfolioProject && (!input.portfolioStartDate || !input.portfolioCompletionDate)) {
+    throw new Error("Project start and completion dates are required.");
+  }
+  if (
+    portfolioProject
+    && input.portfolioStartDate!
+      > input.portfolioCompletionDate!
+  ) {
+    throw new Error("Completion date cannot be earlier than the start date.");
+  }
+  if (
+    portfolioProject
+    && !portfolioProject.imageKey
+    && !isSupportedPortfolioLogo(portfolioProject.imageUrl)
+  ) {
+    throw new Error("The portfolio project needs a PNG or JPEG logo before certificate preparation.");
+  }
+
+  const totals = readiness?.invoice
+    ? calculateDocumentTotals(readiness.invoice, snapshot.payments)
+    : undefined;
   const id = randomUUID();
   const replaced = (await listOwnershipCertificates()).find(
-    (candidate) => candidate.projectId === project.id && candidate.status === "revoked",
+    (candidate) =>
+      candidate.status === "revoked"
+      && (
+        (deliveryProject && candidate.projectId === deliveryProject.id)
+        || (portfolioProject && candidate.portfolioProjectId === portfolioProject.id)
+      ),
   );
   const certificate = await withAdminTransaction(async (db) => {
     const certificateNumber = await allocateCertificateNumber(db);
@@ -147,25 +206,63 @@ export async function createOwnershipCertificateDraft(
       email: input.ownerEmail || undefined,
       address: input.ownerAddress || undefined,
     };
-    const projectSnapshot = {
-      name: project.name,
-      type: project.projectType!,
-      description: project.summary,
-      startDate: project.startDate!,
-      completionDate: project.completedAt!,
-      portfolioProjectId: project.portfolioProjectId,
-      projectLogoKey: project.projectLogoKey,
-      projectLogoMime: project.projectLogoMime,
-    };
-    const commercial = {
-      mode: project.commercialMode,
-      amount: project.commercialMode === "free" ? 0 : totals?.total || (project.commercialMode === "donation" ? project.commercialValue : undefined),
-      currency: project.commercialMode === "free" ? project.currency : readiness.invoice?.currency || project.currency,
-      displayPublicly: project.showValuePublicly,
-      valueNote: project.valueNote,
-      invoiceNumber: readiness.invoice?.documentNumber,
-      invoiceTotalIncludesTaxAndDiscounts: input.invoiceTotalIncludesTaxAndDiscounts,
-    };
+    const projectSnapshot = deliveryProject
+      ? {
+          name: deliveryProject.name,
+          type: deliveryProject.projectType!,
+          description: deliveryProject.summary,
+          startDate: deliveryProject.startDate!,
+          completionDate: deliveryProject.completedAt!,
+          portfolioProjectId: deliveryProject.portfolioProjectId,
+          projectLogoKey: deliveryProject.projectLogoKey,
+          projectLogoMime: deliveryProject.projectLogoMime,
+        }
+      : {
+          name: portfolioProject!.name,
+          type: portfolioProject!.type,
+          description: portfolioProject!.description,
+          startDate: input.portfolioStartDate!,
+          completionDate: input.portfolioCompletionDate!,
+          portfolioProjectId: portfolioProject!.id,
+          projectLogoKey: portfolioProject!.imageKey,
+          projectLogoMime: portfolioProject!.imageMime,
+          projectLogoUrl: portfolioProject!.imageKey ? undefined : portfolioProject!.imageUrl,
+        };
+    const commercial = deliveryProject
+      ? {
+          mode: deliveryProject.commercialMode,
+          amount: deliveryProject.commercialMode === "free"
+            ? 0
+            : totals?.total
+              || (deliveryProject.commercialMode === "donation" ? deliveryProject.commercialValue : undefined),
+          currency: deliveryProject.commercialMode === "free"
+            ? deliveryProject.currency
+            : readiness?.invoice?.currency || deliveryProject.currency,
+          displayPublicly: deliveryProject.showValuePublicly,
+          valueNote: deliveryProject.valueNote,
+          invoiceNumber: readiness?.invoice?.documentNumber,
+          invoiceTotalIncludesTaxAndDiscounts: input.invoiceTotalIncludesTaxAndDiscounts,
+        }
+      : {
+          mode: input.portfolioCommercialMode ?? "undisclosed",
+          amount: input.portfolioCommercialMode === "free"
+            ? 0
+            : input.portfolioCommercialMode === "undisclosed"
+              ? undefined
+              : input.portfolioAmount,
+          currency: input.portfolioCurrency ?? snapshot.settings.defaultCurrency,
+          displayPublicly: Boolean(
+            input.portfolioDisplayValuePublicly
+            && input.portfolioCommercialMode !== "undisclosed"
+            && (
+              input.portfolioCommercialMode === "free"
+              || input.portfolioCommercialMode === "donation"
+              || input.portfolioAmount !== undefined
+            ),
+          ),
+          valueNote: input.portfolioValueNote || undefined,
+          invoiceTotalIncludesTaxAndDiscounts: false,
+        };
     const company = {
       name: snapshot.settings.name,
       website: snapshot.settings.website,
@@ -179,17 +276,18 @@ export async function createOwnershipCertificateDraft(
     };
     const result = await db.query<Row>(
       `INSERT INTO ownership_certificates
-       (id, certificate_number, project_id, client_id, billing_document_id, owner_kind,
+       (id, certificate_number, project_id, portfolio_project_id, client_id, billing_document_id, owner_kind,
         owner_snapshot, project_snapshot, commercial_snapshot, company_snapshot,
         ownership_statement, replaces_certificate_id, created_by)
-       VALUES ($1,$2,$3,$4,$5,$6,$7::JSONB,$8::JSONB,$9::JSONB,$10::JSONB,$11,$12,$13)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8::JSONB,$9::JSONB,$10::JSONB,$11::JSONB,$12,$13,$14)
        RETURNING *`,
       [
         id,
         certificateNumber,
-        project.id,
-        client.id,
-        readiness.invoice?.id || null,
+        deliveryProject?.id || null,
+        portfolioProject?.id || null,
+        client?.id || null,
+        readiness?.invoice?.id || null,
         input.ownerKind,
         JSON.stringify(owner),
         JSON.stringify(projectSnapshot),
@@ -203,10 +301,16 @@ export async function createOwnershipCertificateDraft(
     return mapCertificate(result.rows[0]);
   });
   await appendAudit(session, "ownership_certificate.draft_created", "ownership_certificate", id, undefined, {
-    projectId: project.id,
+    projectId: deliveryProject?.id,
+    portfolioProjectId: portfolioProject?.id,
     certificateNumber: certificate.certificateNumber,
   });
   return certificate;
+}
+
+function isSupportedPortfolioLogo(value?: string) {
+  if (!value?.startsWith("/") || value.includes("..")) return false;
+  return /\.(png|jpe?g)$/i.test(value);
 }
 
 export async function discardOwnershipCertificateDraft(id: string, session: AdminSession) {

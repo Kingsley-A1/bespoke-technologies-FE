@@ -450,6 +450,7 @@ export interface CertificateProjectSnapshot {
   portfolioProjectId?: string;
   projectLogoKey?: string;
   projectLogoMime?: string;
+  projectLogoUrl?: string;
 }
 
 export interface CertificateCommercialSnapshot {
@@ -465,8 +466,9 @@ export interface CertificateCommercialSnapshot {
 export interface OwnershipCertificate {
   id: string;
   certificateNumber: string;
-  projectId: string;
-  clientId: string;
+  projectId?: string;
+  portfolioProjectId?: string;
+  clientId?: string;
   billingDocumentId?: string;
   status: CertificateStatus;
   owner: CertificateOwnerSnapshot;

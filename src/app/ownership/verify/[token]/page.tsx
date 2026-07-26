@@ -17,9 +17,15 @@ export default async function VerifyCertificatePage({ params }: { params: Promis
   const certificate = await getOwnershipCertificateByToken(token);
   if (!certificate) notFound();
   const issued = certificate.status === "issued";
-  const amount = certificate.commercial.displayPublicly && certificate.commercial.amount !== undefined && certificate.commercial.currency
-    ? formatMoney(certificate.commercial.amount, certificate.commercial.currency)
-    : undefined;
+  const amount = !certificate.commercial.displayPublicly
+    ? undefined
+    : certificate.commercial.mode === "free"
+      ? "Provided free of charge"
+      : certificate.commercial.mode === "donation" && certificate.commercial.amount === undefined
+        ? "Donated project"
+        : certificate.commercial.amount !== undefined && certificate.commercial.currency
+          ? formatMoney(certificate.commercial.amount, certificate.commercial.currency)
+          : undefined;
   return <main className="bg-[#07111f] py-20 text-white sm:py-28">
     <Container size="md">
       <section className="overflow-hidden rounded-[1.5rem] border border-white/10 bg-white/[0.04] shadow-2xl">
@@ -47,4 +53,3 @@ export default async function VerifyCertificatePage({ params }: { params: Promis
 function Fact({ label, value, mono = false }: { label: string; value: string; mono?: boolean }) {
   return <div className="bg-[#0b1727] p-5"><dt className="text-[10px] font-bold uppercase tracking-wider text-blue-300">{label}</dt><dd className={`mt-2 break-all text-sm text-slate-100 ${mono ? "font-mono text-[10px]" : "font-semibold"}`}>{value}</dd></div>;
 }
-
