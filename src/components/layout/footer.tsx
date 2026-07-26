@@ -6,6 +6,7 @@ import { NewsletterForm } from "./newsletter-form";
 const FOOTER_LINKS = {
   company: [
     { label: "About", href: "/about" },
+    { label: "Team", href: "https://team.bespoketech.com.ng/" },
     { label: "Services", href: "/services" },
     { label: "Partnerships", href: "/partnerships" },
     { label: "Reviews", href: "/reviews" },

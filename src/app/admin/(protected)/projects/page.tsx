@@ -4,6 +4,8 @@ import { requireAdminPermission } from "@/features/admin/access";
 import { formatAdminDate, formatMoney } from "@/features/admin/billing/money";
 import { inputClass, labelClass, Panel, PanelHeader, primaryButtonClass, StatusPill } from "@/features/admin/components/admin-ui";
 import { getAdminSnapshot } from "@/features/admin/repository";
+import { listPortfolioProjects } from "@/features/admin/portfolio/repository";
+import { ProjectCompletionForm } from "@/features/admin/projects/project-completion-form";
 import {
   createMilestoneAction,
   createProjectAction,
@@ -15,7 +17,7 @@ import {
 
 export default async function ProjectsPage() {
   const session = await requireAdminPermission("projects.manage");
-  const snapshot = await getAdminSnapshot();
+  const [snapshot, portfolio] = await Promise.all([getAdminSnapshot(), listPortfolioProjects()]);
   const today = new Date().toISOString().slice(0, 10);
   const activeProjects = snapshot.projects.filter((project) => !["completed", "cancelled"].includes(project.status));
   const openTasks = snapshot.tasks.filter((task) => task.status !== "done");
@@ -67,6 +69,7 @@ export default async function ProjectsPage() {
                   <p className="mt-4 text-xs leading-5 text-slate-600">{project.summary}</p>
                   <div className="mt-4 grid gap-3 text-xs text-slate-500 sm:grid-cols-4"><Fact label="Value" value={formatMoney(project.commercialValue, project.currency)} /><Fact label="Received" value={formatMoney(paymentValue, project.currency)} /><Fact label="Due" value={formatAdminDate(project.dueDate)} /><Fact label="Milestones" value={`${complete}/${project.milestones.length} completed`} /></div>
                   <form action={updateProjectStateAction} className="mt-4 flex flex-wrap gap-2"><input type="hidden" name="id" value={project.id} /><select className={`${inputClass} w-auto`} name="status" defaultValue={project.status}><option value="planned">Planned</option><option value="active">Active</option><option value="blocked">Blocked</option><option value="review">Review</option><option value="completed">Completed</option><option value="on_hold">On hold</option><option value="cancelled">Cancelled</option></select><select className={`${inputClass} w-auto`} name="health" defaultValue={project.health}><option value="on_track">On track</option><option value="at_risk">At risk</option><option value="off_track">Off track</option></select><button className="h-10 rounded-lg border border-slate-200 px-3 text-[11px] font-semibold">Update state</button>{documents.map((document) => <Link key={document.id} href={`/admin/billing/${document.id}`} className="inline-flex h-10 items-center rounded-lg border border-blue-200 px-3 text-[11px] font-semibold text-blue-700">{document.documentNumber}</Link>)}</form>
+                  <ProjectCompletionForm project={project} documents={documents} portfolio={portfolio} />
                   {(project.status === "blocked" || project.health !== "on_track") && <p className="mt-4 flex items-center gap-2 rounded-lg bg-rose-50 px-3 py-2 text-xs font-medium text-rose-700"><CircleAlert className="h-4 w-4" /> {project.status === "blocked" ? "Delivery is blocked and needs intervention." : `Delivery health is ${project.health.replaceAll("_", " ")}.`}</p>}
                   <div className="mt-5 border-t border-slate-100 pt-4"><div className="space-y-2">{project.milestones.map((milestone) => <form key={milestone.id} action={updateMilestoneStateAction} className="flex flex-wrap items-center gap-2"><input type="hidden" name="id" value={milestone.id} /><span className="min-w-0 flex-1 text-xs font-medium text-slate-700">{milestone.title} <span className="font-normal text-slate-400">· {formatAdminDate(milestone.dueDate)}</span></span><select className="h-8 rounded-lg border border-slate-200 px-2 text-[11px]" name="state" defaultValue={milestone.state}><option value="pending">Pending</option><option value="in_progress">In progress</option><option value="completed">Completed</option><option value="blocked">Blocked</option></select><button className="h-8 rounded-lg border border-slate-200 px-2 text-[11px] font-semibold">Save</button></form>)}</div><details className="mt-3"><summary className="cursor-pointer text-[11px] font-semibold text-ktf-blue">+ Add milestone</summary><form action={createMilestoneAction} className="mt-2 grid gap-2 sm:grid-cols-[1fr_150px_180px_auto]"><input type="hidden" name="projectId" value={project.id} /><input className={inputClass} name="title" placeholder="Milestone" required /><input className={inputClass} name="dueDate" type="date" /><select className={inputClass} name="ownerUserId"><option value="">Current admin</option>{snapshot.users.filter((user) => user.state === "active").map((user) => <option key={user.id} value={user.id}>{user.displayName}</option>)}</select><button className={primaryButtonClass}>Add</button></form></details></div>
                 </article>

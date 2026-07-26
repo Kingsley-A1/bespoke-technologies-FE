@@ -10,6 +10,12 @@ export type BillingDocumentType = "standard" | "proforma" | "recurring";
 export type BillingStatus = "draft" | "pending_approval" | "approved" | "sent" | "viewed" | "partially_paid" | "paid" | "overdue" | "voided" | "accepted" | "expired";
 export type RecurrenceFrequency = "weekly" | "monthly" | "quarterly" | "yearly";
 export type ApprovalState = "pending" | "approved" | "rejected";
+export type TeamGroup = "leadership" | "product" | "engineering" | "design" | "operations" | "partnerships";
+export type TeamCardVariant = "blueprint" | "signal" | "grid" | "orbit";
+export type TeamMemberStatus = "draft" | "published" | "archived";
+export type CommercialMode = "paid" | "free" | "donation" | "undisclosed";
+export type CertificateStatus = "draft" | "issued" | "revoked";
+export type CertificateOwnerKind = "company" | "contact" | "other";
 
 export type AdminPermission =
   | "dashboard.view"
@@ -33,7 +39,32 @@ export type AdminPermission =
   | "reviews.manage"
   | "work.view"
   | "learning.view"
-  | "learning.manage";
+  | "learning.manage"
+  | "team.manage"
+  | "certificates.manage"
+  | "certificates.issue"
+  | "certificates.revoke";
+
+export interface TeamMember {
+  id: string;
+  slug: string;
+  fullName: string;
+  roleTitle: string;
+  teamGroup: TeamGroup;
+  shortBio: string;
+  specialties: string[];
+  location?: string;
+  links: { linkedin?: string; github?: string; website?: string };
+  portraitKey?: string;
+  portraitMime?: string;
+  portraitAlt: string;
+  cardVariant: TeamCardVariant;
+  displayOrder: number;
+  status: TeamMemberStatus;
+  publishedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}
 
 export type PublicationKind = "handover" | "book" | "research";
 export type PublicationStatus = "draft" | "published" | "archived";
@@ -178,6 +209,15 @@ export interface Project {
   currency: CurrencyCode;
   startDate?: string;
   dueDate?: string;
+  completedAt?: string;
+  projectType?: string;
+  projectLogoKey?: string;
+  projectLogoMime?: string;
+  portfolioProjectId?: string;
+  finalInvoiceId?: string;
+  commercialMode: CommercialMode;
+  showValuePublicly: boolean;
+  valueNote?: string;
   milestones: ProjectMilestone[];
   createdAt: string;
   updatedAt: string;
@@ -389,6 +429,66 @@ export interface CompanySettings extends CompanySnapshot {
   defaultPaymentTermsDays: number;
   paymentInstructions: string;
   invoiceApprovalThreshold: number;
+  ceoName: string;
+  ceoTitle: string;
+  updatedAt: string;
+}
+
+export interface CertificateOwnerSnapshot {
+  kind: CertificateOwnerKind;
+  name: string;
+  email?: string;
+  address?: string;
+}
+
+export interface CertificateProjectSnapshot {
+  name: string;
+  type: string;
+  description: string;
+  startDate: string;
+  completionDate: string;
+  portfolioProjectId?: string;
+  projectLogoKey?: string;
+  projectLogoMime?: string;
+}
+
+export interface CertificateCommercialSnapshot {
+  mode: CommercialMode;
+  amount?: number;
+  currency?: CurrencyCode;
+  displayPublicly: boolean;
+  valueNote?: string;
+  invoiceNumber?: string;
+  invoiceTotalIncludesTaxAndDiscounts?: boolean;
+}
+
+export interface OwnershipCertificate {
+  id: string;
+  certificateNumber: string;
+  projectId: string;
+  clientId: string;
+  billingDocumentId?: string;
+  status: CertificateStatus;
+  owner: CertificateOwnerSnapshot;
+  project: CertificateProjectSnapshot;
+  commercial: CertificateCommercialSnapshot;
+  company: CompanySnapshot & { ceoName: string; ceoTitle: string };
+  ownershipStatement: string;
+  verificationToken?: string;
+  pdfKey?: string;
+  pdfSha256?: string;
+  issuedAt?: string;
+  issuedBy?: string;
+  deliveredTo?: string;
+  deliveryState: "not_sent" | "sent" | "failed";
+  deliveryProviderId?: string;
+  deliveryError?: string;
+  deliveredAt?: string;
+  revokedAt?: string;
+  revokedBy?: string;
+  revocationReason?: string;
+  replacesCertificateId?: string;
+  createdAt: string;
   updatedAt: string;
 }
 

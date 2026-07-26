@@ -24,6 +24,8 @@ export const COMPANY_SETTINGS: CompanySettings = {
   defaultPaymentTermsDays: 14,
   paymentInstructions: "",
   invoiceApprovalThreshold: 1_000_000,
+  ceoName: "Kingsley Maduchi",
+  ceoTitle: "Founder & CEO",
   updatedAt: "2026-07-16T08:00:00.000Z",
 };
 

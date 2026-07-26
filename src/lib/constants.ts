@@ -46,6 +46,7 @@ export const NAV_LINKS = [
   { label: "Services", href: "/services" },
   { label: "Bespoke AI", href: "/bespoke-ai" },
   { label: "Projects", href: "/projects" },
+  { label: "Team", href: "https://team.bespoketech.com.ng/" },
   { label: "Library", href: "/library" },
   { label: "Partnership", href: "/partnerships" },
   { label: "Reviews", href: "/reviews" },

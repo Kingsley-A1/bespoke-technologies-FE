@@ -279,6 +279,8 @@ export async function updateSettingsAction(formData: FormData) {
     defaultPaymentTermsDays: z.coerce.number().int().min(0).max(365),
     paymentInstructions: z.string().trim().max(1000),
     invoiceApprovalThreshold: z.coerce.number().min(0).max(1_000_000_000_000),
+    ceoName: z.string().trim().min(2).max(160),
+    ceoTitle: z.string().trim().min(2).max(160),
     reason: z.string().trim().min(5).max(500),
   }).parse(Object.fromEntries(formData));
   const { reason, ...settings } = input;

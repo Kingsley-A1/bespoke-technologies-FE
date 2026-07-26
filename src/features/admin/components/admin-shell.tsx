@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Activity,
+  Award,
   BarChart3,
   Bot,
   BriefcaseBusiness,
@@ -50,7 +51,9 @@ const navigation: NavigationItem[] = [
   { label: "Clients", href: "/admin/clients", icon: Building2 },
   { label: "Projects", href: "/admin/projects", icon: UsersRound },
   { label: "Portfolio", href: "/admin/portfolio", icon: Images },
+  { label: "Public Team", href: "/admin/team", icon: UsersRound },
   { label: "Billing", href: "/admin/billing", icon: CircleDollarSign },
+  { label: "Certificates", href: "/admin/certificates", icon: Award },
   { label: "Publications", href: "/admin/publications", icon: Library },
   { label: "Reviews", href: "/admin/reviews", icon: Star },
   { label: "Inbox", href: "/admin/inbox", icon: Inbox },
@@ -70,6 +73,8 @@ const pageMeta = [
   ["/admin/billing", "Billing", "Invoices, proformas, recurring schedules, and payments."],
   ["/admin/publications", "Publications", "Handover proof, books, and research for the public library."],
   ["/admin/portfolio", "Website portfolio", "Publish and maintain the finished projects shown on the website."],
+  ["/admin/team", "Public team", "Publish consented team profiles and manage their visual presentation."],
+  ["/admin/certificates", "Ownership certificates", "Prepare, issue, deliver, verify, and revoke project ownership evidence."],
   ["/admin/reviews", "Client reviews", "Verify, publish, and manage public client reviews."],
   ["/admin/sales", "Sales pipeline", "Move qualified opportunities towards signed work."],
   ["/admin/clients", "Clients", "One reliable view of every commercial relationship."],

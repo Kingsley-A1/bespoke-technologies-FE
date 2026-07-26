@@ -201,6 +201,15 @@ async function databaseSnapshot(): Promise<AdminSnapshot> {
     currency: string(row, "currency", "NGN") as CurrencyCode,
     startDate: iso(row, "start_date", true),
     dueDate: iso(row, "due_date", true),
+    completedAt: iso(row, "completed_at", true),
+    projectType: optionalString(row, "project_type"),
+    projectLogoKey: optionalString(row, "project_logo_key"),
+    projectLogoMime: optionalString(row, "project_logo_mime"),
+    portfolioProjectId: optionalString(row, "portfolio_project_id"),
+    finalInvoiceId: optionalString(row, "final_invoice_id"),
+    commercialMode: string(row, "commercial_mode", "paid") as Project["commercialMode"],
+    showValuePublicly: bool(row, "show_value_publicly"),
+    valueNote: optionalString(row, "value_note"),
     milestones: milestonesResult.rows
       .filter((milestone) => string(milestone, "project_id") === string(row, "id"))
       .map((milestone) => ({
@@ -375,6 +384,8 @@ async function databaseSnapshot(): Promise<AdminSnapshot> {
         defaultPaymentTermsDays: number(settingsRow, "default_payment_terms_days", 14),
         paymentInstructions: string(settingsRow, "payment_instructions"),
         invoiceApprovalThreshold: number(settingsRow, "invoice_approval_threshold", 1_000_000),
+        ceoName: string(settingsRow, "ceo_name", "Kingsley Maduchi"),
+        ceoTitle: string(settingsRow, "ceo_title", "Founder & CEO"),
         updatedAt: iso(settingsRow, "updated_at") ?? new Date().toISOString(),
       }
     : COMPANY_SETTINGS;
@@ -600,7 +611,16 @@ export async function createProjectRecord(
   const client = (await getAdminSnapshot()).clients.find((candidate) => candidate.id === input.clientId);
   if (!client || client.state !== "active") throw new Error("An active client is required for a new project.");
   const now = new Date().toISOString();
-  const project: Project = { id: randomUUID(), ...input, ownerUserId: session.userId, milestones: [], createdAt: now, updatedAt: now };
+  const project: Project = {
+    id: randomUUID(),
+    ...input,
+    commercialMode: "paid",
+    showValuePublicly: false,
+    ownerUserId: session.userId,
+    milestones: [],
+    createdAt: now,
+    updatedAt: now,
+  };
   await adminQuery(
       `INSERT INTO projects (id, client_id, lead_id, name, service, summary, owner_user_id, status, health, priority, commercial_value, currency, start_date, due_date)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`,
@@ -1311,8 +1331,8 @@ export async function updateCompanySettings(
   await adminQuery(
     `UPDATE company_settings SET company_name=$1, website=$2, phone=$3, email=$4, registration_number=$5,
      motto=$6, address=$7, default_currency=$8, default_payment_terms_days=$9, payment_instructions=$10,
-     invoice_approval_threshold=$11, updated_by=$12, updated_at=now() WHERE id='primary'`,
-    [settings.name, settings.website, settings.phone, settings.email, settings.registrationNumber, settings.motto, settings.address || null, settings.defaultCurrency, settings.defaultPaymentTermsDays, settings.paymentInstructions || null, settings.invoiceApprovalThreshold, session.userId],
+     invoice_approval_threshold=$11, ceo_name=$12, ceo_title=$13, updated_by=$14, updated_at=now() WHERE id='primary'`,
+    [settings.name, settings.website, settings.phone, settings.email, settings.registrationNumber, settings.motto, settings.address || null, settings.defaultCurrency, settings.defaultPaymentTermsDays, settings.paymentInstructions || null, settings.invoiceApprovalThreshold, settings.ceoName, settings.ceoTitle, session.userId],
   );
   await appendAudit(session, "company.settings.updated", "company_settings", "primary", reason);
   return settings;

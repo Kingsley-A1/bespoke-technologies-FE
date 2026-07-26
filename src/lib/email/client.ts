@@ -33,6 +33,7 @@ export interface SendEmailInput {
   html: string;
   text?: string;
   replyTo?: string | string[];
+  attachments?: Array<{ filename: string; content: Buffer }>;
 }
 
 export type SendEmailResult =
@@ -54,6 +55,7 @@ export async function sendEmail(input: SendEmailInput): Promise<SendEmailResult>
       html: input.html,
       text: input.text,
       replyTo: input.replyTo,
+      attachments: input.attachments,
     });
 
     if (error) {

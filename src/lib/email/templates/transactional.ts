@@ -154,6 +154,36 @@ This is a strategic self-assessment, not a formal security or compliance audit.`
   return { subject, html, text };
 }
 
+export function ownershipCertificateEmail(input: {
+  ownerName: string;
+  projectName: string;
+  certificateNumber: string;
+  verificationUrl: string;
+}): RenderedEmail {
+  const firstName = input.ownerName.split(/\s+/)[0] || input.ownerName;
+  const contentHtml = `
+    <p style="margin:0 0 16px;font-size:15px;line-height:1.65;color:#1a1d23;">Hi ${escapeHtml(firstName)},</p>
+    <p style="margin:0 0 16px;font-size:15px;line-height:1.65;color:#1a1d23;">Your project has completed the Bespoke Technologies ownership workflow. The issued certificate is attached to this email and can be independently checked using the verification link below.</p>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 22px;border-top:1px solid #e8edf3;border-bottom:1px solid #e8edf3;">
+      ${detailRow("Project", escapeHtml(input.projectName))}
+      ${detailRow("Certificate", escapeHtml(input.certificateNumber))}
+    </table>
+    ${button("Verify ownership certificate", input.verificationUrl)}
+    <p style="margin:20px 0 0;font-size:12px;line-height:1.6;color:#66707d;">Keep the attached PDF with your project handover records. The verification page always shows the current issued or revoked status.</p>`;
+  return {
+    subject: `Project ownership certificate — ${input.projectName}`,
+    html: renderLayout({ preheader: `${input.certificateNumber} has been issued for ${input.projectName}.`, heading: "Your ownership certificate is ready", contentHtml }),
+    text: `Hi ${firstName},
+
+Your Bespoke Technologies project ownership certificate for ${input.projectName} is attached.
+
+Certificate: ${input.certificateNumber}
+Verify: ${input.verificationUrl}
+
+Keep the PDF with your project handover records.`,
+  };
+}
+
 export function employeeInvitationEmail(input: { name: string; email: string; enrollmentCode: string; expiresAt: string }): RenderedEmail {
   const registerUrl = `https://www.bespoketech.com.ng/admin/register?email=${encodeURIComponent(input.email)}`;
   const contentHtml = `

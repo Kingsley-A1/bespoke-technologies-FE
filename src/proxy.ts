@@ -1,13 +1,28 @@
 import { NextRequest, NextResponse } from "next/server";
 
 const AUDIT_HOSTNAME = "audit.bespoketech.com.ng";
+const TEAM_HOSTNAME = "team.bespoketech.com.ng";
+const WEBSITE_HOSTNAME = "www.bespoketech.com.ng";
 
 function requestedHostname(request: NextRequest) {
   return request.headers.get("host")?.split(":")[0]?.toLowerCase();
 }
 
 export function proxy(request: NextRequest) {
-  if (requestedHostname(request) !== AUDIT_HOSTNAME) {
+  const hostname = requestedHostname(request);
+  if (hostname === TEAM_HOSTNAME) {
+    if (request.nextUrl.pathname === "/") {
+      return NextResponse.rewrite(new URL("/team", request.url));
+    }
+    if (request.nextUrl.pathname.startsWith("/api/")) {
+      return NextResponse.next();
+    }
+    const websiteUrl = request.nextUrl.clone();
+    websiteUrl.hostname = WEBSITE_HOSTNAME;
+    return NextResponse.redirect(websiteUrl, 308);
+  }
+
+  if (hostname !== AUDIT_HOSTNAME) {
     return NextResponse.next();
   }
 
@@ -30,5 +45,7 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/", "/report/:path*"],
+  matcher: [
+    "/((?!_next/static|_next/image|favicon.ico|icons/|manifest.webmanifest).*)",
+  ],
 };

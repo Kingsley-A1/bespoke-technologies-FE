@@ -14,6 +14,8 @@ const managerPermissions: AdminPermission[] = [
   "reviews.manage",
   "learning.view",
   "learning.manage",
+  "team.manage",
+  "certificates.manage",
 ];
 
 const employeePermissions: AdminPermission[] = [
@@ -32,6 +34,8 @@ const founderPermissions: AdminPermission[] = [
   "exports.all",
   "digital_audits.export",
   "approvals.resolve",
+  "certificates.issue",
+  "certificates.revoke",
 ];
 
 export const ROLE_PERMISSIONS: Record<AdminRole, ReadonlySet<AdminPermission>> = {
