@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-
-const AUDIT_HOSTNAME = "audit.bespoketech.com.ng";
-const TEAM_HOSTNAME = "team.bespoketech.com.ng";
-const WEBSITE_HOSTNAME = "www.bespoketech.com.ng";
+import {
+  AUDIT_HOSTNAME,
+  TEAM_HOSTNAME,
+  WEBSITE_HOSTNAME,
+  hostnameFromHeader,
+} from "@/lib/subdomain-seo";
 
 function requestedHostname(request: NextRequest) {
-  return request.headers.get("host")?.split(":")[0]?.toLowerCase();
+  return hostnameFromHeader(request.headers.get("host"));
 }
 
 export function proxy(request: NextRequest) {
@@ -14,7 +16,11 @@ export function proxy(request: NextRequest) {
     if (request.nextUrl.pathname === "/") {
       return NextResponse.rewrite(new URL("/team", request.url));
     }
-    if (request.nextUrl.pathname.startsWith("/api/")) {
+    if (
+      request.nextUrl.pathname.startsWith("/api/") ||
+      request.nextUrl.pathname === "/robots.txt" ||
+      request.nextUrl.pathname === "/sitemap.xml"
+    ) {
       return NextResponse.next();
     }
     const websiteUrl = request.nextUrl.clone();
@@ -30,6 +36,19 @@ export function proxy(request: NextRequest) {
     return NextResponse.rewrite(
       new URL("/digital-readiness-audit", request.url),
     );
+  }
+
+  if (request.nextUrl.pathname === "/digital-readiness-audit") {
+    const auditUrl = request.nextUrl.clone();
+    auditUrl.pathname = "/";
+    return NextResponse.redirect(auditUrl, 308);
+  }
+
+  if (
+    request.nextUrl.pathname === "/robots.txt" ||
+    request.nextUrl.pathname === "/sitemap.xml"
+  ) {
+    return NextResponse.next();
   }
 
   if (request.nextUrl.pathname.startsWith("/report/")) {

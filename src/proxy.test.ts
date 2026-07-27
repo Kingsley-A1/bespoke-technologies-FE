@@ -10,7 +10,9 @@ describe("subdomain routing", () => {
       headers: { host: "team.bespoketech.com.ng" },
     });
     const response = proxy(request);
-    expect(response.headers.get("x-middleware-rewrite")).toBe("https://team.bespoketech.com.ng/team");
+    expect(response.headers.get("x-middleware-rewrite")).toBe(
+      "https://team.bespoketech.com.ng/team",
+    );
   });
 
   it("leaves ordinary website hosts unchanged", () => {
@@ -30,6 +32,18 @@ describe("subdomain routing", () => {
     expect(response.headers.get("x-middleware-next")).toBe("1");
   });
 
+  it.each(["/robots.txt", "/sitemap.xml"])(
+    "serves team %s from the team host",
+    (pathname) => {
+      const request = new NextRequest(
+        `https://team.bespoketech.com.ng${pathname}`,
+        { headers: { host: "team.bespoketech.com.ng" } },
+      );
+      const response = proxy(request);
+      expect(response.headers.get("x-middleware-next")).toBe("1");
+    },
+  );
+
   it("returns ordinary team-host navigation to the canonical website host", () => {
     const request = new NextRequest(
       "https://team.bespoketech.com.ng/services?from=team",
@@ -39,6 +53,40 @@ describe("subdomain routing", () => {
     expect(response.status).toBe(308);
     expect(response.headers.get("location")).toBe(
       "https://www.bespoketech.com.ng/services?from=team",
+    );
+  });
+
+  it("rewrites the audit subdomain root to the audit experience", () => {
+    const request = new NextRequest("https://audit.bespoketech.com.ng/", {
+      headers: { host: "audit.bespoketech.com.ng" },
+    });
+    const response = proxy(request);
+    expect(response.headers.get("x-middleware-rewrite")).toBe(
+      "https://audit.bespoketech.com.ng/digital-readiness-audit",
+    );
+  });
+
+  it.each(["/robots.txt", "/sitemap.xml"])(
+    "serves audit %s from the audit host",
+    (pathname) => {
+      const request = new NextRequest(
+        `https://audit.bespoketech.com.ng${pathname}`,
+        { headers: { host: "audit.bespoketech.com.ng" } },
+      );
+      const response = proxy(request);
+      expect(response.headers.get("x-middleware-next")).toBe("1");
+    },
+  );
+
+  it("redirects the audit implementation route to the canonical audit URL", () => {
+    const request = new NextRequest(
+      "https://audit.bespoketech.com.ng/digital-readiness-audit",
+      { headers: { host: "audit.bespoketech.com.ng" } },
+    );
+    const response = proxy(request);
+    expect(response.status).toBe(308);
+    expect(response.headers.get("location")).toBe(
+      "https://audit.bespoketech.com.ng/",
     );
   });
 });

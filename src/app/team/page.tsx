@@ -4,11 +4,31 @@ import { BriefcaseBusiness, Code2, ExternalLink, MapPin } from "lucide-react";
 import { Container } from "@/components/layout";
 import { listPublishedTeamMembersSafe } from "@/features/admin/team/repository";
 import type { TeamCardVariant, TeamGroup, TeamMember } from "@/features/admin/types";
+import { TEAM_ORIGIN, WEBSITE_ORIGIN } from "@/lib/subdomain-seo";
 
 export const metadata: Metadata = {
-  title: "Our Team",
-  description: "Meet the people designing, engineering, and delivering Bespoke Technologies products.",
-  alternates: { canonical: "https://team.bespoketech.com.ng/" },
+  title: "Bespoke Technologies Team | Product, Design & Engineering",
+  description: "Meet the people designing, engineering, and delivering dependable digital products at Bespoke Technologies.",
+  alternates: { canonical: TEAM_ORIGIN },
+  openGraph: {
+    type: "website",
+    url: TEAM_ORIGIN,
+    siteName: "Bespoke Technologies Team",
+    title: "Bespoke Technologies Team | Product, Design & Engineering",
+    description: "Meet the people designing, engineering, and delivering dependable digital products at Bespoke Technologies.",
+    images: [{ url: `${WEBSITE_ORIGIN}/icons/og.png`, width: 1200, height: 630, alt: "Bespoke Technologies" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Bespoke Technologies Team | Product, Design & Engineering",
+    description: "Meet the people designing, engineering, and delivering dependable digital products at Bespoke Technologies.",
+    images: [`${WEBSITE_ORIGIN}/icons/og.png`],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 },
+  },
 };
 
 export const dynamic = "force-dynamic";
@@ -51,7 +71,30 @@ const VARIANTS: Record<
 export default async function TeamPage() {
   const members = await listPublishedTeamMembersSafe();
   const groups = [...new Set(members.map((member) => member.teamGroup))];
+  const teamJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: "Bespoke Technologies Team",
+    url: TEAM_ORIGIN,
+    description: "The people designing, engineering, and delivering dependable digital products at Bespoke Technologies.",
+    mainEntity: {
+      "@type": "ItemList",
+      itemListElement: members.map((member, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        item: {
+          "@type": "Person",
+          name: member.fullName,
+          jobTitle: member.roleTitle,
+          description: member.shortBio,
+          worksFor: { "@type": "Organization", name: "Bespoke Technologies", url: WEBSITE_ORIGIN },
+          ...(Object.values(member.links).filter(Boolean).length > 0 ? { sameAs: Object.values(member.links).filter(Boolean) } : {}),
+        },
+      })),
+    },
+  };
   return <div className="overflow-hidden bg-[#050b14] text-white">
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(teamJsonLd).replace(/</g, "\\u003c") }} />
     <section className="relative border-b border-white/10 py-24 sm:py-32">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_12%,rgba(10,132,255,.24),transparent_35%),linear-gradient(rgba(255,255,255,.025)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.025)_1px,transparent_1px)] bg-[size:auto,52px_52px,52px_52px]" />
       <Container size="lg" className="relative">
