@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowRight, ShieldCheck } from "lucide-react";
+import { WHATSAPP_NUMBER } from "@/lib/constants";
 import { getSharedDigitalAudit } from "@/features/digital-audits/repository";
 import { DIGITAL_AUDIT_RECOMMENDATIONS } from "@/features/digital-audits/definition";
 import { DigitalAuditShareActions } from "@/features/digital-audits/share-actions";
@@ -37,6 +37,9 @@ export default async function DigitalAuditReportPage({
   const audit = await getSharedDigitalAudit(token);
   if (!audit?.result) notFound();
   const displayName = audit.shareBusinessName ? audit.businessName : "Digital Readiness Report";
+  const discussRoadmapHref = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
+    `Hello Bespoke Technologies, I completed the Digital Readiness Audit for ${audit.businessName} and would like to discuss the recommended roadmap.`,
+  )}`;
 
   return (
     <div className="bg-ktf-surface px-4 py-10 sm:px-6 sm:py-16 print:bg-white print:p-0">
@@ -126,9 +129,9 @@ export default async function DigitalAuditReportPage({
               Bespoke Technologies can translate these priorities into a sequenced delivery plan.
             </p>
           </div>
-          <Link href="/contact" className="mt-5 inline-flex h-11 shrink-0 items-center gap-2 rounded-lg bg-ktf-blue px-5 text-sm font-semibold text-white sm:mt-0">
+          <a href={discussRoadmapHref} className="mt-5 inline-flex h-11 shrink-0 items-center gap-2 rounded-lg bg-ktf-blue px-5 text-sm font-semibold text-white sm:mt-0">
             Discuss the roadmap <ArrowRight className="h-4 w-4" />
-          </Link>
+          </a>
         </section>
 
         <p className="flex items-start gap-2 text-xs leading-5 text-ktf-gray-500">

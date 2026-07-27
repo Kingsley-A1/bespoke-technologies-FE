@@ -8,6 +8,7 @@ import {
   Check,
   CircleCheck,
   LoaderCircle,
+  Search,
   ShieldCheck,
 } from "lucide-react";
 import {
@@ -529,8 +530,8 @@ function AssessmentStep({
   const progress = ((questionIndex + (selectedIndex >= 0 ? 1 : 0)) / DIGITAL_AUDIT_QUESTIONS.length) * 100;
 
   return (
-    <div className="bg-ktf-surface px-4 py-12 sm:px-6 sm:py-16">
-      <section className="mx-auto max-w-2xl rounded-2xl border border-ktf-gray-200 bg-white p-6 shadow-sm sm:p-9">
+    <div className="min-h-[calc(100dvh-4.25rem)] bg-ktf-surface px-2 py-2 sm:px-6 sm:py-16">
+      <section className="mx-auto max-w-2xl rounded-lg border border-ktf-gray-200 bg-white p-5 shadow-sm sm:rounded-xl sm:p-9">
         <div className="flex items-center justify-between gap-4 text-xs font-bold uppercase tracking-[0.14em]">
           <span className="text-ktf-blue">{question.short}</span>
           <span className="text-ktf-gray-500">
@@ -558,7 +559,7 @@ function AssessmentStep({
                 aria-checked={selected}
                 disabled={saveState === "saving"}
                 onClick={() => void onSelect(index)}
-                className={`flex w-full items-start gap-4 rounded-xl border p-4 text-left transition ${
+                className={`flex w-full items-start gap-4 rounded-lg border p-4 text-left transition ${
                   selected
                     ? "border-ktf-blue bg-ktf-blue/5 shadow-[0_0_0_1px_rgba(10,132,255,.2)]"
                     : "border-ktf-gray-200 hover:border-ktf-blue/40"
@@ -659,22 +660,70 @@ function SearchableIndustryField({
   options: readonly string[];
   onChange: (value: string) => void;
 }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const query = value.trim().toLocaleLowerCase();
+  const matches = options.filter((option) => option.toLocaleLowerCase().includes(query));
+
   return (
-    <label className="block">
-      <span className="mb-2 block text-sm font-semibold text-ktf-navy">{label}</span>
-      <input
-        required
-        list="digital-audit-industries"
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        className="h-12 w-full rounded-lg border border-ktf-gray-300 bg-white px-4 text-sm outline-none focus:border-ktf-blue focus:ring-2 focus:ring-ktf-blue/15"
-        placeholder="Search or enter your industry"
-      />
-      <datalist id="digital-audit-industries">
-        {options.map((option) => <option key={option} value={option} />)}
-      </datalist>
-      <span className="mt-1.5 block text-xs text-ktf-gray-500">Search the list or enter an industry not listed.</span>
-    </label>
+    <div className="relative">
+      <label htmlFor="digital-audit-industry" className="mb-2 block text-sm font-semibold text-ktf-navy">
+        {label}
+      </label>
+      <div className="relative">
+        <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-ktf-gray-500" />
+        <input
+          id="digital-audit-industry"
+          required
+          value={value}
+          role="combobox"
+          aria-autocomplete="list"
+          aria-controls="digital-audit-industry-options"
+          aria-expanded={isOpen}
+          onFocus={() => setIsOpen(true)}
+          onBlur={() => window.setTimeout(() => setIsOpen(false), 150)}
+          onKeyDown={(event) => {
+            if (event.key === "Escape") setIsOpen(false);
+          }}
+          onChange={(event) => {
+            onChange(event.target.value);
+            setIsOpen(true);
+          }}
+          className="h-12 w-full rounded-lg border border-ktf-gray-300 bg-white py-0 pl-11 pr-4 text-sm outline-none focus:border-ktf-blue focus:ring-2 focus:ring-ktf-blue/15"
+          placeholder="Search industries, including forex and crypto"
+        />
+      </div>
+      {isOpen && (
+        <div
+          id="digital-audit-industry-options"
+          role="listbox"
+          className="absolute z-20 mt-2 max-h-60 w-full overflow-y-auto rounded-lg border border-ktf-gray-200 bg-white p-1 shadow-lg"
+        >
+          {matches.length > 0 ? (
+            matches.map((option) => (
+              <button
+                key={option}
+                type="button"
+                role="option"
+                aria-selected={value === option}
+                onMouseDown={(event) => event.preventDefault()}
+                onClick={() => {
+                  onChange(option);
+                  setIsOpen(false);
+                }}
+                className="flex w-full rounded-md px-3 py-2.5 text-left text-sm text-ktf-gray-700 transition hover:bg-ktf-surface hover:text-ktf-navy"
+              >
+                {option}
+              </button>
+            ))
+          ) : (
+            <p className="px-3 py-2.5 text-sm text-ktf-gray-500">
+              No listed industry matches. You can still enter your industry above.
+            </p>
+          )}
+        </div>
+      )}
+      <span className="mt-1.5 block text-xs text-ktf-gray-500">Search and choose an industry, or enter one not listed.</span>
+    </div>
   );
 }
 
