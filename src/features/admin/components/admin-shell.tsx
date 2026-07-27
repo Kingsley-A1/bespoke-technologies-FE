@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  Clapperboard,
   Activity,
   Award,
   BarChart3,
@@ -42,10 +43,12 @@ interface NavigationItem {
   icon: LucideIcon;
   founderOnly?: boolean;
   employeeVisible?: boolean;
+  external?: boolean;
 }
 
 const navigation: NavigationItem[] = [
   { label: "Overview", href: "/admin", icon: LayoutDashboard, employeeVisible: true },
+  { label: "Motion", href: "https://motion.bespoketech.com.ng", icon: Clapperboard, external: true },
   { label: "Coworker", href: "/admin/coworker", icon: Bot, employeeVisible: true },
   { label: "Sales", href: "/admin/sales", icon: BriefcaseBusiness },
   { label: "Clients", href: "/admin/clients", icon: Building2 },
@@ -133,19 +136,25 @@ export function AdminShell({
         <nav className="flex-1 space-y-1 overflow-y-auto px-4 pt-6" aria-label="Admin navigation">
           {visibleNavigation.map((item) => {
             const active = item.href === "/admin" ? pathname === "/admin" : pathname.startsWith(item.href);
+            const className = cn(
+              "flex h-10 items-center gap-3 rounded-lg px-3 text-sm font-medium transition",
+              active ? "bg-[#eaf3ff] text-[#075fcf]" : "text-slate-600 hover:bg-slate-50 hover:text-slate-950",
+            );
+            const content = <>
+              <item.icon className="h-[18px] w-[18px]" strokeWidth={1.8} />
+              {item.label}
+              {item.external && <ExternalLink className="ml-auto h-3.5 w-3.5 opacity-60" aria-hidden="true" />}
+            </>;
+            if (item.external) return <a key={item.href} href={item.href} target="_blank" rel="noreferrer" onClick={() => setMobileOpen(false)} className={className}>{content}</a>;
             return (
               <Link
                 key={item.href}
                 href={item.href}
                 onClick={() => setMobileOpen(false)}
                 aria-current={active ? "page" : undefined}
-                className={cn(
-                  "flex h-10 items-center gap-3 rounded-lg px-3 text-sm font-medium transition",
-                  active ? "bg-[#eaf3ff] text-[#075fcf]" : "text-slate-600 hover:bg-slate-50 hover:text-slate-950",
-                )}
+                className={className}
               >
-                <item.icon className="h-[18px] w-[18px]" strokeWidth={1.8} />
-                {item.label}
+                {content}
               </Link>
             );
           })}
