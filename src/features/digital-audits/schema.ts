@@ -1,16 +1,12 @@
 import { z } from "zod";
-import {
-  DIGITAL_AUDIT_INDUSTRIES,
-  DIGITAL_AUDIT_QUESTIONS,
-  DIGITAL_AUDIT_TEAM_SIZES,
-} from "./definition";
+import { DIGITAL_AUDIT_QUESTIONS, DIGITAL_AUDIT_TEAM_SIZES } from "./definition";
 
 const optionalEmail = z.union([z.email().max(240), z.literal("")]).default("");
 const optionalPhone = z.string().trim().max(40).default("");
 
 export const createDigitalAuditSchema = z.object({
   businessName: z.string().trim().min(2).max(160),
-  industry: z.enum(DIGITAL_AUDIT_INDUSTRIES),
+  industry: z.string().trim().min(2).max(120),
   teamSize: z.enum(DIGITAL_AUDIT_TEAM_SIZES),
   email: optionalEmail,
   phone: optionalPhone,

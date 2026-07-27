@@ -400,7 +400,7 @@ function ContextStep({
             />
           </label>
           <div className="grid gap-5 sm:grid-cols-2">
-            <SelectField
+            <SearchableIndustryField
               label="Industry"
               value={context.industry}
               options={DIGITAL_AUDIT_INDUSTRIES}
@@ -644,6 +644,36 @@ function SelectField({
           <option key={option}>{option}</option>
         ))}
       </select>
+    </label>
+  );
+}
+
+function SearchableIndustryField({
+  label,
+  value,
+  options,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  options: readonly string[];
+  onChange: (value: string) => void;
+}) {
+  return (
+    <label className="block">
+      <span className="mb-2 block text-sm font-semibold text-ktf-navy">{label}</span>
+      <input
+        required
+        list="digital-audit-industries"
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        className="h-12 w-full rounded-lg border border-ktf-gray-300 bg-white px-4 text-sm outline-none focus:border-ktf-blue focus:ring-2 focus:ring-ktf-blue/15"
+        placeholder="Search or enter your industry"
+      />
+      <datalist id="digital-audit-industries">
+        {options.map((option) => <option key={option} value={option} />)}
+      </datalist>
+      <span className="mt-1.5 block text-xs text-ktf-gray-500">Search the list or enter an industry not listed.</span>
     </label>
   );
 }

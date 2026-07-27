@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { DIGITAL_AUDIT_TEAM_SIZES } from "./definition";
 import {
   createDigitalAuditSchema,
   saveDigitalAuditAnswerSchema,
@@ -9,7 +10,7 @@ describe("digital audit public schemas", () => {
     const result = createDigitalAuditSchema.parse({
       businessName: "Northstar Services",
       industry: "Professional Services",
-      teamSize: "6–20",
+      teamSize: DIGITAL_AUDIT_TEAM_SIZES[1],
       email: "",
       phone: "",
       contactConsent: false,
@@ -19,19 +20,26 @@ describe("digital audit public schemas", () => {
     expect(result.contactConsent).toBe(false);
   });
 
-  it("rejects unknown industries and honeypot content", () => {
+  it("accepts catalogue and custom industries while rejecting honeypot content", () => {
     expect(
       createDigitalAuditSchema.safeParse({
         businessName: "Northstar Services",
-        industry: "Unknown",
-        teamSize: "6–20",
+        industry: "Forex & Foreign Exchange",
+        teamSize: DIGITAL_AUDIT_TEAM_SIZES[1],
       }).success,
-    ).toBe(false);
+    ).toBe(true);
+    expect(
+      createDigitalAuditSchema.safeParse({
+        businessName: "Northstar Services",
+        industry: "Specialist Marine Surveying",
+        teamSize: DIGITAL_AUDIT_TEAM_SIZES[1],
+      }).success,
+    ).toBe(true);
     expect(
       createDigitalAuditSchema.safeParse({
         businessName: "Northstar Services",
         industry: "Professional Services",
-        teamSize: "6–20",
+        teamSize: DIGITAL_AUDIT_TEAM_SIZES[1],
         website: "spam.example",
       }).success,
     ).toBe(false);
