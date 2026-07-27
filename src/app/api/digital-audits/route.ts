@@ -9,7 +9,6 @@ import {
   hashDigitalAuditToken,
   setDigitalAuditCredential,
 } from "@/features/digital-audits/security";
-import { verifyTurnstile } from "@/lib/turnstile";
 
 const MAX_CREATIONS_PER_HOUR = 10;
 
@@ -45,16 +44,6 @@ export async function POST(request: NextRequest) {
       );
     }
     if (parsed.data.website) return new NextResponse(null, { status: 204 });
-    const verified = await verifyTurnstile(
-      parsed.data.turnstileToken,
-      request.headers.get("x-forwarded-for")?.split(",")[0]?.trim(),
-    );
-    if (!verified) {
-      return NextResponse.json(
-        { message: "Verification failed. Refresh and try again." },
-        { status: 400 },
-      );
-    }
     const resumeToken = createDigitalAuditToken();
     const audit = await createDigitalAudit({
       businessName: parsed.data.businessName,

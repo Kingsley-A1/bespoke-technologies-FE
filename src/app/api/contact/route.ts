@@ -3,7 +3,6 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { createContactSubmission } from "@/features/admin/repository";
 import { adminQuery } from "@/features/admin/db";
-import { verifyTurnstile } from "@/lib/turnstile";
 import { sendEmail } from "@/lib/email/client";
 import { CONTACT_NOTIFY_TO, EMAIL_ADDRESSES } from "@/lib/email/addresses";
 import {
@@ -19,7 +18,6 @@ const contactSchema = z.object({
   subject: z.string().trim().max(80).optional().default("Project enquiry"),
   message: z.string().trim().min(20).max(4000),
   website: z.string().max(0).optional().default(""),
-  turnstileToken: z.string().max(4000).optional().default(""),
 });
 
 const MAX_REQUESTS_PER_WINDOW = 10;
@@ -98,11 +96,6 @@ export async function POST(request: Request) {
   const parsed = contactSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ message: parsed.error.issues[0]?.message ?? "Check the enquiry fields." }, { status: 400 });
   if (parsed.data.website) return new NextResponse(null, { status: 204 });
-
-  const humanVerified = await verifyTurnstile(parsed.data.turnstileToken, requestKey(request));
-  if (!humanVerified) {
-    return NextResponse.json({ message: "Verification failed. Please refresh and try again." }, { status: 400 });
-  }
 
   const enquiry = {
     name: parsed.data.name,

@@ -1,6 +1,5 @@
 "use client";
 
-import Script from "next/script";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -21,8 +20,6 @@ import type {
   DigitalAuditAnswers,
   DigitalAuditRecord,
 } from "./types";
-
-const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 
 type Stage = "landing" | "context" | "assessment";
 type SaveState = "idle" | "saving" | "saved" | "error";
@@ -129,17 +126,6 @@ export function DigitalAuditExperience() {
       setError("Enter a valid email address or leave it blank.");
       return;
     }
-    const turnstileToken = TURNSTILE_SITE_KEY
-      ? (
-          event.currentTarget.querySelector(
-            '[name="cf-turnstile-response"]',
-          ) as HTMLInputElement | null
-        )?.value ?? ""
-      : "";
-    if (TURNSTILE_SITE_KEY && !turnstileToken) {
-      setError("Complete the verification before continuing.");
-      return;
-    }
     const query = new URLSearchParams(window.location.search);
     const attribution = Object.fromEntries(
       ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term"]
@@ -156,7 +142,6 @@ export function DigitalAuditExperience() {
           businessName: context.businessName.trim(),
           email: context.email.trim(),
           phone: context.phone.trim(),
-          turnstileToken,
           source: attribution.utm_source || "website",
           attribution,
         }),
@@ -498,20 +483,6 @@ function ContextStep({
             className="hidden"
             aria-hidden="true"
           />
-          {TURNSTILE_SITE_KEY && (
-            <>
-              <Script
-                src="https://challenges.cloudflare.com/turnstile/v0/api.js"
-                strategy="lazyOnload"
-              />
-              <div
-                className="cf-turnstile"
-                data-sitekey={TURNSTILE_SITE_KEY}
-                data-theme="light"
-                data-size="flexible"
-              />
-            </>
-          )}
           {error && <ErrorMessage message={error} />}
           <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-between">
             <button

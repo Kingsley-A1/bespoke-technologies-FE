@@ -17,7 +17,6 @@ export const createDigitalAuditSchema = z.object({
   contactConsent: z.boolean().default(false),
   shareBusinessName: z.boolean().default(true),
   website: z.string().max(0).optional().default(""),
-  turnstileToken: z.string().max(4000).optional().default(""),
   source: z.string().trim().max(80).optional().default("website"),
   attribution: z
     .record(z.string(), z.string().trim().max(240))
