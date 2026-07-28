@@ -1,4 +1,5 @@
 import type { PortfolioProject, ProjectType } from "@/types/portfolio";
+import { COMPANY_IDENTITY } from "@/lib/company";
 
 export type { ProjectType } from "@/types/portfolio";
 
@@ -6,25 +7,24 @@ export type { ProjectType } from "@/types/portfolio";
  * Bespoke Technologies — Shared Constants
  */
 
-export const SITE_NAME = "Bespoke Technologies";
+export const SITE_NAME = COMPANY_IDENTITY.registeredName;
 export const SITE_SHORT_NAME = "Bespoke Tech";
-export const SITE_TAGLINE =
-  "Engineering the solutions for this, and The Next Generations_";
+export const SITE_TAGLINE = COMPANY_IDENTITY.motto;
 export const SITE_CREED =
   "For Honor and For Excellence. Engineering the solutions for this, and The Next Generations_";
 export const SITE_DESCRIPTION =
   "Bespoke Technologies - Perfectionist engineers, building websites, mobile apps, SaaS platforms, AI systems, automation, and business software with production discipline.";
-export const SITE_DOMAIN = "www.bespoketech.com.ng";
-export const SITE_URL = `https://${SITE_DOMAIN}`;
+export const SITE_DOMAIN = new URL(COMPANY_IDENTITY.website).hostname;
+export const SITE_URL = COMPANY_IDENTITY.website;
 export const API_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
-export const PHONE_NUMBER = "08088071657";
-export const PHONE_DISPLAY = "08088071657";
+export const PHONE_NUMBER = COMPANY_IDENTITY.phone;
+export const PHONE_DISPLAY = COMPANY_IDENTITY.phone;
 export const WHATSAPP_NUMBER = "2348088071657";
-export const CONTACT_EMAIL = "support@bespoketech.com.ng";
+export const CONTACT_EMAIL = COMPANY_IDENTITY.email;
 export const SOCIAL_HANDLE = "@bespoketech_"; //Facebook, Instagram and Tik Tok
-export const BRAND_ICON_SRC = "/icons/bespoke-technologies-icon.png";
+export const BRAND_ICON_SRC = COMPANY_IDENTITY.iconPath;
 export const BRAND_LOGO_SRC = "/icons/bespoke-technologies-logo-main.png";
 export const WHATSAPP_INQUIRY_MESSAGE =
   "Hello Bespoke Technologies, I'd like to enquire about your engineering services. Please can you help me?";
@@ -32,8 +32,8 @@ export const WHATSAPP_INQUIRY_MESSAGE =
 // ── Leadership ─────────────────────────────────────────────────────────────
 // Kept intentionally brief and factual — no unverified background details.
 export const FOUNDER = {
-  name: "Kingsley Maduabuchi",
-  title: "Founder & CEO",
+  name: COMPANY_IDENTITY.ceoName,
+  title: COMPANY_IDENTITY.ceoTitle,
   role: "Leads engineering and delivery at Bespoke Technologies.",
   ethos:
     "Engineering-first and hands-on: builds practical, intelligent, secure, scalable, and future-ready systems that just work — guided by the creed \"For Honor and For Excellence\".",

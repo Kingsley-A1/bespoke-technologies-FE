@@ -1,4 +1,5 @@
-import type { AdminUser, CompanySettings } from "./types";
+import type { AdminUser, CompanySettings, CompanySnapshot } from "./types";
+import { COMPANY_IDENTITY, THIRD_PARTY_INFRASTRUCTURE_NOTICE } from "@/lib/company";
 
 /**
  * Stable identities for the two configured admin roles. These UUIDs are used
@@ -13,21 +14,37 @@ export const MANAGER_ID = "00000000-0000-4000-8000-000000000002";
  * when a settings row cannot be read.
  */
 export const COMPANY_SETTINGS: CompanySettings = {
-  name: "Bespoke Technologies",
-  website: "www.bespoketech.com.ng",
-  phone: "08088071657",
-  email: "support@bespoketech.com.ng",
-  registrationNumber: "9582429",
-  motto: "Engineering the solutions for this, and The Next Generations_",
+  name: COMPANY_IDENTITY.registeredName,
+  website: COMPANY_IDENTITY.website,
+  phone: COMPANY_IDENTITY.phone,
+  email: COMPANY_IDENTITY.email,
+  registrationNumber: COMPANY_IDENTITY.registrationNumber,
+  motto: COMPANY_IDENTITY.motto,
   address: "",
   defaultCurrency: "NGN",
   defaultPaymentTermsDays: 14,
-  paymentInstructions: "",
+  paymentInstructions: THIRD_PARTY_INFRASTRUCTURE_NOTICE,
   invoiceApprovalThreshold: 1_000_000,
-  ceoName: "Kingsley Maduchi",
-  ceoTitle: "Founder & CEO",
+  ceoName: COMPANY_IDENTITY.ceoName,
+  ceoTitle: COMPANY_IDENTITY.ceoTitle,
   updatedAt: "2026-07-16T08:00:00.000Z",
 };
+
+export function officialCompanySnapshot(
+  settings: CompanySettings,
+): CompanySnapshot & { ceoName: string; ceoTitle: string } {
+  return {
+    name: settings.name,
+    website: settings.website,
+    phone: settings.phone,
+    email: settings.email,
+    registrationNumber: settings.registrationNumber,
+    motto: settings.motto,
+    address: settings.address,
+    ceoName: settings.ceoName,
+    ceoTitle: settings.ceoTitle,
+  };
+}
 
 /**
  * The two admin identities, sourced entirely from environment configuration.
