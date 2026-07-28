@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Analytics } from "@vercel/analytics/next";
 import { PublicExperience } from "@/components/layout/public-experience";
 import {
   BRAND_ICON_SRC,
@@ -89,6 +90,7 @@ export default function RootLayout({
           }}
         />
         <PublicExperience>{children}</PublicExperience>
+        <Analytics />
       </body>
     </html>
   );
