@@ -37,7 +37,7 @@ ALTER TABLE projects ADD COLUMN IF NOT EXISTS value_note STRING NULL;
 CREATE UNIQUE INDEX IF NOT EXISTS projects_portfolio_project_idx
   ON projects (portfolio_project_id) WHERE portfolio_project_id IS NOT NULL;
 
-ALTER TABLE company_settings ADD COLUMN IF NOT EXISTS ceo_name STRING NOT NULL DEFAULT 'Kingsley Maduchi';
+ALTER TABLE company_settings ADD COLUMN IF NOT EXISTS ceo_name STRING NOT NULL DEFAULT 'Kingsley Maduabuchi';
 ALTER TABLE company_settings ADD COLUMN IF NOT EXISTS ceo_title STRING NOT NULL DEFAULT 'Founder & CEO';
 
 CREATE TABLE IF NOT EXISTS ownership_certificates (

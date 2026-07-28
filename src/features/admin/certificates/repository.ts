@@ -15,6 +15,7 @@ import type {
 } from "../types";
 import { hashCertificateToken } from "./security";
 import { DEFAULT_OWNERSHIP_STATEMENT } from "./constants";
+import { officialCompanySnapshot } from "../config";
 
 interface Row extends QueryResultRow {
   [key: string]: unknown;
@@ -78,6 +79,18 @@ export async function getOwnershipCertificate(id: string) {
   return result.rows[0] ? mapCertificate(result.rows[0]) : null;
 }
 
+export async function refreshOwnershipCertificateCompanySnapshot(id: string) {
+  const { settings } = await getAdminSnapshot();
+  const result = await adminQuery<Row>(
+    `UPDATE ownership_certificates
+     SET company_snapshot=$2, updated_at=now()
+     WHERE id=$1 AND status='draft'
+     RETURNING *`,
+    [id, JSON.stringify(officialCompanySnapshot(settings))],
+  );
+  return result.rows[0] ? mapCertificate(result.rows[0]) : null;
+}
+
 export async function getOwnershipCertificateByToken(token: string) {
   if (!/^[A-Za-z0-9_-]{40,80}$/.test(token)) return null;
   const result = await adminQuery<Row>(
@@ -85,6 +98,33 @@ export async function getOwnershipCertificateByToken(token: string) {
     [hashCertificateToken(token)],
   );
   return result.rows[0] ? mapCertificate(result.rows[0]) : null;
+}
+
+export type PublicDocumentStatus = "VALID" | "REVOKED" | "SUPERSEDED";
+
+export async function getOwnershipCertificateVerificationByNumber(documentNumber: string) {
+  const normalized = documentNumber.trim().toUpperCase();
+  if (!/^BT-OWN-\d{4}-\d{4,}$/.test(normalized)) return null;
+  const result = await adminQuery<Row>(
+    `SELECT * FROM ownership_certificates
+     WHERE certificate_number=$1 AND status IN ('issued','revoked')
+     LIMIT 1`,
+    [normalized],
+  );
+  if (!result.rows[0]) return null;
+  const certificate = mapCertificate(result.rows[0]);
+  const replacement = await adminQuery<{ id: string }>(
+    `SELECT id FROM ownership_certificates
+     WHERE replaces_certificate_id=$1 AND status='issued'
+     LIMIT 1`,
+    [certificate.id],
+  );
+  const status: PublicDocumentStatus = replacement.rows[0]
+    ? "SUPERSEDED"
+    : certificate.status === "issued"
+      ? "VALID"
+      : "REVOKED";
+  return { certificate, status };
 }
 
 export function certificateReadiness(
@@ -99,8 +139,8 @@ export function certificateReadiness(
   if (!project.projectType) missing.push("Project type");
   if (!project.summary.trim()) missing.push("Project description");
   if (!project.projectLogoKey) missing.push("Project logo");
-  if (project.commercialMode === "paid" && (!invoice || invoice.type !== "standard" || invoice.status !== "paid")) {
-    missing.push("Paid final standard invoice");
+  if (project.commercialMode === "paid" && (!invoice || !["standard", "final"].includes(invoice.type) || invoice.status !== "paid")) {
+    missing.push("Paid standard or final invoice");
   }
   return { ready: missing.length === 0, missing, invoice };
 }
@@ -135,6 +175,7 @@ export async function createOwnershipCertificateDraft(
     portfolioAmount?: number;
     portfolioCurrency?: CurrencyCode;
     portfolioDisplayValuePublicly?: boolean;
+    portfolioValueLabel?: string;
     portfolioValueNote?: string;
   },
   session: AdminSession,
@@ -239,6 +280,7 @@ export async function createOwnershipCertificateDraft(
             ? deliveryProject.currency
             : readiness?.invoice?.currency || deliveryProject.currency,
           displayPublicly: deliveryProject.showValuePublicly,
+          valueLabel: readiness?.invoice?.valueLabel || deliveryProject.valueLabel,
           valueNote: deliveryProject.valueNote,
           invoiceNumber: readiness?.invoice?.documentNumber,
           invoiceTotalIncludesTaxAndDiscounts: input.invoiceTotalIncludesTaxAndDiscounts,
@@ -260,20 +302,11 @@ export async function createOwnershipCertificateDraft(
               || input.portfolioAmount !== undefined
             ),
           ),
+          valueLabel: input.portfolioValueLabel || undefined,
           valueNote: input.portfolioValueNote || undefined,
           invoiceTotalIncludesTaxAndDiscounts: false,
         };
-    const company = {
-      name: snapshot.settings.name,
-      website: snapshot.settings.website,
-      phone: snapshot.settings.phone,
-      email: snapshot.settings.email,
-      registrationNumber: snapshot.settings.registrationNumber,
-      motto: snapshot.settings.motto,
-      address: snapshot.settings.address,
-      ceoName: snapshot.settings.ceoName,
-      ceoTitle: snapshot.settings.ceoTitle,
-    };
+    const company = officialCompanySnapshot(snapshot.settings);
     const result = await db.query<Row>(
       `INSERT INTO ownership_certificates
        (id, certificate_number, project_id, portfolio_project_id, client_id, billing_document_id, owner_kind,

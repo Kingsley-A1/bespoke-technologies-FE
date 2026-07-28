@@ -20,6 +20,7 @@ import type {
   OwnershipCertificate,
 } from "@/features/admin/types";
 import { DEFAULT_OWNERSHIP_STATEMENT } from "./constants";
+import { documentVerificationUrl } from "@/lib/company";
 
 export interface ReadyCertificateProject {
   id: string;
@@ -119,6 +120,7 @@ function DraftCard({ project }: { project: ReadyCertificateProject }) {
             : undefined,
         portfolioDisplayValuePublicly:
           formData.get("portfolioDisplayValuePublicly") === "on",
+        portfolioValueLabel: String(formData.get("portfolioValueLabel") || ""),
         portfolioValueNote: String(formData.get("portfolioValueNote") || ""),
       }),
     });
@@ -251,6 +253,15 @@ function DraftCard({ project }: { project: ReadyCertificateProject }) {
                   </label>
                 )}
                 <label>
+                  <span className={labelClass}>Project value wording (optional)</span>
+                  <input
+                    className={inputClass}
+                    name="portfolioValueLabel"
+                    maxLength={120}
+                    placeholder="For example: But Jesus Paid It All."
+                  />
+                </label>
+                <label>
                   <span className={labelClass}>Value note (optional)</span>
                   <input
                     className={inputClass}
@@ -278,7 +289,7 @@ function DraftCard({ project }: { project: ReadyCertificateProject }) {
                 value={ownerKind}
                 onChange={(event) => setOwnerKind(event.target.value as CertificateOwnerKind)}
               >
-                <option value="company">Company</option>
+                <option value="company">Organization / entity</option>
                 <option value="contact">Contact person</option>
                 <option value="other">Another legal owner</option>
               </select>
@@ -398,7 +409,7 @@ function CertificateRow({
   }
 
   const verifyUrl = certificate.verificationToken
-    ? `/ownership/verify/${certificate.verificationToken}`
+    ? documentVerificationUrl(certificate.certificateNumber)
     : undefined;
 
   return (

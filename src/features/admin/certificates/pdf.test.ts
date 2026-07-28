@@ -39,7 +39,7 @@ const certificate: OwnershipCertificate = {
     registrationNumber: "9582429",
     motto: "Engineering the solutions for this, and The Next Generations_",
     address: "",
-    ceoName: "Kingsley Maduchi",
+    ceoName: "Kingsley Maduabuchi",
     ceoTitle: "Founder & CEO",
   },
   ownershipStatement: "Bespoke Technologies certifies that the project described in this certificate was completed and delivered to the named owner according to the governing project agreement.",

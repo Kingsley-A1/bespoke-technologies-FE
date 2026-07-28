@@ -4,6 +4,8 @@ import {
   AUDIT_ORIGIN,
   TEAM_HOSTNAME,
   TEAM_ORIGIN,
+  VERIFY_HOSTNAME,
+  VERIFY_ORIGIN,
   hostnameFromHeader,
   subdomainRobots,
   subdomainSitemap,
@@ -23,12 +25,22 @@ describe("subdomain SEO", () => {
     expect(subdomainSitemap(AUDIT_HOSTNAME)).toMatchObject([
       { url: AUDIT_ORIGIN },
     ]);
+    expect(subdomainSitemap(VERIFY_HOSTNAME)).toMatchObject([
+      { url: VERIFY_ORIGIN },
+    ]);
     expect(subdomainSitemap()).not.toEqual(
       expect.arrayContaining([
         expect.objectContaining({ url: TEAM_ORIGIN }),
         expect.objectContaining({ url: AUDIT_ORIGIN }),
       ]),
     );
+  });
+
+  it("keeps individual verification records out of search indexes", () => {
+    expect(subdomainRobots(VERIFY_HOSTNAME)).toMatchObject({
+      sitemap: `${VERIFY_ORIGIN}/sitemap.xml`,
+      rules: { disallow: expect.arrayContaining(["/BT-"]) },
+    });
   });
 
   it("keeps private audit reports out of crawler paths", () => {

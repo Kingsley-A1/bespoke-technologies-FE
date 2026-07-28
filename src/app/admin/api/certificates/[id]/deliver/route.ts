@@ -6,6 +6,7 @@ import { EMAIL_ADDRESSES } from "@/lib/email/addresses";
 import { sendEmail } from "@/lib/email/client";
 import { ownershipCertificateEmail } from "@/lib/email/templates/transactional";
 import { getR2ObjectBytes } from "@/lib/storage/r2";
+import { documentVerificationUrl } from "@/lib/company";
 
 export const runtime = "nodejs";
 
@@ -21,7 +22,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   }
   const file = await getR2ObjectBytes(certificate.pdfKey);
   if (!file) return NextResponse.json({ error: "The issued PDF could not be read." }, { status: 404 });
-  const verificationUrl = `https://www.bespoketech.com.ng/ownership/verify/${certificate.verificationToken}`;
+  const verificationUrl = documentVerificationUrl(certificate.certificateNumber);
   const rendered = ownershipCertificateEmail({
     ownerName: certificate.owner.name,
     projectName: certificate.project.name,
@@ -45,4 +46,3 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   }, access.session);
   return NextResponse.json(result.ok ? { ok: true, certificate: updated } : { error: result.error, certificate: updated }, { status: result.ok ? 200 : 502 });
 }
-

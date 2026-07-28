@@ -3,16 +3,17 @@ import "server-only";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import QRCode from "qrcode";
+import { COMPANY_IDENTITY, publicAssetFilePath } from "@/lib/company";
 import { getR2ObjectBytes } from "@/lib/storage/r2";
 import type { OwnershipCertificate } from "../types";
 
 async function readSignature() {
-  const signaturePath = path.join(process.cwd(), "public", "ceo-signature.png");
+  const signaturePath = path.join(process.cwd(), "public", publicAssetFilePath(COMPANY_IDENTITY.signaturePath));
   try {
     const bytes = await readFile(signaturePath);
     return bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) as ArrayBuffer;
   } catch {
-    console.warn("[ownership-certificate] public/ceo-signature.png is missing. The PDF will use an unsigned signature line until the transparent PNG is added.");
+    console.warn(`[ownership-certificate] public/${publicAssetFilePath(COMPANY_IDENTITY.signaturePath)} is missing. The PDF will use an unsigned signature line until the transparent PNG is added.`);
     return undefined;
   }
 }
@@ -48,7 +49,7 @@ async function readProjectLogo(certificate: OwnershipCertificate) {
 
 export async function loadCertificatePdfAssets(certificate: OwnershipCertificate, verificationUrl: string) {
   const [brandLogo, regularFont, boldFont, signature, projectLogo, qrBuffer] = await Promise.all([
-    readFile(path.join(process.cwd(), "public", "brand", "bespoke-technologies-logo.png")),
+    readFile(path.join(process.cwd(), "public", publicAssetFilePath(COMPANY_IDENTITY.logoPath))),
     readFile(path.join(process.cwd(), "public", "fonts", "DejaVuSans.ttf")),
     readFile(path.join(process.cwd(), "public", "fonts", "DejaVuSans-Bold.ttf")),
     readSignature(),

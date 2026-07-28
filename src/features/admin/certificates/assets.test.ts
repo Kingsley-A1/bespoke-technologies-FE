@@ -31,7 +31,7 @@ const portfolioCertificate: OwnershipCertificate = {
     registrationNumber: "9582429",
     motto: "Engineering the solutions for this, and The Next Generations_",
     address: "",
-    ceoName: "Kingsley Maduchi",
+    ceoName: "Kingsley Maduabuchi",
     ceoTitle: "Founder & CEO",
   },
   ownershipStatement: "Bespoke Technologies certifies that this project was completed and delivered to the named legal owner.",
@@ -44,7 +44,7 @@ describe("certificate PDF assets", () => {
   it("loads a local portfolio logo and the saved CEO signature", async () => {
     const assets = await loadCertificatePdfAssets(
       portfolioCertificate,
-      "https://www.bespoketech.com.ng/ownership/verify/test-token",
+      "https://verify.bespoketech.com.ng/BT-OWN-2026-0001",
     );
 
     expect(assets.projectLogoMime).toBe("image/png");

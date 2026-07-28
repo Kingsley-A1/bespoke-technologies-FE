@@ -4,10 +4,12 @@ import { absoluteUrl, PUBLIC_SITEMAP_ROUTES } from "@/lib/seo";
 export const WEBSITE_HOSTNAME = "www.bespoketech.com.ng";
 export const AUDIT_HOSTNAME = "audit.bespoketech.com.ng";
 export const TEAM_HOSTNAME = "team.bespoketech.com.ng";
+export const VERIFY_HOSTNAME = "verify.bespoketech.com.ng";
 
 export const WEBSITE_ORIGIN = `https://${WEBSITE_HOSTNAME}`;
 export const AUDIT_ORIGIN = `https://${AUDIT_HOSTNAME}`;
 export const TEAM_ORIGIN = `https://${TEAM_HOSTNAME}`;
+export const VERIFY_ORIGIN = `https://${VERIFY_HOSTNAME}`;
 
 export function hostnameFromHeader(value?: string | null) {
   return value?.split(",")[0]?.trim().split(":")[0]?.toLowerCase();
@@ -36,6 +38,17 @@ export function subdomainSitemap(hostname?: string): MetadataRoute.Sitemap {
     ];
   }
 
+  if (hostname === VERIFY_HOSTNAME) {
+    return [
+      {
+        url: VERIFY_ORIGIN,
+        lastModified: new Date("2026-07-28"),
+        changeFrequency: "monthly",
+        priority: 0.6,
+      },
+    ];
+  }
+
   return PUBLIC_SITEMAP_ROUTES.map((route) => ({
     url: absoluteUrl(route.path),
     lastModified: new Date(route.lastModified),
@@ -60,6 +73,17 @@ export function subdomainRobots(hostname?: string): MetadataRoute.Robots {
         disallow: ["/api/", "/report/", "/digital-readiness-audit/report/"],
       },
       sitemap: `${AUDIT_ORIGIN}/sitemap.xml`,
+    };
+  }
+
+  if (hostname === VERIFY_HOSTNAME) {
+    return {
+      rules: {
+        userAgent: "*",
+        allow: "/",
+        disallow: ["/BT-"],
+      },
+      sitemap: `${VERIFY_ORIGIN}/sitemap.xml`,
     };
   }
 

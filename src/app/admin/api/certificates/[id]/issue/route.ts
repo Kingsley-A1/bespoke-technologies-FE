@@ -3,8 +3,13 @@ import { NextResponse } from "next/server";
 import { assertRecentAdminPermission, isSameOrigin } from "@/features/admin/access";
 import { loadCertificatePdfAssets } from "@/features/admin/certificates/assets";
 import { generateOwnershipCertificatePdf } from "@/features/admin/certificates/pdf";
-import { getOwnershipCertificate, issueOwnershipCertificate } from "@/features/admin/certificates/repository";
+import {
+  getOwnershipCertificate,
+  issueOwnershipCertificate,
+  refreshOwnershipCertificateCompanySnapshot,
+} from "@/features/admin/certificates/repository";
 import { createCertificateToken } from "@/features/admin/certificates/security";
+import { documentVerificationUrl } from "@/lib/company";
 import { deleteR2Object, isR2Configured, putR2Object } from "@/lib/storage/r2";
 
 export const runtime = "nodejs";
@@ -15,10 +20,12 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   if (!isSameOrigin(request)) return NextResponse.json({ error: "Invalid origin" }, { status: 403 });
   if (!isR2Configured()) return NextResponse.json({ error: "Certificate storage is not configured." }, { status: 503 });
   const id = (await params).id;
-  const certificate = await getOwnershipCertificate(id);
-  if (!certificate || certificate.status !== "draft") return NextResponse.json({ error: "An active certificate draft is required." }, { status: 404 });
+  const currentCertificate = await getOwnershipCertificate(id);
+  if (!currentCertificate || currentCertificate.status !== "draft") return NextResponse.json({ error: "An active certificate draft is required." }, { status: 404 });
+  const certificate = await refreshOwnershipCertificateCompanySnapshot(id);
+  if (!certificate) return NextResponse.json({ error: "An active certificate draft is required." }, { status: 404 });
   const { token, tokenHash } = createCertificateToken();
-  const verificationUrl = `https://www.bespoketech.com.ng/ownership/verify/${token}`;
+  const verificationUrl = documentVerificationUrl(certificate.certificateNumber);
   const issuedAt = new Date().toISOString();
   const pdfCertificate = { ...certificate, issuedAt };
   const key = `ownership-certificates/${certificate.certificateNumber}-${randomUUID()}.pdf`;
@@ -35,4 +42,3 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     return NextResponse.json({ error: error instanceof Error ? error.message : "The certificate could not be issued." }, { status: 400 });
   }
 }
-

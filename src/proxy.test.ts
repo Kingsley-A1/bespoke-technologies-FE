@@ -89,4 +89,25 @@ describe("subdomain routing", () => {
       "https://audit.bespoketech.com.ng/",
     );
   });
+
+  it("rewrites the verification subdomain root to the lookup experience", () => {
+    const request = new NextRequest("https://verify.bespoketech.com.ng/", {
+      headers: { host: "verify.bespoketech.com.ng" },
+    });
+    const response = proxy(request);
+    expect(response.headers.get("x-middleware-rewrite")).toBe(
+      "https://verify.bespoketech.com.ng/document-verification",
+    );
+  });
+
+  it("rewrites a public document ID to the verification record", () => {
+    const request = new NextRequest(
+      "https://verify.bespoketech.com.ng/BT-OWN-2026-0002",
+      { headers: { host: "verify.bespoketech.com.ng" } },
+    );
+    const response = proxy(request);
+    expect(response.headers.get("x-middleware-rewrite")).toBe(
+      "https://verify.bespoketech.com.ng/document-verification/BT-OWN-2026-0002",
+    );
+  });
 });

@@ -4,6 +4,7 @@ import fontkit from "@pdf-lib/fontkit";
 import { PDFDocument, rgb, type PDFFont, type PDFImage, type PDFPage } from "pdf-lib";
 import type { OwnershipCertificate } from "../types";
 import { formatAdminDate, formatMoney } from "../billing/money";
+import { certificateOwnerKindLabel, projectTypeDisplayLabel } from "../documents/display";
 
 const PAGE = { width: 841.89, height: 595.28 };
 const NAVY = rgb(0.025, 0.071, 0.13);
@@ -49,6 +50,7 @@ async function embedImage(pdf: PDFDocument, bytes: ArrayBuffer, mime: string): P
 
 function valueLabel(certificate: OwnershipCertificate) {
   const value = certificate.commercial;
+  if (value.valueLabel?.trim()) return value.valueLabel.trim();
   if (value.mode === "free") return "Provided free of charge";
   if (value.mode === "undisclosed") return "Commercial value undisclosed";
   if (value.mode === "donation" && !value.amount) return "Donated project";
@@ -113,7 +115,7 @@ export async function generateOwnershipCertificatePdf(
 
   page.drawText("OWNED BY", { x: 62, y: titleBottom - 38, font: bold, size: 7, color: BLUE_DEEP });
   page.drawText(certificate.owner.name, { x: 62, y: titleBottom - 62, font: bold, size: 16, color: INK });
-  page.drawText(certificate.owner.kind.toUpperCase(), { x: 62, y: titleBottom - 78, font: regular, size: 7, color: MUTED });
+  page.drawText(certificateOwnerKindLabel(certificate.owner.kind), { x: 62, y: titleBottom - 78, font: regular, size: 7, color: MUTED });
 
   const descriptionY = titleBottom - 116;
   wrap(certificate.project.description, regular, 8.5, 525).slice(0, 3).forEach((line, index) => {
@@ -123,7 +125,7 @@ export async function generateOwnershipCertificatePdf(
   const factsY = 190;
   page.drawRectangle({ x: 62, y: factsY, width: 700, height: 66, color: PALE });
   const facts = [
-    ["PROJECT TYPE", certificate.project.type],
+    ["PROJECT TYPE", projectTypeDisplayLabel(certificate.project.type)],
     ["STARTED", formatAdminDate(certificate.project.startDate)],
     ["COMPLETED", formatAdminDate(certificate.project.completionDate)],
     ["PROJECT VALUE", valueLabel(certificate)],
@@ -155,7 +157,7 @@ export async function generateOwnershipCertificatePdf(
   page.drawText("SCAN TO VERIFY", { x: 680, y: 64, font: bold, size: 5.5, color: BLUE_DEEP });
   page.drawText(`Issued ${formatAdminDate(certificate.issuedAt || new Date().toISOString())}`, { x: 62, y: 66, font: regular, size: 6.5, color: MUTED });
   page.drawText(`Business Name Registration Number ${certificate.company.registrationNumber}`, { x: 178, y: 66, font: regular, size: 6.5, color: MUTED });
-  drawRight(page, certificate.company.motto.toUpperCase(), 494, 66, bold, 5.4, MUTED);
+  page.drawText(certificate.company.motto.toUpperCase(), { x: 62, y: 52, font: bold, size: 5.2, color: MUTED });
 
   pdf.setTitle(`${certificate.certificateNumber} — ${certificate.project.name}`);
   pdf.setAuthor(certificate.company.name);

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import {
   AUDIT_HOSTNAME,
   TEAM_HOSTNAME,
+  VERIFY_HOSTNAME,
   WEBSITE_HOSTNAME,
   hostnameFromHeader,
 } from "@/lib/subdomain-seo";
@@ -12,6 +13,30 @@ function requestedHostname(request: NextRequest) {
 
 export function proxy(request: NextRequest) {
   const hostname = requestedHostname(request);
+  if (hostname === VERIFY_HOSTNAME) {
+    if (request.nextUrl.pathname === "/") {
+      return NextResponse.rewrite(new URL("/document-verification", request.url));
+    }
+    if (
+      request.nextUrl.pathname === "/robots.txt"
+      || request.nextUrl.pathname === "/sitemap.xml"
+    ) {
+      return NextResponse.next();
+    }
+    if (request.nextUrl.pathname === "/document-verification") {
+      const verificationUrl = request.nextUrl.clone();
+      verificationUrl.pathname = "/";
+      return NextResponse.redirect(verificationUrl, 308);
+    }
+    const documentId = request.nextUrl.pathname.slice(1);
+    if (/^BT-[A-Z]+-\d{4}-\d{4,}$/i.test(documentId)) {
+      return NextResponse.rewrite(
+        new URL(`/document-verification/${encodeURIComponent(documentId)}`, request.url),
+      );
+    }
+    return NextResponse.next();
+  }
+
   if (hostname === TEAM_HOSTNAME) {
     if (request.nextUrl.pathname === "/") {
       return NextResponse.rewrite(new URL("/team", request.url));

@@ -31,6 +31,7 @@ export async function POST(request: Request) {
     portfolioAmount: z.number().finite().min(0).max(1_000_000_000_000).optional(),
     portfolioCurrency: z.enum(["NGN", "USD", "GBP", "EUR"]).optional(),
     portfolioDisplayValuePublicly: z.boolean().default(false),
+    portfolioValueLabel: z.string().trim().max(120).optional(),
     portfolioValueNote: z.string().trim().max(240).optional(),
   }).superRefine((value, context) => {
     if (Boolean(value.projectId) === Boolean(value.portfolioProjectId)) {
