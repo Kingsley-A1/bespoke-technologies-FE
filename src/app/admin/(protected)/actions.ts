@@ -277,7 +277,7 @@ export async function updateSettingsAction(formData: FormData) {
     address: z.string().trim().max(500),
     defaultCurrency: currencySchema,
     defaultPaymentTermsDays: z.coerce.number().int().min(0).max(365),
-    paymentInstructions: z.string().trim().max(1000),
+    paymentInstructions: z.string().trim().max(2000),
     invoiceApprovalThreshold: z.coerce.number().min(0).max(1_000_000_000_000),
     ceoName: z.string().trim().min(2).max(160),
     ceoTitle: z.string().trim().min(2).max(160),

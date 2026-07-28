@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { calculateDocumentTotals, calculateLine } from "./money";
+import { calculateDocumentTotals, calculateLine, toIsoDate } from "./money";
 import type { BillingDocument, Payment } from "../types";
 
 describe("billing money", () => {
@@ -22,5 +22,9 @@ describe("billing money", () => {
       { id: "payment-2", documentId: "invoice-1", amount: 1000, state: "reversed" },
     ] as Payment[];
     expect(calculateDocumentTotals(document, payments)).toMatchObject({ total: 5000, paid: 2000, balance: 3000 });
+  });
+
+  it("allocates invoice dates using the company's Lagos calendar day", () => {
+    expect(toIsoDate(new Date("2026-07-27T23:30:00.000Z"))).toBe("2026-07-28");
   });
 });

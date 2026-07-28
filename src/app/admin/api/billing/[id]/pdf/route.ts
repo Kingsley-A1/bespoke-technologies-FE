@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import { assertAdminPermission } from "@/features/admin/access";
 import { generateBillingPdf } from "@/features/admin/billing/pdf";
 import { getAdminSnapshot } from "@/features/admin/repository";
+import { COMPANY_IDENTITY, publicAssetFilePath } from "@/lib/company";
 
 export async function GET(_: Request, { params }: { params: Promise<{ id: string }> }) {
   const access = await assertAdminPermission("billing.manage");
@@ -13,7 +14,7 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
   const document = snapshot.documents.find((candidate) => candidate.id === id);
   if (!document) return NextResponse.json({ error: "Billing invoice not found" }, { status: 404 });
   const [logo, regularFont, boldFont] = await Promise.all([
-    readFile(path.join(process.cwd(), "public", "brand", "bespoke-technologies-logo.png")),
+    readFile(path.join(process.cwd(), "public", publicAssetFilePath(COMPANY_IDENTITY.logoPath))),
     readFile(path.join(process.cwd(), "public", "fonts", "DejaVuSans.ttf")),
     readFile(path.join(process.cwd(), "public", "fonts", "DejaVuSans-Bold.ttf")),
   ]);

@@ -69,7 +69,7 @@ export default async function SettingsPage() {
             <label><span className={labelClass}>Manager approval threshold</span><input className={inputClass} name="invoiceApprovalThreshold" type="number" min="0" defaultValue={snapshot.settings.invoiceApprovalThreshold} /></label>
             <label><span className={labelClass}>Certificate signatory</span><input className={inputClass} name="ceoName" defaultValue={snapshot.settings.ceoName} required /></label>
             <label><span className={labelClass}>Signatory title</span><input className={inputClass} name="ceoTitle" defaultValue={snapshot.settings.ceoTitle} required /></label>
-            <label className="sm:col-span-2"><span className={labelClass}>Verified payment instructions</span><textarea className={textareaClass} name="paymentInstructions" defaultValue={snapshot.settings.paymentInstructions} placeholder="Leave empty until approved." /></label>
+            <label className="sm:col-span-2"><span className={labelClass}>Verified payment instructions</span><textarea className={textareaClass} name="paymentInstructions" defaultValue={snapshot.settings.paymentInstructions} placeholder="Include payment details and the approved third-party infrastructure notice." /><span className="mt-1 block text-[11px] leading-4 text-slate-500">Editable default applied to new invoices. Existing invoice snapshots remain unchanged.</span></label>
             <label className="sm:col-span-2"><span className={labelClass}>Change reason</span><input className={inputClass} name="reason" placeholder="Why are these controlled settings changing?" required /></label>
             <div className="sm:col-span-2"><button className={primaryButtonClass}>Save controlled settings</button></div>
           </form>

@@ -6,7 +6,16 @@ export type ProjectStatus = "planned" | "active" | "blocked" | "review" | "compl
 export type ProjectHealth = "on_track" | "at_risk" | "off_track";
 export type TaskStatus = "todo" | "in_progress" | "blocked" | "done";
 export type Priority = "low" | "medium" | "high" | "urgent";
-export type BillingDocumentType = "standard" | "proforma" | "recurring";
+export type BillingDocumentType =
+  | "standard"
+  | "proforma"
+  | "recurring"
+  | "deposit"
+  | "milestone"
+  | "final"
+  | "retainer"
+  | "subscription"
+  | "other";
 export type BillingStatus = "draft" | "pending_approval" | "approved" | "sent" | "viewed" | "partially_paid" | "paid" | "overdue" | "voided" | "accepted" | "expired";
 export type RecurrenceFrequency = "weekly" | "monthly" | "quarterly" | "yearly";
 export type ApprovalState = "pending" | "approved" | "rejected";
@@ -218,6 +227,7 @@ export interface Project {
   commercialMode: CommercialMode;
   showValuePublicly: boolean;
   valueNote?: string;
+  valueLabel?: string;
   milestones: ProjectMilestone[];
   createdAt: string;
   updatedAt: string;
@@ -322,6 +332,7 @@ export interface BillingDocument {
   id: string;
   documentNumber: string;
   type: BillingDocumentType;
+  customTypeLabel?: string;
   status: BillingStatus;
   clientId: string;
   projectId?: string;
@@ -336,6 +347,7 @@ export interface BillingDocument {
   terms: string;
   paymentInstructions: string;
   purchaseOrder: string;
+  valueLabel?: string;
   recurrence?: RecurrenceRule;
   parentRecurringId?: string;
   revision: number;
@@ -459,6 +471,7 @@ export interface CertificateCommercialSnapshot {
   currency?: CurrencyCode;
   displayPublicly: boolean;
   valueNote?: string;
+  valueLabel?: string;
   invoiceNumber?: string;
   invoiceTotalIncludesTaxAndDiscounts?: boolean;
 }

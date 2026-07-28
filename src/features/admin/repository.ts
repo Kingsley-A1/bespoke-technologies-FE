@@ -3,8 +3,10 @@ import "server-only";
 import { randomUUID } from "node:crypto";
 import type { QueryResultRow } from "pg";
 import { adminQuery, withAdminTransaction } from "./db";
-import { COMPANY_SETTINGS } from "./config";
+import { COMPANY_SETTINGS, officialCompanySnapshot } from "./config";
 import { addDays, calculateDocumentTotals, calculateLine, toIsoDate } from "./billing/money";
+import { billingDocumentPrefix, isPayableBillingType } from "./billing/document-types";
+import { termsForBalance } from "./billing/document-copy";
 import type {
   AdminSession,
   AdminSnapshot,
@@ -210,6 +212,7 @@ async function databaseSnapshot(): Promise<AdminSnapshot> {
     commercialMode: string(row, "commercial_mode", "paid") as Project["commercialMode"],
     showValuePublicly: bool(row, "show_value_publicly"),
     valueNote: optionalString(row, "value_note"),
+    valueLabel: optionalString(row, "value_label"),
     milestones: milestonesResult.rows
       .filter((milestone) => string(milestone, "project_id") === string(row, "id"))
       .map((milestone) => ({
@@ -254,6 +257,7 @@ async function databaseSnapshot(): Promise<AdminSnapshot> {
       id: string(row, "id"),
       documentNumber: string(row, "document_number"),
       type: string(row, "document_type") as BillingDocumentType,
+      customTypeLabel: optionalString(row, "custom_type_label"),
       status: string(row, "status") as BillingStatus,
       clientId: string(row, "client_id"),
       projectId: optionalString(row, "project_id"),
@@ -278,6 +282,7 @@ async function databaseSnapshot(): Promise<AdminSnapshot> {
       terms: string(row, "terms"),
       paymentInstructions: string(row, "payment_instructions"),
       purchaseOrder: string(row, "purchase_order"),
+      valueLabel: optionalString(row, "value_label"),
       recurrence,
       revision: number(row, "revision", 1),
       issuedAt: iso(row, "issued_at"),
@@ -384,8 +389,8 @@ async function databaseSnapshot(): Promise<AdminSnapshot> {
         defaultPaymentTermsDays: number(settingsRow, "default_payment_terms_days", 14),
         paymentInstructions: string(settingsRow, "payment_instructions"),
         invoiceApprovalThreshold: number(settingsRow, "invoice_approval_threshold", 1_000_000),
-        ceoName: string(settingsRow, "ceo_name", "Kingsley Maduchi"),
-        ceoTitle: string(settingsRow, "ceo_title", "Founder & CEO"),
+        ceoName: string(settingsRow, "ceo_name", COMPANY_SETTINGS.ceoName),
+        ceoTitle: string(settingsRow, "ceo_title", COMPANY_SETTINGS.ceoTitle),
         updatedAt: iso(settingsRow, "updated_at") ?? new Date().toISOString(),
       }
     : COMPANY_SETTINGS;
@@ -682,7 +687,7 @@ export async function updateAssignedTaskState(id: string, status: TaskStatus, se
 }
 
 async function allocateDocumentNumber(type: BillingDocumentType) {
-  const prefix = type === "standard" ? "BT-INV" : type === "proforma" ? "BT-PRO" : "BT-REC";
+  const prefix = billingDocumentPrefix(type);
   const year = new Date().getFullYear();
   return withAdminTransaction(async (db) => {
     const result = await db.query<{ allocated: string }>(
@@ -699,6 +704,7 @@ async function allocateDocumentNumber(type: BillingDocumentType) {
 
 export interface CreateBillingInput {
   type: BillingDocumentType;
+  customTypeLabel?: string;
   clientId: string;
   projectId?: string;
   parentDocumentId?: string;
@@ -710,6 +716,7 @@ export interface CreateBillingInput {
   terms: string;
   paymentInstructions: string;
   purchaseOrder: string;
+  valueLabel?: string;
   recurrence?: RecurrenceRule;
 }
 
@@ -727,6 +734,7 @@ export async function createBillingRecord(input: CreateBillingInput, session: Ad
     id: randomUUID(),
     documentNumber: await allocateDocumentNumber(input.type),
     type: input.type,
+    customTypeLabel: input.type === "other" ? input.customTypeLabel?.trim() : undefined,
     status: "draft",
     clientId: client.id,
     projectId: input.projectId,
@@ -738,7 +746,7 @@ export async function createBillingRecord(input: CreateBillingInput, session: Ad
       phone: billingContact?.phone || client.phone,
       address: client.address,
     },
-    company: snapshot.settings,
+    company: officialCompanySnapshot(snapshot.settings),
     issueDate: input.issueDate,
     dueDate: input.dueDate,
     currency: input.currency,
@@ -747,6 +755,7 @@ export async function createBillingRecord(input: CreateBillingInput, session: Ad
     terms: input.terms,
     paymentInstructions: input.paymentInstructions,
     purchaseOrder: input.purchaseOrder,
+    valueLabel: input.valueLabel?.trim() || undefined,
     recurrence: input.type === "recurring" ? input.recurrence : undefined,
     revision: 1,
     createdBy: session.userId,
@@ -754,13 +763,14 @@ export async function createBillingRecord(input: CreateBillingInput, session: Ad
     updatedAt: now,
   };
   const totals = calculateDocumentTotals(document);
+  document.terms = termsForBalance(document.terms, totals.balance);
   await withAdminTransaction(async (db) => {
     await db.query(
       `INSERT INTO billing_documents (
-        id, document_number, document_type, status, client_id, project_id, parent_document_id, client_snapshot, company_snapshot, issue_date, due_date,
-        currency, subtotal, discount_total, tax_total, total, balance, notes, terms, payment_instructions, purchase_order, created_by
-      ) VALUES ($1,$2,$3,'draft',$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21)`,
-      [document.id, document.documentNumber, document.type, document.clientId, document.projectId || null, document.parentDocumentId || null, JSON.stringify(document.client), JSON.stringify(document.company), document.issueDate, document.dueDate, document.currency, totals.subtotal, totals.discount, totals.tax, totals.total, totals.balance, document.notes || null, document.terms || null, document.paymentInstructions || null, document.purchaseOrder || null, session.userId],
+        id, document_number, document_type, custom_type_label, status, client_id, project_id, parent_document_id, client_snapshot, company_snapshot, issue_date, due_date,
+        currency, subtotal, discount_total, tax_total, total, balance, notes, terms, payment_instructions, purchase_order, value_label, created_by
+      ) VALUES ($1,$2,$3,$4,'draft',$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23)`,
+      [document.id, document.documentNumber, document.type, document.customTypeLabel || null, document.clientId, document.projectId || null, document.parentDocumentId || null, JSON.stringify(document.client), JSON.stringify(document.company), document.issueDate, document.dueDate, document.currency, totals.subtotal, totals.discount, totals.tax, totals.total, totals.balance, document.notes || null, document.terms || null, document.paymentInstructions || null, document.purchaseOrder || null, document.valueLabel || null, session.userId],
     );
     for (const [index, item] of document.items.entries()) {
       const line = calculateLine(item);
@@ -805,6 +815,7 @@ export async function updateBillingDraft(id: string, input: CreateBillingInput, 
   const billingContact = client.contacts.find((contact) => contact.isBilling) ?? client.contacts[0];
   const updated: BillingDocument = {
     ...current,
+    customTypeLabel: current.type === "other" ? input.customTypeLabel?.trim() : undefined,
     clientId: client.id,
     projectId: input.projectId,
     client: {
@@ -822,17 +833,20 @@ export async function updateBillingDraft(id: string, input: CreateBillingInput, 
     terms: input.terms,
     paymentInstructions: input.paymentInstructions,
     purchaseOrder: input.purchaseOrder,
+    valueLabel: input.valueLabel?.trim() || undefined,
     recurrence: current.type === "recurring" ? input.recurrence : undefined,
     updatedAt: new Date().toISOString(),
   };
   const totals = calculateDocumentTotals(updated);
+  updated.terms = termsForBalance(updated.terms, totals.balance);
   await withAdminTransaction(async (db) => {
     const updateResult = await db.query<{ id: string }>(
       `UPDATE billing_documents SET client_id=$2, project_id=$3, client_snapshot=$4, issue_date=$5, due_date=$6,
        currency=$7, subtotal=$8, discount_total=$9, tax_total=$10, total=$11, balance=$11,
-       notes=$12, terms=$13, payment_instructions=$14, purchase_order=$15, updated_at=now()
+       notes=$12, terms=$13, payment_instructions=$14, purchase_order=$15,
+       custom_type_label=$16, value_label=$17, updated_at=now()
        WHERE id=$1 AND status='draft' RETURNING id`,
-      [id, updated.clientId, updated.projectId || null, JSON.stringify(updated.client), updated.issueDate, updated.dueDate, updated.currency, totals.subtotal, totals.discount, totals.tax, totals.total, updated.notes || null, updated.terms || null, updated.paymentInstructions || null, updated.purchaseOrder || null],
+      [id, updated.clientId, updated.projectId || null, JSON.stringify(updated.client), updated.issueDate, updated.dueDate, updated.currency, totals.subtotal, totals.discount, totals.tax, totals.total, updated.notes || null, updated.terms || null, updated.paymentInstructions || null, updated.purchaseOrder || null, updated.customTypeLabel || null, updated.valueLabel || null],
     );
     if (!updateResult.rows[0]) throw new Error("The document is no longer an editable draft.");
     await db.query("DELETE FROM billing_document_items WHERE document_id=$1", [id]);
@@ -883,6 +897,12 @@ const TYPE_FORBIDDEN_STATUSES: Record<BillingDocumentType, ReadonlySet<BillingSt
   standard: new Set(["accepted", "expired"]),
   proforma: new Set(["partially_paid", "paid", "overdue"]),
   recurring: new Set(["sent", "viewed", "partially_paid", "paid", "overdue", "accepted", "expired"]),
+  deposit: new Set(["accepted", "expired"]),
+  milestone: new Set(["accepted", "expired"]),
+  final: new Set(["accepted", "expired"]),
+  retainer: new Set(["accepted", "expired"]),
+  subscription: new Set(["accepted", "expired"]),
+  other: new Set(["accepted", "expired"]),
 };
 
 export async function transitionBillingDocument(
@@ -951,6 +971,7 @@ export async function createBillingRevision(id: string, session: AdminSession) {
   const revised = await createBillingRecord(
     {
       type: source.type,
+      customTypeLabel: source.customTypeLabel,
       clientId: source.clientId,
       projectId: source.projectId,
       parentDocumentId: source.id,
@@ -962,6 +983,7 @@ export async function createBillingRevision(id: string, session: AdminSession) {
       terms: source.terms,
       paymentInstructions: source.paymentInstructions,
       purchaseOrder: source.documentNumber,
+      valueLabel: source.valueLabel,
     },
     session,
   );
@@ -995,6 +1017,7 @@ export async function convertProformaToInvoice(id: string, session: AdminSession
       terms: source.terms,
       paymentInstructions: source.paymentInstructions,
       purchaseOrder: source.documentNumber,
+      valueLabel: source.valueLabel,
     },
     session,
   );
@@ -1089,8 +1112,8 @@ export async function recordPayment(
 ) {
   const document = await getBillingDocument(input.documentId);
   if (!document) throw new Error("Billing document not found.");
-  if (document.type !== "standard" || !["sent", "viewed", "partially_paid", "overdue"].includes(document.status)) {
-    throw new Error("Payments can only be recorded against a delivered standard invoice.");
+  if (!isPayableBillingType(document.type) || !["sent", "viewed", "partially_paid", "overdue"].includes(document.status)) {
+    throw new Error("Payments can only be recorded against a delivered payable invoice.");
   }
   const snapshot = await getAdminSnapshot();
   if (snapshot.payments.some((payment) => payment.clientId === document.clientId && payment.reference.trim().toLowerCase() === input.reference.trim().toLowerCase())) {
@@ -1115,12 +1138,12 @@ export async function recordPayment(
   await withAdminTransaction(async (db) => {
     const locked = await db.query<{ balance: string; status: BillingStatus }>(
       `SELECT balance::STRING AS balance, status FROM billing_documents
-       WHERE id=$1 AND document_type='standard' AND status IN ('sent','viewed','partially_paid','overdue')
+       WHERE id=$1 AND document_type NOT IN ('proforma','recurring') AND status IN ('sent','viewed','partially_paid','overdue')
        FOR UPDATE`,
       [document.id],
     );
     const lockedDocument = locked.rows[0];
-    if (!lockedDocument) throw new Error("Payments can only be recorded against a delivered standard invoice.");
+    if (!lockedDocument) throw new Error("Payments can only be recorded against a delivered payable invoice.");
     const lockedBalance = Number(lockedDocument.balance);
     if (payment.amount > lockedBalance) throw new Error("Payment must be no more than the outstanding balance.");
     const committedBalance = Math.max(0, lockedBalance - payment.amount);
@@ -1197,7 +1220,7 @@ export async function reversePayment(id: string, reason: string, session: AdminS
 export async function reconcileOverdueDocuments(session: AdminSession, runDate = toIsoDate()) {
   const snapshot = await getAdminSnapshot();
   const candidates = snapshot.documents.filter((document) =>
-    document.type === "standard"
+    isPayableBillingType(document.type)
     && ["sent", "viewed", "partially_paid"].includes(document.status)
     && document.dueDate < runDate
     && calculateDocumentTotals(document, snapshot.payments).balance > 0,
@@ -1260,9 +1283,9 @@ export async function runRecurringSchedules(session: AdminSession, runDate = toI
         await db.query(
           `INSERT INTO billing_documents (
             id, document_number, document_type, status, client_id, project_id, parent_document_id, client_snapshot, company_snapshot, issue_date, due_date,
-            currency, subtotal, discount_total, tax_total, total, balance, notes, terms, payment_instructions, purchase_order, created_by, issued_at, issued_by
-          ) VALUES ($1,$2,'standard',$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23)`,
-          [generatedId, generatedNumber, autoApproved ? "approved" : "draft", template.clientId, template.projectId || null, template.id, JSON.stringify(template.client), JSON.stringify(template.company), dueDate, addDays(dueDate, 14), template.currency, totals.subtotal, totals.discount, totals.tax, totals.total, totals.balance, template.notes, template.terms, template.paymentInstructions, template.purchaseOrder, session.userId, autoApproved ? new Date().toISOString() : null, autoApproved ? session.userId : null],
+            currency, subtotal, discount_total, tax_total, total, balance, notes, terms, payment_instructions, purchase_order, value_label, created_by, issued_at, issued_by
+          ) VALUES ($1,$2,'standard',$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24)`,
+          [generatedId, generatedNumber, autoApproved ? "approved" : "draft", template.clientId, template.projectId || null, template.id, JSON.stringify(template.client), JSON.stringify(template.company), dueDate, addDays(dueDate, 14), template.currency, totals.subtotal, totals.discount, totals.tax, totals.total, totals.balance, template.notes, termsForBalance(template.terms, totals.balance), template.paymentInstructions, template.purchaseOrder, template.valueLabel || null, session.userId, autoApproved ? new Date().toISOString() : null, autoApproved ? session.userId : null],
         );
         for (const [index, item] of template.items.entries()) {
           await db.query(

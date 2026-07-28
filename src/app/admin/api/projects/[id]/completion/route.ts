@@ -29,6 +29,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     finalInvoiceId: z.union([z.string().uuid(), z.literal("")]).optional(),
     commercialMode: z.enum(["paid", "free", "donation", "undisclosed"]),
     showValuePublicly: z.string().optional(),
+    valueLabel: z.string().trim().max(120).optional(),
     valueNote: z.string().trim().max(240).optional(),
   }).safeParse(Object.fromEntries(form));
   if (!parsed.success) return NextResponse.json({ error: parsed.error.issues[0]?.message || "Check the completion details." }, { status: 400 });

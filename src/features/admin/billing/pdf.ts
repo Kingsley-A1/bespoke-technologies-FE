@@ -3,6 +3,8 @@ import "server-only";
 import fontkit from "@pdf-lib/fontkit";
 import { PDFDocument, rgb, type PDFFont, type PDFImage, type PDFPage } from "pdf-lib";
 import { calculateDocumentTotals, calculateLine, formatAdminDate, formatMoney } from "./money";
+import { termsForBalance } from "./document-copy";
+import { billingDocumentTypeLabel } from "./document-types";
 import type { BillingDocument, Payment } from "../types";
 
 const A4 = { width: 595.28, height: 841.89 };
@@ -42,7 +44,7 @@ function header(page: PDFPage, regular: PDFFont, bold: PDFFont, document: Billin
   page.drawRectangle({ x: 0, y: A4.height - 7, width: A4.width, height: 7, color: blue });
   const scaled = logo.scale(0.21);
   page.drawImage(logo, { x: 46, y: 716, width: scaled.width, height: scaled.height });
-  const label = document.type === "standard" ? "Invoice" : document.type === "proforma" ? "Proforma invoice" : "Recurring invoice";
+  const label = billingDocumentTypeLabel(document.type, document.customTypeLabel);
   drawRight(page, document.type === "proforma" ? "FOR APPROVAL" : "BILLING INVOICE", A4.width - 46, 778, bold, 7, blue);
   drawRight(page, label, A4.width - 46, 748, bold, 22, dark);
   drawRight(page, document.documentNumber, A4.width - 46, 720, bold, 8.5, dark);
@@ -117,6 +119,7 @@ export async function generateBillingPdf(
   }
 
   const totals = calculateDocumentTotals(document, payments);
+  const effectiveTerms = termsForBalance(document.terms, totals.balance);
   if (y < 270) {
     footer(page, regular, bold, document, pageNumber);
     page = pdf.addPage([A4.width, A4.height]);
@@ -140,15 +143,23 @@ export async function generateBillingPdf(
     y -= 18;
   }
   page.drawRectangle({ x: totalsX - 10, y: y - 20, width: totalsRight - totalsX + 10, height: 46, color: blue });
-  page.drawText(document.type === "proforma" ? "PROPOSED TOTAL" : "BALANCE DUE", { x: totalsX, y: y + 10, font: bold, size: 6, color: rgb(0.78, 0.87, 1) });
-  drawRight(page, formatMoney(totals.balance, document.currency), totalsRight - 10, y - 7, bold, 13, rgb(1, 1, 1));
+  page.drawText(document.type === "proforma" ? "PROPOSED TOTAL" : totals.balance <= 0 ? "PROJECT VALUE" : "BALANCE DUE", { x: totalsX, y: y + 10, font: bold, size: 6, color: rgb(0.78, 0.87, 1) });
+  const customValue = document.valueLabel?.trim();
+  if (customValue) {
+    wrapText(customValue, bold, 8.2, 125).slice(0, 2).forEach((line, index) => {
+      drawRight(page, line, totalsRight - 10, y - 2 - index * 10, bold, 8.2, rgb(1, 1, 1));
+    });
+  } else {
+    drawRight(page, formatMoney(totals.balance, document.currency), totalsRight - 10, y - 7, bold, 13, rgb(1, 1, 1));
+  }
 
   let noteY = y + 6;
-  for (const [label, value] of [["PAYMENT INSTRUCTIONS", document.paymentInstructions], ["NOTES", document.notes], ["TERMS", document.terms]] as const) {
+  for (const [label, value] of [["PAYMENT INSTRUCTIONS", document.paymentInstructions], ["NOTES", document.notes], ["TERMS", effectiveTerms]] as const) {
     if (!value) continue;
     page.drawText(label, { x: 46, y: noteY, font: bold, size: 6.5, color: grey });
     noteY -= 14;
-    for (const line of wrapText(value, regular, 7, 290).slice(0, 4)) {
+    const maxLines = label === "PAYMENT INSTRUCTIONS" ? 8 : 4;
+    for (const line of wrapText(value, regular, 7, 290).slice(0, maxLines)) {
       page.drawText(line, { x: 46, y: noteY, font: regular, size: 7, color: grey });
       noteY -= 10;
     }
@@ -159,6 +170,6 @@ export async function generateBillingPdf(
   pdf.setTitle(`${document.documentNumber} — ${document.client.name}`);
   pdf.setAuthor(document.company.name);
   pdf.setCreator("Bespoke Technologies Admin System");
-  pdf.setSubject(`${document.type} issued to ${document.client.name}`);
+  pdf.setSubject(`${billingDocumentTypeLabel(document.type, document.customTypeLabel)} issued to ${document.client.name}`);
   return pdf.save();
 }
