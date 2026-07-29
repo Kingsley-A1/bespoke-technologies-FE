@@ -33,14 +33,16 @@ export interface ReadyCertificateProject {
   amount?: number;
   currency: CurrencyCode;
   portfolioYear?: string;
+  available?: boolean;
+  unavailableReason?: string;
 }
 
 export function CertificateManager({
-  readyProjects,
+  projects,
   certificates,
   canIssue,
 }: {
-  readyProjects: ReadyCertificateProject[];
+  projects: ReadyCertificateProject[];
   certificates: OwnershipCertificate[];
   canIssue: boolean;
 }) {
@@ -48,19 +50,12 @@ export function CertificateManager({
     <div className="space-y-6">
       <section className="rounded-xl border border-slate-200 bg-white shadow-card">
         <div className="border-b border-slate-200 p-5 sm:p-6">
-          <h2 className="font-bold text-slate-950">Ready for certificate preparation</h2>
+          <h2 className="font-bold text-slate-950">Prepare an ownership certificate</h2>
           <p className="mt-1 text-xs text-slate-500">
-            Completed delivery projects and finished portfolio work use the same controlled certificate register.
+            Choose a project first, then confirm the ownership details needed for its certificate.
           </p>
         </div>
-        <div className="grid gap-4 p-5 sm:grid-cols-2 sm:p-6 xl:grid-cols-3">
-          {readyProjects.map((project) => (
-            <DraftCard key={`${project.source}:${project.id}`} project={project} />
-          ))}
-          {!readyProjects.length && (
-            <p className="text-sm text-slate-500">No projects are currently ready for a new certificate.</p>
-          )}
-        </div>
+        <CertificateProjectSelector projects={projects} />
       </section>
 
       <section className="rounded-xl border border-slate-200 bg-white shadow-card">
@@ -79,6 +74,85 @@ export function CertificateManager({
           )}
         </div>
       </section>
+    </div>
+  );
+}
+
+function CertificateProjectSelector({ projects }: { projects: ReadyCertificateProject[] }) {
+  const [selectedProjectKey, setSelectedProjectKey] = useState("");
+  const selectedProject = projects.find(
+    (project) => `${project.source}:${project.id}` === selectedProjectKey,
+  );
+  const deliveryProjects = projects.filter((project) => project.source === "delivery");
+  const portfolioProjects = projects.filter((project) => project.source === "portfolio");
+  const availableCount = projects.filter((project) => project.available !== false).length;
+
+  function options(group: ReadyCertificateProject[]) {
+    return group.map((project) => {
+      const unavailable = project.available === false;
+      const context =
+        project.source === "portfolio"
+          ? `Portfolio${project.portfolioYear ? ` · ${project.portfolioYear}` : ""}`
+          : project.clientName || "Delivery project";
+      const suffix = unavailable
+        ? ` — ${project.unavailableReason || "Not eligible"}`
+        : ` — ${context}`;
+      return (
+        <option
+          key={`${project.source}:${project.id}`}
+          value={`${project.source}:${project.id}`}
+          disabled={unavailable}
+        >
+          {project.name}
+          {suffix}
+        </option>
+      );
+    });
+  }
+
+  return (
+    <div className="p-5 sm:p-6">
+      <div className="max-w-2xl">
+        <label>
+          <span className={labelClass}>Project</span>
+          <select
+            className={inputClass}
+            value={selectedProjectKey}
+            onChange={(event) => setSelectedProjectKey(event.target.value)}
+            disabled={!availableCount}
+          >
+            <option value="">
+              {availableCount ? "Select a project" : "No projects are currently eligible"}
+            </option>
+            {deliveryProjects.length > 0 && (
+              <optgroup label="Delivery projects">{options(deliveryProjects)}</optgroup>
+            )}
+            {portfolioProjects.length > 0 && (
+              <optgroup label="Portfolio projects">{options(portfolioProjects)}</optgroup>
+            )}
+          </select>
+        </label>
+        <p className="mt-2 text-xs leading-5 text-slate-500">
+          All projects are listed. Incomplete projects, missing evidence, and projects with an
+          active certificate remain visible but cannot be selected.
+        </p>
+      </div>
+
+      {selectedProject ? (
+        <div className="mt-5 max-w-2xl">
+          <DraftCard
+            key={`${selectedProject.source}:${selectedProject.id}`}
+            project={selectedProject}
+          />
+        </div>
+      ) : (
+        <div className="mt-5 rounded-lg border border-dashed border-slate-200 bg-slate-50/70 px-5 py-6">
+          <p className="text-sm font-semibold text-slate-700">Select a project to continue</p>
+          <p className="mt-1 text-xs leading-5 text-slate-500">
+            Its client, completion, and commercial context will be carried into the draft.
+          </p>
+        </div>
+      )}
     </div>
   );
 }

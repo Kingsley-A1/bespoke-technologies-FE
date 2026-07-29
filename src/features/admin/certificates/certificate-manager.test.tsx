@@ -37,8 +37,9 @@ describe("CertificateManager", () => {
     );
 
     render(
-      <CertificateManager readyProjects={[portfolioProject]} certificates={[]} canIssue />,
+      <CertificateManager projects={[portfolioProject]} certificates={[]} canIssue />,
     );
+    await user.selectOptions(screen.getByLabelText("Project"), "portfolio:maxit-autos");
     await user.click(screen.getByRole("button", { name: "Prepare certificate" }));
     await user.type(screen.getByLabelText("Project started"), "2026-01-10");
     await user.type(screen.getByLabelText("Project completed"), "2026-07-20");
@@ -60,5 +61,30 @@ describe("CertificateManager", () => {
       portfolioCurrency: "NGN",
     });
     expect(body.projectId).toBeUndefined();
+  });
+
+  it("keeps ineligible projects visible without allowing selection", () => {
+    render(
+      <CertificateManager
+        projects={[
+          portfolioProject,
+          {
+            ...portfolioProject,
+            id: "coming-soon",
+            name: "Coming Soon",
+            available: false,
+            unavailableReason: "Project is still marked coming soon",
+          },
+        ]}
+        certificates={[]}
+        canIssue
+      />,
+    );
+
+    expect(
+      screen.getByRole("option", {
+        name: "Coming Soon — Project is still marked coming soon",
+      }),
+    ).toBeDisabled();
   });
 });

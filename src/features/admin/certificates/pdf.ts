@@ -94,8 +94,17 @@ export async function generateOwnershipCertificatePdf(
   page.drawRectangle({ x: 39, y: 38, width: PAGE.width - 77, height: PAGE.height - 76, borderColor: BLUE_DEEP, borderWidth: 1.2 });
   page.drawRectangle({ x: 46, y: 45, width: PAGE.width - 91, height: PAGE.height - 90, borderColor: HAIRLINE, borderWidth: 0.5 });
 
-  const brandScale = brandLogo.scale(0.19);
-  page.drawImage(brandLogo, { x: 62, y: 497, width: brandScale.width, height: brandScale.height });
+  const brandBox = { x: 62, y: 468, width: 250, height: 80 };
+  const brandScale = Math.min(
+    brandBox.width / brandLogo.width,
+    brandBox.height / brandLogo.height,
+  );
+  page.drawImage(brandLogo, {
+    x: brandBox.x,
+    y: brandBox.y + (brandBox.height - brandLogo.height * brandScale) / 2,
+    width: brandLogo.width * brandScale,
+    height: brandLogo.height * brandScale,
+  });
   drawRight(page, "CERTIFICATE OF PROJECT OWNERSHIP", PAGE.width - 62, 527, bold, 8.5, BLUE_DEEP);
   drawRight(page, certificate.certificateNumber, PAGE.width - 62, 507, bold, 9.5, INK);
 
