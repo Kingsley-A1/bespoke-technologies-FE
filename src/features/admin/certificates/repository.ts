@@ -13,7 +13,11 @@ import type {
   CurrencyCode,
   OwnershipCertificate,
 } from "../types";
-import { hashCertificateToken } from "./security";
+import {
+  hashCertificateToken,
+  isCertificateToken,
+  normalizeCertificateToken,
+} from "./security";
 import { DEFAULT_OWNERSHIP_STATEMENT } from "./constants";
 import { officialCompanySnapshot } from "../config";
 
@@ -92,24 +96,34 @@ export async function refreshOwnershipCertificateCompanySnapshot(id: string) {
 }
 
 export async function getOwnershipCertificateByToken(token: string) {
-  if (!/^[A-Za-z0-9_-]{40,80}$/.test(token)) return null;
+  const normalizedToken = normalizeCertificateToken(token);
+  if (!isCertificateToken(normalizedToken)) return null;
   const result = await adminQuery<Row>(
     "SELECT * FROM ownership_certificates WHERE verification_token_hash=$1 AND status IN ('issued','revoked') LIMIT 1",
-    [hashCertificateToken(token)],
+    [hashCertificateToken(normalizedToken)],
   );
   return result.rows[0] ? mapCertificate(result.rows[0]) : null;
 }
 
 export type PublicDocumentStatus = "VALID" | "REVOKED" | "SUPERSEDED";
 
-export async function getOwnershipCertificateVerificationByNumber(documentNumber: string) {
+export async function getOwnershipCertificateVerification(
+  documentNumber: string,
+  verificationToken: string,
+) {
   const normalized = documentNumber.trim().toUpperCase();
-  if (!/^BT-OWN-\d{4}-\d{4,}$/.test(normalized)) return null;
+  const normalizedToken = normalizeCertificateToken(verificationToken);
+  if (
+    !/^BT-OWN-\d{4}-\d{4,}$/.test(normalized)
+    || !isCertificateToken(normalizedToken)
+  ) return null;
   const result = await adminQuery<Row>(
     `SELECT * FROM ownership_certificates
-     WHERE certificate_number=$1 AND status IN ('issued','revoked')
+     WHERE certificate_number=$1
+       AND verification_token_hash=$2
+       AND status IN ('issued','revoked')
      LIMIT 1`,
-    [normalized],
+    [normalized, hashCertificateToken(normalizedToken)],
   );
   if (!result.rows[0]) return null;
   const certificate = mapCertificate(result.rows[0]);

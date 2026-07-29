@@ -27,6 +27,6 @@ export function publicAssetFilePath(assetPath: string) {
   return assetPath.replace(/^\/+/, "");
 }
 
-export function documentVerificationUrl(documentId: string) {
-  return `${COMPANY_IDENTITY.verificationOrigin}/${encodeURIComponent(documentId.trim().toUpperCase())}`;
+export function documentVerificationUrl(documentId: string, verificationToken: string) {
+  return `${COMPANY_IDENTITY.verificationOrigin}/${encodeURIComponent(documentId.trim().toUpperCase())}/${encodeURIComponent(verificationToken.trim())}`;
 }

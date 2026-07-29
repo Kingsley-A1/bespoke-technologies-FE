@@ -22,7 +22,10 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   }
   const file = await getR2ObjectBytes(certificate.pdfKey);
   if (!file) return NextResponse.json({ error: "The issued PDF could not be read." }, { status: 404 });
-  const verificationUrl = documentVerificationUrl(certificate.certificateNumber);
+  const verificationUrl = documentVerificationUrl(
+    certificate.certificateNumber,
+    certificate.verificationToken,
+  );
   const rendered = ownershipCertificateEmail({
     ownerName: certificate.owner.name,
     projectName: certificate.project.name,

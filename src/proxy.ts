@@ -28,6 +28,18 @@ export function proxy(request: NextRequest) {
       verificationUrl.pathname = "/";
       return NextResponse.redirect(verificationUrl, 308);
     }
+    const secureDocumentMatch = request.nextUrl.pathname.match(
+      /^\/(BT-[A-Z]+-\d{4}-\d{4,})\/([A-Za-z0-9_-]{32,80})$/i,
+    );
+    if (secureDocumentMatch) {
+      const [, documentId, verificationCode] = secureDocumentMatch;
+      return NextResponse.rewrite(
+        new URL(
+          `/document-verification/${encodeURIComponent(documentId)}/${encodeURIComponent(verificationCode)}`,
+          request.url,
+        ),
+      );
+    }
     const documentId = request.nextUrl.pathname.slice(1);
     if (/^BT-[A-Z]+-\d{4}-\d{4,}$/i.test(documentId)) {
       return NextResponse.rewrite(

@@ -8,6 +8,7 @@ import { DEFAULT_PAYMENT_TERMS } from "../billing/document-copy";
 import { generateBillingPdf } from "../billing/pdf";
 import { generateOwnershipCertificatePdf } from "../certificates/pdf";
 import { DEFAULT_OWNERSHIP_STATEMENT } from "../certificates/constants";
+import { createCertificateToken } from "../certificates/security";
 import { COMPANY_SETTINGS, officialCompanySnapshot } from "../config";
 import type { BillingDocument, OwnershipCertificate } from "../types";
 import { THIRD_PARTY_INFRASTRUCTURE_NOTICE, documentVerificationUrl } from "@/lib/company";
@@ -27,6 +28,7 @@ describe.skipIf(!outputDirectory)("official document visual fixtures", () => {
       readFile(path.join(process.cwd(), "public", "fonts", "DejaVuSans-Bold.ttf")),
     ]);
     const certificateNumber = "BT-OWN-2026-0002";
+    const { token: verificationToken } = createCertificateToken();
     const company = officialCompanySnapshot(COMPANY_SETTINGS);
     const certificate: OwnershipCertificate = {
       id: "10000000-0000-4000-8000-000000000001",
@@ -49,16 +51,20 @@ describe.skipIf(!outputDirectory)("official document visual fixtures", () => {
       },
       company,
       ownershipStatement: DEFAULT_OWNERSHIP_STATEMENT,
+      verificationToken,
       deliveryState: "not_sent",
       issuedAt: "2026-07-28T10:00:00.000Z",
       createdAt: "2026-07-28T09:00:00.000Z",
       updatedAt: "2026-07-28T10:00:00.000Z",
     };
-    const qr = await QRCode.toBuffer(documentVerificationUrl(certificateNumber), {
-      type: "png",
-      width: 320,
-      margin: 1,
-    });
+    const qr = await QRCode.toBuffer(
+      documentVerificationUrl(certificateNumber, verificationToken),
+      {
+        type: "png",
+        width: 320,
+        margin: 1,
+      },
+    );
     const certificatePdf = await generateOwnershipCertificatePdf(certificate, {
       brandLogo: arrayBuffer(logo),
       projectLogo: arrayBuffer(logo),

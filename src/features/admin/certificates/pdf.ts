@@ -5,6 +5,7 @@ import { PDFDocument, rgb, type PDFFont, type PDFImage, type PDFPage } from "pdf
 import type { OwnershipCertificate } from "../types";
 import { formatAdminDate, formatMoney } from "../billing/money";
 import { certificateOwnerKindLabel, projectTypeDisplayLabel } from "../documents/display";
+import { formatCertificateToken } from "./security";
 
 const PAGE = { width: 841.89, height: 595.28 };
 const NAVY = rgb(0.025, 0.071, 0.13);
@@ -155,6 +156,18 @@ export async function generateOwnershipCertificatePdf(
 
   page.drawImage(qr, { x: 674, y: 76, width: 68, height: 68 });
   page.drawText("SCAN TO VERIFY", { x: 680, y: 64, font: bold, size: 5.5, color: BLUE_DEEP });
+  if (certificate.verificationToken) {
+    const verificationCode = formatCertificateToken(certificate.verificationToken);
+    const codeSize = 3.5;
+    const codeWidth = regular.widthOfTextAtSize(verificationCode, codeSize);
+    page.drawText(verificationCode, {
+      x: 708 - codeWidth / 2,
+      y: 55,
+      font: regular,
+      size: codeSize,
+      color: MUTED,
+    });
+  }
   page.drawText(`Issued ${formatAdminDate(certificate.issuedAt || new Date().toISOString())}`, { x: 62, y: 66, font: regular, size: 6.5, color: MUTED });
   page.drawText(`Business Name Registration Number ${certificate.company.registrationNumber}`, { x: 178, y: 66, font: regular, size: 6.5, color: MUTED });
   page.drawText(certificate.company.motto.toUpperCase(), { x: 62, y: 52, font: bold, size: 5.2, color: MUTED });

@@ -409,7 +409,10 @@ function CertificateRow({
   }
 
   const verifyUrl = certificate.verificationToken
-    ? documentVerificationUrl(certificate.certificateNumber)
+    ? documentVerificationUrl(
+        certificate.certificateNumber,
+        certificate.verificationToken,
+      )
     : undefined;
 
   return (

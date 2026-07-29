@@ -25,9 +25,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   const certificate = await refreshOwnershipCertificateCompanySnapshot(id);
   if (!certificate) return NextResponse.json({ error: "An active certificate draft is required." }, { status: 404 });
   const { token, tokenHash } = createCertificateToken();
-  const verificationUrl = documentVerificationUrl(certificate.certificateNumber);
+  const verificationUrl = documentVerificationUrl(certificate.certificateNumber, token);
   const issuedAt = new Date().toISOString();
-  const pdfCertificate = { ...certificate, issuedAt };
+  const pdfCertificate = { ...certificate, verificationToken: token, issuedAt };
   const key = `ownership-certificates/${certificate.certificateNumber}-${randomUUID()}.pdf`;
   try {
     const assets = await loadCertificatePdfAssets(pdfCertificate, verificationUrl);

@@ -110,4 +110,16 @@ describe("subdomain routing", () => {
       "https://verify.bespoketech.com.ng/document-verification/BT-OWN-2026-0002",
     );
   });
+
+  it("rewrites a document ID and cryptographic code to the secure verification record", () => {
+    const verificationCode = "0123456789ABCDEF0123456789ABCDEF";
+    const request = new NextRequest(
+      `https://verify.bespoketech.com.ng/BT-OWN-2026-0002/${verificationCode}`,
+      { headers: { host: "verify.bespoketech.com.ng" } },
+    );
+    const response = proxy(request);
+    expect(response.headers.get("x-middleware-rewrite")).toBe(
+      `https://verify.bespoketech.com.ng/document-verification/BT-OWN-2026-0002/${verificationCode}`,
+    );
+  });
 });
