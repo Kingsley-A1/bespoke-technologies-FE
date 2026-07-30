@@ -2,7 +2,7 @@ import "server-only";
 
 import { createHmac, randomBytes, randomUUID, timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
-import { adminQuery, requireAdminRuntimeConfiguration } from "./db";
+import { adminQuery, requireAdminRuntimeConfiguration, withAdminTransaction } from "./db";
 import { configuredAdminUsers } from "./config";
 import {
   decryptTotpSecret,
@@ -11,11 +11,18 @@ import {
   totpProvisioningUri,
 } from "./crypto";
 import { generateTotp } from "./totp";
+import {
+  generateRecoveryCodes,
+  isValidRecoveryCode,
+  normalizeRecoveryCode,
+} from "./recovery-codes";
 import type { AdminRole, AdminSession, AdminUser } from "./types";
 
 const COOKIE_NAME = process.env.NODE_ENV === "production" ? "__Secure-bt_admin_session" : "bt_admin_session";
+const RECOVERY_COOKIE_NAME = process.env.NODE_ENV === "production" ? "__Secure-bt_admin_recovery" : "bt_admin_recovery";
 const IDLE_TIMEOUT_MS = 30 * 60 * 1000;
 const ABSOLUTE_TIMEOUT_MS = 8 * 60 * 60 * 1000;
+const RECOVERY_TIMEOUT_MS = 10 * 60 * 1000;
 const ATTEMPT_WINDOW_MS = 15 * 60 * 1000;
 const MAX_ATTEMPTS = 5;
 
@@ -71,16 +78,32 @@ function tokenHash(token: string) {
   return hmac(token);
 }
 
-function encodeSession(sessionId: string) {
-  const signature = hmac(sessionId);
+function encodeSession(sessionId: string, purpose = "admin") {
+  const signature = hmac(purpose === "admin" ? sessionId : `${purpose}:${sessionId}`);
   return `${sessionId}.${signature}`;
 }
 
-function decodeSession(token?: string) {
+function decodeSession(token?: string, purpose = "admin") {
   if (!token) return null;
   const [sessionId, signature] = token.split(".");
-  if (!sessionId || !signature || !safeEqual(signature, hmac(sessionId))) return null;
+  if (!sessionId || !signature) return null;
+  const expected = hmac(purpose === "admin" ? sessionId : `${purpose}:${sessionId}`);
+  if (!safeEqual(signature, expected)) return null;
   return { sessionId, tokenHash: tokenHash(token) };
+}
+
+function recoveryCodeHash(code: string) {
+  return hmac(normalizeRecoveryCode(code), codePepper());
+}
+
+function userFromSession(session: AdminSession): AdminUser {
+  return {
+    id: session.userId,
+    email: session.email,
+    displayName: session.displayName,
+    role: session.role,
+    state: "active",
+  };
 }
 
 function configuredTotpSecret(role: AdminRole) {
@@ -217,18 +240,6 @@ async function markTotpStep(user: AdminUser, step: number, secret: string) {
   return true;
 }
 
-async function verifyRecoveryCode(user: AdminUser, code: string) {
-  const candidateHash = hmac(code, codePepper());
-  if (!configuredRecoveryHashes(user.role).some((hash) => safeEqual(hash, candidateHash))) return false;
-  const result = await adminQuery<{ id: string }>(
-    `UPDATE admin_authenticators SET disabled_at = now()
-     WHERE user_id = $1 AND authenticator_type = 'recovery' AND secret_hash = $2 AND disabled_at IS NULL
-     RETURNING id`,
-    [user.id, candidateHash],
-  );
-  return result.rowCount === 1;
-}
-
 /**
  * Confirmed, self-enrolled authenticator secrets for a user, newest first.
  * Returns an empty list when the enrollment migration has not been applied so
@@ -251,22 +262,24 @@ async function enrolledTotpSecrets(user: AdminUser) {
   }
 }
 
-async function verifyUserCode(user: AdminUser, code: string) {
+async function verifyCurrentTotpCode(user: AdminUser, code: string) {
   if (!/^\d{6}$/.test(code)) return false;
-  // Self-enrolled authenticators take precedence; the env-provisioned secret
-  // only applies while a user has not yet enrolled via the registration flow.
   const enrolled = await enrolledTotpSecrets(user);
   const envSecret = configuredTotpSecret(user.role);
   const candidates = enrolled.length > 0 ? enrolled : envSecret ? [envSecret] : [];
-  if (candidates.length > 0) {
-    const currentStep = Math.floor(Date.now() / 30_000);
-    for (const secret of candidates) {
-      for (const step of [currentStep - 1, currentStep, currentStep + 1]) {
-        if (safeEqual(generateTotp(secret, step), code)) return markTotpStep(user, step, secret);
-      }
+  const currentStep = Math.floor(Date.now() / 30_000);
+  for (const secret of candidates) {
+    for (const step of [currentStep - 1, currentStep, currentStep + 1]) {
+      if (safeEqual(generateTotp(secret, step), code)) return markTotpStep(user, step, secret);
     }
-    if (await verifyRecoveryCode(user, code)) return true;
   }
+  return false;
+}
+
+async function verifyUserCode(user: AdminUser, code: string) {
+  // Recovery codes deliberately do not create ordinary admin sessions. The
+  // dedicated lost-device flow can use one only to replace the authenticator.
+  if (await verifyCurrentTotpCode(user, code)) return true;
   const bootstrap = configuredBootstrapCode(user.role);
   const bootstrapAllowed = process.env.ADMIN_ALLOW_BOOTSTRAP === "true";
   return bootstrapAllowed && Boolean(bootstrap) && safeEqual(bootstrap, code);
@@ -416,6 +429,370 @@ export async function confirmTotpEnrollment(email: string, code: string, request
   return { ok: true as const, user };
 }
 
+async function latestPendingTotp(userId: string, createdAfter?: string) {
+  const result = await adminQuery<{
+    id: string;
+    secret_ciphertext: string;
+    created_at: Date | string;
+  }>(
+    `SELECT id, secret_ciphertext, created_at FROM admin_authenticators
+     WHERE user_id = $1 AND authenticator_type = 'totp' AND disabled_at IS NULL
+       AND confirmed_at IS NULL AND secret_ciphertext IS NOT NULL
+       AND created_at >= COALESCE($2::TIMESTAMPTZ, now() - INTERVAL '15 minutes')
+     ORDER BY created_at DESC LIMIT 1`,
+    [userId, createdAfter ?? null],
+  );
+  const row = result.rows[0];
+  if (!row) return null;
+  const secret = decryptTotpSecret(row.secret_ciphertext);
+  return secret ? { ...row, secret } : null;
+}
+
+function matchingTotpStep(secret: string, code: string) {
+  if (!/^\d{6}$/.test(code)) return null;
+  const currentStep = Math.floor(Date.now() / 30_000);
+  for (const step of [currentStep - 1, currentStep, currentStep + 1]) {
+    if (safeEqual(generateTotp(secret, step), code)) return step;
+  }
+  return null;
+}
+
+export async function beginAuthenticatorRotation(session: AdminSession, currentCode: string, request: Request) {
+  requireAdminRuntimeConfiguration();
+  const user = userFromSession(session);
+  if (!(await verifyCurrentTotpCode(user, currentCode))) {
+    await recordSecurityAudit({ user, action: "admin.authenticator.rotation_rejected", metadata: { sessionId: session.id } });
+    return { ok: false as const, reason: "invalid" as const };
+  }
+
+  const secret = generateTotpSecret();
+  await withAdminTransaction(async (client) => {
+    await client.query(
+      `UPDATE admin_authenticators SET disabled_at = now()
+       WHERE user_id = $1 AND authenticator_type = 'totp' AND confirmed_at IS NULL AND disabled_at IS NULL`,
+      [user.id],
+    );
+    await client.query(
+      `INSERT INTO admin_authenticators (user_id, authenticator_type, secret_ciphertext, secret_hash)
+       VALUES ($1, 'totp', $2, $3)`,
+      [user.id, encryptTotpSecret(secret), hmac(secret, codePepper())],
+    );
+  });
+  await recordSecurityAudit({
+    user,
+    action: "admin.authenticator.rotation_started",
+    metadata: { sessionId: session.id, networkHash: networkHash(request) },
+  });
+  return { ok: true as const, secret, otpauthUri: totpProvisioningUri(user.email, secret) };
+}
+
+export async function confirmAuthenticatorRotation(session: AdminSession, code: string) {
+  requireAdminRuntimeConfiguration();
+  const user = userFromSession(session);
+  const pending = await latestPendingTotp(user.id);
+  const matchedStep = pending ? matchingTotpStep(pending.secret, code) : null;
+  if (!pending || matchedStep === null) {
+    await recordSecurityAudit({ user, action: "admin.authenticator.rotation_confirm_failed", metadata: { sessionId: session.id } });
+    return { ok: false as const, reason: "invalid" as const };
+  }
+
+  const revoked = await withAdminTransaction(async (client) => {
+    const confirmed = await client.query(
+      `UPDATE admin_authenticators SET confirmed_at = now(), last_used_step = $2
+       WHERE id = $1 AND confirmed_at IS NULL AND disabled_at IS NULL`,
+      [pending.id, matchedStep],
+    );
+    if (confirmed.rowCount !== 1) throw new Error("The pending authenticator is no longer available.");
+    await client.query(
+      `UPDATE admin_authenticators SET disabled_at = now()
+       WHERE user_id = $1 AND authenticator_type = 'totp' AND id != $2 AND disabled_at IS NULL`,
+      [user.id, pending.id],
+    );
+    const sessions = await client.query(
+      `UPDATE admin_sessions SET revoked_at = now()
+       WHERE user_id = $1 AND id != $2 AND revoked_at IS NULL RETURNING id`,
+      [user.id, session.id],
+    );
+    return sessions.rowCount ?? 0;
+  });
+  await recordSecurityAudit({
+    user,
+    action: "admin.authenticator.rotated",
+    entityId: pending.id,
+    metadata: { sessionId: session.id, revokedSessions: revoked },
+  });
+  return { ok: true as const, revokedSessions: revoked };
+}
+
+export async function issueAdminRecoveryCodes(session: AdminSession, currentCode: string) {
+  requireAdminRuntimeConfiguration();
+  const user = userFromSession(session);
+  if (!(await verifyCurrentTotpCode(user, currentCode))) {
+    await recordSecurityAudit({ user, action: "admin.recovery_codes.issue_rejected", metadata: { sessionId: session.id } });
+    return { ok: false as const, reason: "invalid" as const };
+  }
+
+  const codes = generateRecoveryCodes();
+  await withAdminTransaction(async (client) => {
+    await client.query(
+      `UPDATE admin_authenticators SET disabled_at = now()
+       WHERE user_id = $1 AND authenticator_type = 'recovery' AND disabled_at IS NULL`,
+      [user.id],
+    );
+    for (const code of codes) {
+      await client.query(
+        `INSERT INTO admin_authenticators (user_id, authenticator_type, secret_hash, confirmed_at)
+         VALUES ($1, 'recovery', $2, now())`,
+        [user.id, recoveryCodeHash(code)],
+      );
+    }
+  });
+  await recordSecurityAudit({
+    user,
+    action: "admin.recovery_codes.issued",
+    metadata: { count: codes.length, sessionId: session.id },
+  });
+  return { ok: true as const, codes };
+}
+
+export async function getAdminSecurityOverview(userId: string) {
+  const [authenticator, recoveryCodes, events] = await Promise.all([
+    adminQuery<{ confirmed_at: Date | string | null }>(
+      `SELECT confirmed_at FROM admin_authenticators
+       WHERE user_id = $1 AND authenticator_type = 'totp' AND confirmed_at IS NOT NULL AND disabled_at IS NULL
+       ORDER BY confirmed_at DESC LIMIT 1`,
+      [userId],
+    ),
+    adminQuery<{ count: string }>(
+      `SELECT count(*)::STRING AS count FROM admin_authenticators
+       WHERE user_id = $1 AND authenticator_type = 'recovery' AND disabled_at IS NULL`,
+      [userId],
+    ),
+    adminQuery<{
+      id: string;
+      action: string;
+      entity_id: string | null;
+      metadata: Record<string, unknown> | string | null;
+      created_at: Date | string;
+    }>(
+      `SELECT id, action, entity_id, metadata, created_at FROM admin_audit_events
+       WHERE actor_user_id = $1 AND entity_type = 'admin_security'
+       ORDER BY created_at DESC LIMIT 20`,
+      [userId],
+    ),
+  ]);
+  return {
+    authenticatorConfirmedAt: authenticator.rows[0]?.confirmed_at
+      ? new Date(authenticator.rows[0].confirmed_at).toISOString()
+      : undefined,
+    recoveryCodesRemaining: Number(recoveryCodes.rows[0]?.count ?? 0),
+    events: events.rows.map((event) => ({
+      id: event.id,
+      action: event.action,
+      entityId: event.entity_id ?? undefined,
+      metadata: typeof event.metadata === "string" ? JSON.parse(event.metadata) : event.metadata ?? undefined,
+      createdAt: new Date(event.created_at).toISOString(),
+    })),
+  };
+}
+
+interface AdminRecoverySession {
+  id: string;
+  user: AdminUser;
+  createdAt: string;
+  expiresAt: string;
+}
+
+async function setRecoveryCookie(token: string) {
+  (await cookies()).set(RECOVERY_COOKIE_NAME, token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    path: "/admin",
+    maxAge: RECOVERY_TIMEOUT_MS / 1000,
+  });
+}
+
+export async function clearAdminRecoverySession() {
+  (await cookies()).set(RECOVERY_COOKIE_NAME, "", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    path: "/admin",
+    maxAge: 0,
+  });
+}
+
+export async function getAdminRecoverySession(): Promise<AdminRecoverySession | null> {
+  const decoded = decodeSession((await cookies()).get(RECOVERY_COOKIE_NAME)?.value, "recovery");
+  if (!decoded) return null;
+  const result = await adminQuery<{
+    id: string;
+    user_id: string;
+    email: string;
+    display_name: string;
+    role: AdminRole;
+    state: AdminUser["state"];
+    created_at: Date | string;
+    expires_at: Date | string;
+  }>(
+    `SELECT r.id, r.user_id, u.email, u.display_name, u.role, u.state, r.created_at, r.expires_at
+     FROM admin_recovery_sessions r JOIN admin_users u ON u.id = r.user_id
+     WHERE r.id = $1 AND r.token_hash = $2 AND r.consumed_at IS NULL
+       AND r.expires_at > now() AND u.state = 'active'`,
+    [decoded.sessionId, decoded.tokenHash],
+  );
+  const row = result.rows[0];
+  if (!row) return null;
+  return {
+    id: row.id,
+    user: {
+      id: row.user_id,
+      email: row.email,
+      displayName: row.display_name,
+      role: row.role,
+      state: row.state,
+    },
+    createdAt: new Date(row.created_at).toISOString(),
+    expiresAt: new Date(row.expires_at).toISOString(),
+  };
+}
+
+export async function beginLostDeviceRecovery(email: string, recoveryCode: string, request: Request) {
+  requireAdminRuntimeConfiguration();
+  const normalizedEmail = email.trim().toLowerCase();
+  if ((await recentFailureCount(normalizedEmail, request)) >= MAX_ATTEMPTS) {
+    await recordAttempt(normalizedEmail, request, "locked");
+    await recordSecurityAudit({ action: "admin.recovery.locked", metadata: { identityHash: identityHash(normalizedEmail) } });
+    return { ok: false as const, reason: "locked" as const };
+  }
+
+  const users = await syncConfiguredAdminUsers();
+  const user = users.find((candidate) => candidate.email === normalizedEmail && candidate.state === "active");
+  if (!user || !isValidRecoveryCode(recoveryCode)) {
+    await recordAttempt(normalizedEmail, request, "failure");
+    await recordSecurityAudit({ user, action: "admin.recovery.rejected", metadata: { identityHash: identityHash(normalizedEmail) } });
+    return { ok: false as const, reason: "invalid" as const };
+  }
+
+  const recoverySessionId = randomUUID();
+  const recoveryToken = encodeSession(recoverySessionId, "recovery");
+  const secret = generateTotpSecret();
+  const expiresAt = new Date(Date.now() + RECOVERY_TIMEOUT_MS).toISOString();
+  const consumed = await withAdminTransaction(async (client) => {
+    const codeResult = await client.query<{ id: string }>(
+      `UPDATE admin_authenticators SET disabled_at = now()
+       WHERE user_id = $1 AND authenticator_type = 'recovery' AND secret_hash = $2 AND disabled_at IS NULL
+       RETURNING id`,
+      [user.id, recoveryCodeHash(recoveryCode)],
+    );
+    if (codeResult.rowCount !== 1) return false;
+    await client.query(
+      `UPDATE admin_authenticators SET disabled_at = now()
+       WHERE user_id = $1 AND authenticator_type = 'totp' AND confirmed_at IS NULL AND disabled_at IS NULL`,
+      [user.id],
+    );
+    await client.query(
+      `INSERT INTO admin_authenticators (user_id, authenticator_type, secret_ciphertext, secret_hash)
+       VALUES ($1, 'totp', $2, $3)`,
+      [user.id, encryptTotpSecret(secret), hmac(secret, codePepper())],
+    );
+    await client.query(
+      `INSERT INTO admin_recovery_sessions (id, user_id, token_hash, expires_at, network_hash, user_agent)
+       VALUES ($1, $2, $3, $4, $5, $6)`,
+      [
+        recoverySessionId,
+        user.id,
+        tokenHash(recoveryToken),
+        expiresAt,
+        networkHash(request),
+        request.headers.get("user-agent")?.slice(0, 240) ?? "unknown",
+      ],
+    );
+    return true;
+  });
+
+  if (!consumed) {
+    await recordAttempt(normalizedEmail, request, "failure");
+    await recordSecurityAudit({ user, action: "admin.recovery.rejected" });
+    return { ok: false as const, reason: "invalid" as const };
+  }
+  await setRecoveryCookie(recoveryToken);
+  await recordAttempt(normalizedEmail, request, "success");
+  await recordSecurityAudit({
+    user,
+    action: "admin.recovery.started",
+    entityId: recoverySessionId,
+    metadata: { expiresAt },
+  });
+  return { ok: true as const };
+}
+
+export async function getAdminRecoverySetup() {
+  const recovery = await getAdminRecoverySession();
+  if (!recovery) return null;
+  const pending = await latestPendingTotp(recovery.user.id, recovery.createdAt);
+  if (!pending) return null;
+  return {
+    email: recovery.user.email,
+    secret: pending.secret,
+    otpauthUri: totpProvisioningUri(recovery.user.email, pending.secret),
+    expiresAt: recovery.expiresAt,
+  };
+}
+
+export async function confirmLostDeviceRecovery(code: string, request: Request) {
+  requireAdminRuntimeConfiguration();
+  const recovery = await getAdminRecoverySession();
+  if (!recovery) return { ok: false as const, reason: "expired" as const };
+  const pending = await latestPendingTotp(recovery.user.id, recovery.createdAt);
+  const matchedStep = pending ? matchingTotpStep(pending.secret, code) : null;
+  if (!pending || matchedStep === null) {
+    await recordSecurityAudit({
+      user: recovery.user,
+      action: "admin.recovery.confirm_failed",
+      entityId: recovery.id,
+    });
+    return { ok: false as const, reason: "invalid" as const };
+  }
+
+  const revokedSessions = await withAdminTransaction(async (client) => {
+    const consumed = await client.query(
+      `UPDATE admin_recovery_sessions SET consumed_at = now()
+       WHERE id = $1 AND consumed_at IS NULL AND expires_at > now()`,
+      [recovery.id],
+    );
+    if (consumed.rowCount !== 1) throw new Error("The recovery session is no longer available.");
+    const confirmed = await client.query(
+      `UPDATE admin_authenticators SET confirmed_at = now(), last_used_step = $2
+       WHERE id = $1 AND confirmed_at IS NULL AND disabled_at IS NULL`,
+      [pending.id, matchedStep],
+    );
+    if (confirmed.rowCount !== 1) throw new Error("The pending authenticator is no longer available.");
+    await client.query(
+      `UPDATE admin_authenticators SET disabled_at = now()
+       WHERE user_id = $1 AND authenticator_type = 'totp' AND id != $2 AND disabled_at IS NULL`,
+      [recovery.user.id, pending.id],
+    );
+    const revoked = await client.query(
+      `UPDATE admin_sessions SET revoked_at = now()
+       WHERE user_id = $1 AND revoked_at IS NULL RETURNING id`,
+      [recovery.user.id],
+    );
+    return revoked.rowCount ?? 0;
+  });
+
+  await clearAdminRecoverySession();
+  const session = await createAdminSession(recovery.user, request);
+  await recordSecurityAudit({
+    user: recovery.user,
+    action: "admin.recovery.completed",
+    entityId: recovery.id,
+    metadata: { newSessionId: session.id, revokedSessions },
+  });
+  return { ok: true as const, session };
+}
+
 /** Founder-controlled identity provisioning. The employee receives a short-
  * lived, single-use enrollment code; no password or shared admin secret is
  * created. */
@@ -551,8 +928,10 @@ export async function listAdminSessions(userId?: string) {
     last_seen_at: Date;
     expires_at: Date;
     revoked_at: Date | null;
+    is_active: boolean;
   }>(
-    `SELECT s.id, s.user_id, u.email, u.display_name, u.role, s.created_at, s.last_seen_at, s.expires_at, s.revoked_at
+    `SELECT s.id, s.user_id, u.email, u.display_name, u.role, s.created_at, s.last_seen_at, s.expires_at, s.revoked_at,
+       (s.revoked_at IS NULL AND s.expires_at > now()) AS is_active
      FROM admin_sessions s JOIN admin_users u ON u.id = s.user_id
      WHERE ($1::UUID IS NULL OR s.user_id = $1) ORDER BY s.last_seen_at DESC LIMIT 50`,
     [userId ?? null],
@@ -567,6 +946,7 @@ export async function listAdminSessions(userId?: string) {
     lastSeenAt: new Date(row.last_seen_at).toISOString(),
     expiresAt: new Date(row.expires_at).toISOString(),
     revokedAt: row.revoked_at ? new Date(row.revoked_at).toISOString() : undefined,
+    isActive: row.is_active,
   } satisfies AdminSession));
 }
 
@@ -574,4 +954,5 @@ export async function applyAdminSecurityRetention() {
   await adminQuery("DELETE FROM admin_login_attempts WHERE attempted_at < now() - INTERVAL '90 days'");
   await adminQuery("DELETE FROM contact_submission_attempts WHERE attempted_at < now() - INTERVAL '7 days'");
   await adminQuery("DELETE FROM admin_sessions WHERE (revoked_at IS NOT NULL OR expires_at < now()) AND created_at < now() - INTERVAL '90 days'");
+  await adminQuery("DELETE FROM admin_recovery_sessions WHERE (consumed_at IS NOT NULL OR expires_at < now()) AND created_at < now() - INTERVAL '30 days'");
 }

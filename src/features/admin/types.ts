@@ -141,6 +141,7 @@ export interface AdminSession {
   lastSeenAt: string;
   expiresAt: string;
   revokedAt?: string;
+  isActive?: boolean;
 }
 
 export interface ClientContact {
