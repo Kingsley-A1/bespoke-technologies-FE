@@ -70,11 +70,16 @@ export default async function AdminLoginPage({ searchParams }: { searchParams: P
             )}
             <AuthSubmitButton pendingLabel="Verifying access…" className="h-11 w-full rounded-md bg-ktf-blue text-sm font-semibold text-white shadow-sm transition hover:bg-ktf-blue-deep">Continue securely</AuthSubmitButton>
           </form>
-          <div className="mt-6 flex items-center justify-between gap-3 border-t border-slate-200 pt-5">
+          <div className="mt-6 flex items-start justify-between gap-3 border-t border-slate-200 pt-5">
             <p className="flex items-start gap-2 text-xs leading-5 text-slate-500"><ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" /> Confidential data is limited to approved named staff.</p>
-            <Link href="/admin/register" className="shrink-0 text-xs font-semibold text-ktf-blue hover:text-ktf-blue-deep">
-              First device? Register
-            </Link>
+            <span className="flex shrink-0 flex-col items-end gap-2">
+              <Link href="/admin/recover" className="text-xs font-semibold text-ktf-blue hover:text-ktf-blue-deep">
+                Lost authenticator?
+              </Link>
+              <Link href="/admin/register" className="text-xs font-semibold text-slate-500 hover:text-ktf-blue-deep">
+                First device? Register
+              </Link>
+            </span>
           </div>
         </div>
       </section>
