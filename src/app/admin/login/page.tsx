@@ -58,7 +58,7 @@ export default async function AdminLoginPage({ searchParams }: { searchParams: P
               <span className="mb-1.5 block text-[13px] font-semibold text-slate-800">Work email</span>
               <input name="email" type="email" autoComplete="username" required defaultValue={email} className="h-11 w-full rounded-md border border-slate-300 bg-white px-3.5 text-sm text-slate-950 shadow-xs outline-none transition focus:border-ktf-blue focus:ring-2 focus:ring-ktf-blue/15" placeholder="name@bespoketech.com.ng" />
             </label>
-            <CodeInput />
+            <CodeInput autoSubmit />
             {error && (
               <p role="alert" className="rounded-md border border-rose-200 bg-rose-50 p-3 text-xs leading-5 text-rose-700">
                 {error === "locked"
