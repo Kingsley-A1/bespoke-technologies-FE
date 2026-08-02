@@ -27,3 +27,35 @@ The source identity files remain read-only under `Learn/`. The automated test ve
 ## Domain readiness
 
 The proxy recognises `learn.bespoketech.com.ng`; this code does not modify DNS or attach a Vercel domain. Before going live, attach the hostname through the approved deployment process, confirm TLS, set the canonical hostname and test sitemap/robots plus anonymous and learner session routes.
+
+## Authoring and publishing
+
+`/admin/learn` is distinct from the employee-development workspace at
+`/admin/learning`. Staff create a private course draft, complete factual
+course metadata, add first-class authors, upload course-owned assets, and
+build ordered modules, lessons and typed blocks. The editor supports only the
+registered V1 block types: rich text, callout, image, slides, video, audio,
+download, quiz, interactive and reflection.
+
+Saving a draft never publishes it. Validation checks the hierarchy, review
+date, authorship, block schemas, asset ownership/type and required
+accessibility data. A recent `learn.publish` authorisation is required for
+publication, grants, revocations and archive. Published versions are never
+edited: create a draft revision instead, which preserves learner records on
+the earlier version. Draft preview and draft assets require Admin access and
+are not routed through public learner delivery.
+
+To add a renderer in a future reviewed change, add a strict schema to
+`src/features/learn/content/schemas.ts`, registry metadata in
+`content/registry.ts`, a constrained editor, a renderer, accessibility and
+interaction states, publication validation, and unit/browser coverage. Do not
+add raw HTML, arbitrary JSON, scripts, iframes or database-supplied code.
+
+## Explicit V1 deferrals
+
+No checkout, Paystack integration, prices, products, receipts, certificates,
+organisation seats, teams, marketplace or external-publisher UI is shipped.
+Future payment and organisation adapters should grant/revoke entitlement in
+response to a verified business event. Future certification should consume a
+version-pinned completion event; it must not alter the content, entitlement or
+learner-identity model.

@@ -8,9 +8,9 @@ import { Header } from "./header";
 import { Footer } from "./footer";
 import { PageTransition } from "./page-transition";
 
-export function PublicExperience({ children }: { children: React.ReactNode }) {
+export function PublicExperience({ children, isLearnHost = false }: { children: React.ReactNode; isLearnHost?: boolean }) {
   const pathname = usePathname();
-  if (pathname.startsWith("/admin")) {
+  if (isLearnHost || pathname.startsWith("/admin") || pathname === "/learn" || pathname.startsWith("/learn/")) {
     return <>{children}</>;
   }
   if (pathname === "/bespoke-ai") {

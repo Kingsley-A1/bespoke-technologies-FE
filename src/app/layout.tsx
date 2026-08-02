@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { PublicExperience } from "@/components/layout/public-experience";
 import {
   BRAND_ICON_SRC,
@@ -8,6 +9,7 @@ import {
   WHATSAPP_NUMBER,
 } from "@/lib/constants";
 import { absoluteUrl, SITE_ORIGIN } from "@/lib/seo";
+import { LEARN_HOSTNAME } from "@/lib/subdomain-seo";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -71,24 +73,27 @@ const organizationJsonLd = {
   ],
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const requestHeaders = await headers();
+  const hostname = requestHeaders.get("host")?.split(":")[0]?.toLowerCase();
+  const isLearnHost = hostname === LEARN_HOSTNAME;
   return (
     <html
       lang="en"
       className="h-full antialiased"
     >
       <body className="min-h-full flex flex-col bg-ktf-white text-ktf-obsidian">
-        <script
+        {!isLearnHost && <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify(organizationJsonLd),
           }}
-        />
-        <PublicExperience>{children}</PublicExperience>
+        />}
+        <PublicExperience isLearnHost={isLearnHost}>{children}</PublicExperience>
       </body>
     </html>
   );

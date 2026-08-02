@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
   AUDIT_HOSTNAME,
+  LEARN_HOSTNAME,
   TEAM_HOSTNAME,
   VERIFY_HOSTNAME,
   WEBSITE_HOSTNAME,
@@ -13,6 +14,47 @@ function requestedHostname(request: NextRequest) {
 
 export function proxy(request: NextRequest) {
   const hostname = requestedHostname(request);
+  if (hostname === LEARN_HOSTNAME) {
+    const { pathname } = request.nextUrl;
+    if (
+      pathname === "/robots.txt"
+      || pathname === "/sitemap.xml"
+      || pathname.startsWith("/api/learn/")
+      || pathname.startsWith("/learn/brand/")
+    ) {
+      return NextResponse.next();
+    }
+    if (pathname === "/learn") {
+      const learnUrl = request.nextUrl.clone();
+      learnUrl.pathname = "/";
+      return NextResponse.redirect(learnUrl, 308);
+    }
+    const isPublicLearnPath = pathname === "/"
+      || pathname === "/courses"
+      || /^\/courses\/[a-z0-9][a-z0-9-]*$/i.test(pathname)
+      || /^\/courses\/[a-z0-9][a-z0-9-]*\/(learn|lessons\/[a-z0-9][a-z0-9-]*)$/i.test(pathname)
+      || pathname === "/sign-in"
+      || pathname === "/dashboard"
+      || pathname === "/support";
+    if (isPublicLearnPath) {
+      const internalUrl = request.nextUrl.clone();
+      internalUrl.pathname = pathname === "/" ? "/learn" : `/learn${pathname}`;
+      return NextResponse.rewrite(internalUrl);
+    }
+    const websiteUrl = request.nextUrl.clone();
+    websiteUrl.hostname = WEBSITE_HOSTNAME;
+    return NextResponse.redirect(websiteUrl, 308);
+  }
+
+  if (hostname === WEBSITE_HOSTNAME && (request.nextUrl.pathname === "/learn" || request.nextUrl.pathname.startsWith("/learn/"))) {
+    const canonicalLearnUrl = request.nextUrl.clone();
+    canonicalLearnUrl.hostname = LEARN_HOSTNAME;
+    canonicalLearnUrl.pathname = request.nextUrl.pathname === "/learn"
+      ? "/"
+      : request.nextUrl.pathname.slice("/learn".length);
+    return NextResponse.redirect(canonicalLearnUrl, 308);
+  }
+
   if (hostname === VERIFY_HOSTNAME) {
     if (request.nextUrl.pathname === "/") {
       return NextResponse.rewrite(new URL("/document-verification", request.url));

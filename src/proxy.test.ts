@@ -23,6 +23,34 @@ describe("subdomain routing", () => {
     expect(response.headers.get("x-middleware-next")).toBe("1");
   });
 
+  it("rewrites clean Learn-host routes to the internal Learn route tree", () => {
+    const request = new NextRequest("https://learn.bespoketech.com.ng/courses", {
+      headers: { host: "learn.bespoketech.com.ng" },
+    });
+    const response = proxy(request);
+    expect(response.headers.get("x-middleware-rewrite")).toBe(
+      "https://learn.bespoketech.com.ng/learn/courses",
+    );
+  });
+
+  it("returns unrelated company routes to the canonical website from the Learn host", () => {
+    const request = new NextRequest("https://learn.bespoketech.com.ng/services", {
+      headers: { host: "learn.bespoketech.com.ng" },
+    });
+    const response = proxy(request);
+    expect(response.status).toBe(308);
+    expect(response.headers.get("location")).toBe("https://www.bespoketech.com.ng/services");
+  });
+
+  it("keeps internal Learn implementation paths off the main website hostname", () => {
+    const request = new NextRequest("https://www.bespoketech.com.ng/learn/courses", {
+      headers: { host: "www.bespoketech.com.ng" },
+    });
+    const response = proxy(request);
+    expect(response.status).toBe(308);
+    expect(response.headers.get("location")).toBe("https://learn.bespoketech.com.ng/courses");
+  });
+
   it("keeps team APIs on the team host so portraits and app calls work", () => {
     const request = new NextRequest(
       "https://team.bespoketech.com.ng/api/team-members/member-id/portrait",

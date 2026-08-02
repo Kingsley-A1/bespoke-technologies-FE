@@ -28,12 +28,23 @@ describe("subdomain SEO", () => {
     expect(subdomainSitemap(VERIFY_HOSTNAME)).toMatchObject([
       { url: VERIFY_ORIGIN },
     ]);
+    expect(subdomainSitemap("learn.bespoketech.com.ng")).toEqual(expect.arrayContaining([
+      expect.objectContaining({ url: "https://learn.bespoketech.com.ng" }),
+      expect.objectContaining({ url: "https://learn.bespoketech.com.ng/courses" }),
+    ]));
     expect(subdomainSitemap()).not.toEqual(
       expect.arrayContaining([
         expect.objectContaining({ url: TEAM_ORIGIN }),
         expect.objectContaining({ url: AUDIT_ORIGIN }),
       ]),
     );
+  });
+
+  it("keeps Learn account and protected course paths out of crawler routes", () => {
+    expect(subdomainRobots("learn.bespoketech.com.ng")).toMatchObject({
+      sitemap: "https://learn.bespoketech.com.ng/sitemap.xml",
+      rules: { disallow: expect.arrayContaining(["/dashboard", "/sign-in", "/courses/*/learn"]) },
+    });
   });
 
   it("keeps individual verification records out of search indexes", () => {
