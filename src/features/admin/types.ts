@@ -49,6 +49,8 @@ export type AdminPermission =
   | "work.view"
   | "learning.view"
   | "learning.manage"
+  | "learn.manage"
+  | "learn.publish"
   | "team.manage"
   | "certificates.manage"
   | "certificates.issue"

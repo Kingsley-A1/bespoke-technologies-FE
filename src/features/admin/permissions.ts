@@ -14,6 +14,7 @@ const managerPermissions: AdminPermission[] = [
   "reviews.manage",
   "learning.view",
   "learning.manage",
+  "learn.manage",
   "team.manage",
   "certificates.manage",
 ];
@@ -26,6 +27,7 @@ const employeePermissions: AdminPermission[] = [
 
 const founderPermissions: AdminPermission[] = [
   ...managerPermissions,
+  "learn.publish",
   "payments.reverse",
   "billing.void",
   "audit.view",
