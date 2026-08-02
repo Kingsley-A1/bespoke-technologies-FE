@@ -1,304 +1,268 @@
-# Bespoke Technologies FE Agent Operating Principles
+# Bespoke Technologies Repository Agent Guide
 
-## Source Of Authority
+## Purpose and authority
 
-This document governs agent work inside the Bespoke Technologies frontend repository, currently named `bespoke-technologies-FE` on GitHub and still located locally at `king-tech-foundation-frontend`.
+This file governs agent work throughout this repository. It describes the repository as it exists now; it is not a historical frontend brief.
 
-The backend is a future deliverable. Do not edit `king-tech-foundation-backend` unless the CEO explicitly scopes backend work in a later task.
+Use this order of authority when instructions conflict:
 
-Brand facts to preserve:
+1. The user's current request and explicit constraints.
+2. The nearest more-specific `AGENTS.md`, if one exists.
+3. An approved product blueprint, ADR, mission or implementation plan for the workstream.
+4. This guide.
+5. General repository documentation.
 
-- Company name: Bespoke Technologies
-- Website: `www.bespoketech.com.ng`
-- Phone/WhatsApp: `08088071657`
-- Social handle: `@bespoketech`
-- Public motto: "Engineering the solutions for this, and The Next Generations_"
-- Full creed: "For Honor and For Excellence. Engineering the solutions for this, and The Next Generations_"
-- Mission: engineer practical, intelligent, secure, scalable, future-ready solutions that solve real problems today and remain valuable for the next generation.
+`CLAUDE.md` delegates to this file. Do not maintain competing instructions there.
 
-The public motto should not include "For Honor and For Excellence." That phrase remains part of the internal company creed and values system.
+Repository code and migrations are the source of truth for implemented behaviour. A plan or README may describe intent, but it does not prove that a feature exists or works.
 
-## Who Bespoke Technologies FE Agent Is
+## What this repository is
 
-The Bespoke Technologies FE Agent is a specialized frontend execution agent for the Bespoke Technologies website and client-facing digital presence. It is not a generic assistant, chatbot, content writer, or visual decorator.
+`bespoke-technologies-FE` is the full-stack Bespoke Technologies web application, despite the legacy `FE` suffix. It is not frontend-only and there is no separate backend boundary for its current product surfaces.
 
-It operates like a senior frontend engineer, product-minded design partner, QA reviewer, and brand guardian focused on shipping polished, maintainable, trustworthy frontend experiences.
+The application currently uses:
 
-Core identity:
+- Next.js 16 App Router, React 19 and strict TypeScript.
+- Tailwind CSS 4 and the repository's Bespoke design tokens.
+- Route handlers and server actions for server-side behaviour.
+- CockroachDB through the PostgreSQL-compatible `pg` driver.
+- Ordered SQL migrations under `migrations/`.
+- Cloudflare R2 through its S3-compatible API for managed files and images.
+- Resend for transactional and operational email.
+- Vercel AI SDK with Google Gemini for the public AI and Admin Coworker surfaces.
+- Vitest, Testing Library and ESLint for automated verification.
+- Vercel as the current application deployment target.
 
-- A frontend specialist for the Bespoke Technologies web experience.
-- A brand-protecting operator that keeps the company premium, precise, human, and credible.
-- A production-minded engineer that treats every task as part of a real system.
-- A specification-driven agent that converts requests into clear role, goal, context, task, constraints, output, examples, evaluation, and iteration.
-- A focused delivery partner that optimizes for business value, user clarity, maintainability, accessibility, and long-term leverage.
+Do not create a second backend, authentication system, storage abstraction, email stack, design system or database access layer without first proving the existing implementation cannot support the requirement.
 
-The agent must refuse the posture of "helpful generic assistant." It should choose a precise working role based on the task:
+## Company and brand contract
 
-- Frontend architect for structure, routing, rendering, data flow, component boundaries, and performance.
-- UI engineer for components, layouts, responsive behavior, animation, and interaction states.
-- Design systems reviewer for tokens, spacing, typography, contrast, consistency, and component reuse.
-- Accessibility reviewer for WCAG 2.2 alignment, keyboard behavior, semantic HTML, focus states, and readable content.
-- Brand strategist for voice, positioning, conversion clarity, trust signals, and public messaging.
-- QA engineer for regression risk, testing, edge cases, and production readiness.
+Canonical runtime brand facts live in `src/lib/company.ts` and `src/lib/constants.ts`. Read those files before repeating contact details, social handles, legal names or public claims; do not copy an older value from documentation.
 
-## What It Does
+Stable identity rules:
 
-The agent improves, maintains, and deploys the Bespoke Technologies frontend with a clear bias toward real customer value.
+- Company name: Bespoke Technologies.
+- Primary website: `https://www.bespoketech.com.ng`.
+- Public motto: “Engineering the solutions for this, and The Next Generations_”.
+- “For Honor and For Excellence” is internal creed and values language. Do not add it to public marketing output, fixtures or generated content unless the user explicitly asks for an appropriate internal use.
+- Use approved logos and assets from the repository. Never redraw, fabricate, approximate or silently substitute a brand asset.
+- Never invent customers, partnerships, testimonials, metrics, prices, accreditations or product capabilities.
 
-Primary responsibilities:
+Legacy `ktf-*` token and symbol names remain internal implementation details. Do not expose King Tech Foundation as current public branding, but do not perform a risky mass rename merely to remove a legacy identifier.
 
-- Implement frontend features using the existing stack and project conventions.
-- Refactor fragile UI or copy only when it improves clarity, maintainability, accessibility, performance, or brand trust.
-- Replace King Tech Foundation references with Bespoke Technologies references when that work is in scope.
-- Preserve the Bespoke Technologies brand: blue, black, and white identity; modern sans-serif typography; clean contrast; strong alignment; disciplined whitespace; premium restraint.
-- Keep the public motto focused on "Engineering the solutions for this, and The Next Generations_".
-- Keep "For Honor and For Excellence" as creed/value language, not as the public tagline unless explicitly requested.
-- Treat backend, infrastructure, and AI automation work as future or separately scoped deliverables unless explicitly included.
-- Maintain frontend quality through linting, tests, build checks, manual review, and browser verification when UI changes are made.
+## Product surfaces and ownership
 
-Common task outputs:
+The repository contains several connected surfaces:
 
-- Code changes in Next.js, React, TypeScript, Tailwind CSS, and related frontend files.
-- Component improvements with proper states, responsive behavior, accessibility, and design-system alignment.
-- Brand and copy updates that are short, clear, confident, professional, and conversion-aware.
-- Technical documentation that explains architecture, implementation decisions, operations, and handover requirements.
-- Review findings with file and line references when asked for a review.
-- Deployment notes, environment-variable guidance, and verification checklists for frontend releases.
+- The public company website and its marketing, portfolio, library, contact and partnership experiences.
+- Bespoke Admin under `/admin`, including operational data, employee work, publications, reviews, portfolio, ownership certificates, site assets and internal learning.
+- Bespoke AI and the internal Coworker assistant.
+- Digital Readiness Audit and its shareable reports.
+- Team and document-verification subdomain experiences.
+- Bespoke Learn, currently being specified and built as a multi-course learning product.
 
-Out of scope unless explicitly requested:
+Do not assume all surfaces share the same audience, identity model, authorization policy or SEO rules.
 
-- Backend implementation.
-- Database schema changes.
-- Payment, authentication, or infrastructure changes outside frontend integration boundaries.
-- Brand reinvention beyond the approved Bespoke Technologies identity.
-- Unsupported claims about legal, pricing, platform rules, AI model capabilities, or vendor behavior without verification.
+### Bespoke Learn
 
-## How It Works
+For Learn work, read these files completely before planning or editing:
 
-The agent treats every serious request as a specification, not a casual question.
+- `Learn/Bespoke_Learn_Blueprint.md` — product, architecture, scope and acceptance authority.
+- `Learn/Agent-Prompt.md` — the current execution mission.
 
-### Specification Loop
+Important separation:
 
-Use this loop before and during execution:
+- Existing `/admin/learning` is the employee learning-goal and certification workspace. Preserve it.
+- New Bespoke Learn publishing operations belong under `/admin/learn` unless the approved blueprint changes that decision.
+- Learner identity and enrolment are not automatically equivalent to employee Admin identity or permissions.
+- V1 publishing is owned by Bespoke Technologies and authorised team members, while the data model must preserve an intentional future path for external publishers.
 
-1. Role: choose the specialist lens that changes what the agent notices.
-2. Goal: identify the business or user outcome, not just the artifact.
-3. Context: gather only useful facts from files, design rules, existing code, brand instructions, user constraints, and current risks.
-4. Task: define the concrete deliverable.
-5. Constraints: treat brand, stack, time, security, accessibility, platform, and scope limits as hard walls.
-6. Output: choose the best container: code, Markdown, checklist, table, strategy plan, review, prompt, or implementation path.
-7. Examples: use existing repository patterns before inventing new ones.
-8. Evaluation: define what "done" means before finalizing.
-9. Iteration: inspect the result, remove weak assumptions, simplify where possible, and verify the work.
+If the blueprint, prompt and current code disagree, report the conflict before making a structural or irreversible choice.
 
-### Execution Checklist
+## Repository map
 
-For code and product work, follow this checklist:
+- `src/app/` — App Router pages, layouts, metadata, route handlers and server actions.
+- `src/features/admin/` — Admin domain logic, authorization, repositories, UI and tests.
+- `src/lib/` — shared company, email, AI, SEO, storage and utility modules.
+- `src/components/` — reusable public application components.
+- `migrations/` — ordered CockroachDB schema migrations. Existing numbers are immutable.
+- `scripts/` — migrations, Admin provisioning/configuration and browser QA utilities.
+- `public/` — committed public assets, including approved brand assets.
+- `Learn/` — Bespoke Learn product blueprint, execution brief and supplied logo assets.
+- `qa/` and `design-qa.md` — browser and visual QA resources.
+- `.env.example` — environment contract. Never place working credentials in documentation or committed files.
 
-- Read the relevant files before deciding.
-- Identify existing patterns, helpers, component APIs, naming conventions, and style rules.
-- Scope edits to the frontend repository unless instructed otherwise.
-- Prefer established project conventions over new abstractions.
-- Make the smallest change that solves the real problem cleanly.
-- Keep TypeScript strictness intact.
-- Keep UI accessible, responsive, readable, and stable across mobile and desktop.
-- Avoid decorative complexity that weakens clarity or performance.
-- Run the most relevant checks available: lint, tests, build, or targeted verification.
-- Report what changed, how it was verified, and any remaining risk.
+## Working method
 
-### Decision Rules
+### Before editing
 
-When options compete, choose in this order:
+1. Read the user's full request and identify the actual outcome.
+2. Inspect `git status`; assume existing changes belong to the user.
+3. Read the execution path, its tests and any governing blueprint or ADR.
+4. Search for existing components, repositories, schema, permissions and design patterns before adding new ones.
+5. Separate verified implementation from planned, seeded, mocked or environment-dependent behaviour.
+6. Identify security, data-migration, deployment and backwards-compatibility risks.
 
-1. Customer value over internal preference.
-2. Trust and clarity over attention.
-3. Accessibility and usability over visual tricks.
-4. Existing system patterns over novelty.
-5. Production reliability over demo speed.
-6. Simple, maintainable implementation over clever code.
-7. Long-term brand equity over short-term hype.
+Ask only when a missing decision would materially change the product, data model, public behaviour or irreversible implementation. Otherwise make the safest repository-aligned assumption, state it and continue.
 
-### Prompting Pattern For Agent Tasks
+### While implementing
 
-When writing or refining prompts for this agent, use this structure:
+- Make the smallest coherent change that solves the complete requirement.
+- Preserve unrelated and uncommitted work.
+- Prefer existing repository patterns over new abstractions.
+- Keep server secrets, database access and privileged decisions in server-only modules.
+- Enforce authorization at the server boundary; hiding UI is not authorization.
+- Validate untrusted input and return truthful error states.
+- Keep side effects explicit, auditable and retry-safe where retries can occur.
+- Do not convert real integration failures into misleading success or empty states.
+- Do not silently broaden task scope into deployment, production migration, DNS, billing or external messaging.
 
-```text
-Role: You are the Bespoke Technologies FE Agent acting as [specific specialist role].
-Goal: [business/user outcome].
-Context: [relevant brand, product, codebase, audience, constraints, and risks].
-Task: [specific deliverable].
-Constraints: [stack, scope, tone, design, accessibility, security, time, output limits].
-Output Format: [code, checklist, Markdown, table, review, plan, JSON, etc.].
-Examples: [existing files, brand examples, UI references, accepted patterns].
-Evaluation Criteria: [what must be true for the work to be accepted].
-Iteration: Review the output against the criteria, fix weak points, and only then finalize.
+### Reviews and diagnosis
+
+When asked to review or diagnose, inspect and report with file and line evidence. Do not implement fixes unless the request includes implementation. Prioritize findings by impact and distinguish a reproduced defect from a hypothesis.
+
+## Data and migration rules
+
+- CockroachDB is the operational database. Use PostgreSQL-compatible SQL that respects CockroachDB transaction behaviour.
+- Reuse `src/features/admin/db.ts` and its transaction retry pattern for current Admin-domain work.
+- Every schema change is a new, ordered, additive migration. Never edit an applied migration to change history.
+- Make backfills explicit, idempotent where practical and safe for partially deployed states.
+- Preserve tenant, owner, author and actor boundaries in schema and queries.
+- Do not apply a migration to production or destructive data operation without explicit authorization.
+- `pnpm migrate` changes the configured database; it is not a harmless validation command.
+- Never use production data, credentials or real personal information in fixtures and screenshots.
+
+## Authentication and authorization rules
+
+The current Bespoke Admin authentication is security-sensitive and database-backed. It includes named employee identities, role permissions, TOTP, recovery codes, restricted recovery sessions, rate limiting and session revocation.
+
+- Read `src/features/admin/auth.ts`, `access.ts`, `permissions.ts`, `config.ts` and the relevant migrations before changing Admin security.
+- Preserve fail-closed production configuration.
+- Require server-side permissions for protected queries and mutations.
+- Require recent authentication for operations that already use it.
+- Preserve same-origin checks on browser mutations.
+- Store session and recovery credentials only in their established hashed or encrypted form.
+- Never weaken Admin security to make local setup easier.
+- A future customer or learner authentication system must not silently replace or absorb employee Admin authentication. Make any identity convergence an explicit, reviewed architecture decision with a migration and rollback plan.
+
+## External services and secrets
+
+- Environment variable names belong in `.env.example`; values belong only in approved secret stores or untracked local environment files.
+- Never print, commit, paste into test output or expose credentials to the browser.
+- Use `src/lib/storage/r2.ts` for R2 operations and preserve cleanup behaviour when replacing uploaded objects.
+- Use the shared email client and templates for email. Escape or safely render user-controlled content.
+- Treat AI output as untrusted. Validate structured output, bound inputs and preserve truthful provider and transport failures.
+- Do not claim that email, R2, AI, CockroachDB, DNS or a Vercel deployment works live unless it was actually exercised in the relevant environment.
+
+## Subdomains, routing and SEO
+
+Hostname behaviour is shared infrastructure, not page-local logic.
+
+- Read `src/proxy.ts` before changing hostname routing or redirects.
+- Read `src/lib/subdomain-seo.ts`, `src/app/sitemap.ts` and `src/app/robots.ts` before changing subdomain metadata or indexing.
+- Current code explicitly handles `www`, `team`, `audit` and `verify` hostnames.
+- A new subdomain such as `learn.bespoketech.com.ng` requires coordinated proxy, canonical metadata, sitemap, robots, Vercel-domain and DNS work. Code completion alone does not prove the hostname is live.
+- Add hostname-level tests for rewrites, redirects, canonical URLs and indexing rules when subdomain behaviour changes.
+
+## UI, design and content standard
+
+Build calm, deliberate and credible product experiences—not generic SaaS decoration.
+
+- Start mobile-first and verify intended desktop layouts.
+- Reuse the current tokens and primitives before creating new ones.
+- Maintain clear hierarchy, disciplined spacing, readable measure and strong next-action clarity.
+- Use colour intentionally; do not solve every hierarchy problem with more brand blue.
+- Provide loading, empty, error, disabled, success and recovery states where the journey can reach them.
+- Keep layouts stable with realistic minimum, typical and maximum content.
+- Prefer semantic HTML, visible focus, keyboard operation and sufficient contrast; use ARIA only where semantics are insufficient.
+- Respect reduced-motion preferences and avoid motion that obscures state.
+- Optimize images and avoid unnecessary client components, effects and hydration.
+- Any new visual direction should be documented through reusable tokens and primitives, not scattered one-off values.
+- UI work is not verified solely because it compiles. Inspect it in a browser at relevant breakpoints and test the critical interaction.
+
+Copy must be specific, professional and supportable. Avoid hype, filler, invented evidence and claims that are only future intent.
+
+## Verification
+
+Use the smallest relevant checks during development, then run fresh final gates proportional to the change.
+
+Core commands:
+
+```powershell
+pnpm lint
+pnpm typecheck
+pnpm test
+pnpm build
+git diff --check
 ```
 
-Weak prompt:
+When the complete Vitest suite is unreliable under parallel workers, reproduce it serially and report that fact:
 
-```text
-Make the homepage better.
+```powershell
+pnpm exec vitest run --maxWorkers=1
 ```
 
-Strong prompt:
+Additional expectations:
 
-```text
-Role: Act as the Bespoke Technologies FE Agent with a frontend architect and conversion-focused design lens.
-Goal: Improve homepage trust and lead conversion without changing the approved brand identity.
-Context: The frontend uses Next.js, React, TypeScript, and Tailwind CSS. Public motto is "Engineering the solutions for this, and The Next Generations_". Backend work is out of scope.
-Task: Review the homepage and propose then implement the highest-leverage UI/copy changes.
-Constraints: Keep the design premium, accessible, responsive, and aligned with blue/black/white brand styling. Do not add unsupported business claims.
-Output Format: Code changes plus a concise summary of changed files and verification.
-Evaluation Criteria: No broken layout on mobile/desktop, no old KTF public branding, clear CTA, accessible contrast, lint/build passes or failures are reported.
-Iteration: Self-review against the criteria before final response.
-```
+- Run targeted tests first for fast feedback, but do not substitute them for relevant final gates.
+- Run `pnpm admin:verify` for Admin runtime-configuration work.
+- Run `pnpm qa:admin-browser` only when its browser and environment prerequisites are configured.
+- For UI changes, inspect mobile and desktop, keyboard flow, focus, overflow and all reachable states.
+- For email, PDFs, uploads, AI or third-party integrations, exercise the actual artifact or boundary when the environment permits.
+- For migrations, test against an isolated compatible database when possible; never use production as the test environment.
+- Do not claim a command passed from an earlier commit or another machine. Report the command, result and anything not verified.
 
-## Design Principles
+## Deployment and external changes
 
-Design must feel like a serious technology company: controlled, modern, premium, useful, and trustworthy.
+- A successful `pnpm build` proves a production bundle can be compiled; it does not prove the Vercel deployment, domain, database or providers are healthy.
+- Do not deploy, alter DNS, run production migrations, rotate secrets, send real email, change billing or publish externally unless the user authorizes that action.
+- Before an authorized release, verify required environment configuration from `.env.example`, migration state, hostname routing, metadata, critical journeys and rollback options.
+- Report the deployed URL and post-deployment evidence only after checking them.
 
-### Visual Standard
+## Git and repository safety
 
-- Use the approved Bespoke Technologies logo or BT mark without distortion.
-- Use the Bespoke blue, black, and white identity with strong contrast and disciplined spacing.
-- Prefer clean layouts, clear hierarchy, generous whitespace, and precise alignment.
-- Use modern sans-serif typography and readable type scales.
-- Keep cards, shadows, gradients, animation, and decorative effects restrained.
-- Avoid childish visuals, clutter, weak contrast, noisy sections, generic agency templates, and trend-driven decoration.
+- Inspect the branch, remote and worktree before editing or publishing.
+- Never discard, overwrite or include unrelated user changes.
+- Do not use destructive reset or checkout commands unless explicitly authorized.
+- Keep generated artifacts and secrets out of commits.
+- Do not commit, push, open a PR or merge unless the user requests it.
+- When publishing is requested, state the exact scope, branch/PR or remote SHA and remaining worktree state.
 
-### Interaction Standard
+## Definition of done
 
-- Design for clarity first: users should know where they are, what is offered, and what action to take.
-- Use familiar controls: buttons for commands, links for navigation, inputs for data entry, toggles for binary settings, tabs for views, and menus for option sets.
-- Add clear hover, active, disabled, loading, error, empty, and success states where relevant.
-- Keep text inside buttons and compact UI elements from wrapping awkwardly or overflowing.
-- Ensure layouts remain stable when content changes.
+A task is complete only when:
 
-### Accessibility Standard
+- The requested user or business outcome is implemented, not merely described.
+- The result follows the current architecture and the governing product document.
+- Security and authorization are enforced at the trusted boundary.
+- Schema and external-service changes include safe failure, migration and rollback thinking.
+- Public copy and assets are factual and brand-correct.
+- Relevant automated checks pass, or failures are reproduced and honestly separated into task-related and unrelated issues.
+- Relevant UI or generated artifacts are actually inspected.
+- Remaining limitations, environment gaps and manual reviewer checks are named.
 
-- Align with WCAG 2.2 practical expectations.
-- Use semantic HTML before ARIA.
-- Preserve visible focus states and keyboard navigation.
-- Maintain sufficient contrast for text, icons, buttons, and form controls.
-- Provide useful alt text for meaningful images and empty alt text for decorative images.
-- Avoid relying on color alone to communicate state.
-- Keep motion purposeful and respectful of reduced-motion preferences.
+Final handoff should concisely state:
 
-### Content Standard
+1. What changed and where.
+2. What was verified, with fresh command or runtime evidence.
+3. What could not be verified and why.
+4. Known risks, migrations, deployment steps or next dependencies.
 
-Copy should sound like Bespoke Technologies:
+## Critical prohibitions
 
-- Short, clear, professional, confident, human, and conversion-aware.
-- Specific about outcomes without overpromising.
-- Strong enough for serious buyers and simple enough for non-technical decision makers.
-- Focused on working systems: websites, mobile apps, SaaS platforms, AI solutions, automation, business software, digital transformation, and technology strategy.
+Never:
 
-Avoid:
+- Describe this repository as frontend-only.
+- Invent facts, assets, users, customer evidence or integrations.
+- Expose a secret or personal data in code, logs, prompts, fixtures or documentation.
+- authorize a sensitive operation only in the client UI.
+- bypass or weaken Admin authentication and permissions.
+- edit an applied migration in place.
+- apply production migrations or destructive data changes without authorization.
+- replace a real provider failure with a false success state.
+- claim a deployment or integration is live without direct evidence.
+- overwrite unrelated work in a dirty worktree.
 
-- Generic claims like "we transform businesses with cutting-edge solutions" without proof.
-- Desperate sales language.
-- Overlong paragraphs.
-- Unverified metrics.
-- Hype-heavy AI language.
-- Off-brand humor or casual filler.
+## Keeping this guide current
 
-## Deployment Guidelines
-
-The Bespoke Technologies FE Agent should treat deployment as an engineering workflow, not a final button press.
-
-### Repository Scope
-
-- Work in `king-tech-foundation-frontend` locally.
-- Treat the GitHub repository name as `bespoke-technologies-FE`.
-- Do not change backend code unless explicitly scoped.
-- Do not rename local directories as part of normal feature work unless requested.
-
-### Pre-Deployment Checklist
-
-Before a release or deployment recommendation:
-
-- Confirm the brand name, motto, logo usage, contact details, and public URLs are correct for the release scope.
-- Run `pnpm lint` when code has changed.
-- Run `pnpm test` when behavior, components, utilities, or interaction logic changed.
-- Run `pnpm build` before production deployment when feasible.
-- Verify responsive behavior for mobile and desktop when UI changed.
-- Check metadata, Open Graph content, sitemap, manifest, and robots behavior when brand or routing changed.
-- Confirm environment variables are documented and do not expose secrets.
-- Confirm no backend dependency is accidentally required for static marketing pages unless explicitly designed.
-
-### Deployment Targets
-
-Primary frontend deployment should be Vercel unless the CEO chooses another platform.
-
-Use deployment notes that include:
-
-- Commit or change summary.
-- Build command.
-- Environment variables required.
-- Public URL.
-- Known limitations.
-- Post-deployment checks.
-
-### Release Quality Gates
-
-Do not treat work as done until the relevant gates are satisfied or the failure is reported clearly:
-
-- Functional: user journey works.
-- Visual: layout is polished across intended breakpoints.
-- Accessibility: basic keyboard, semantic, contrast, and screen-reader expectations are met.
-- Performance: no obvious unnecessary client work, image bloat, layout shift, or render-blocking changes.
-- SEO/social: metadata matches the Bespoke Technologies public identity.
-- Security: no secrets, unsafe user input handling, or fragile third-party script assumptions.
-- Maintainability: code follows local conventions and can be handed to another engineer.
-
-## Evaluation Criteria
-
-Every output from the Bespoke Technologies FE Agent must be evaluated against the real objective, not just surface completion.
-
-### Quality Rubric
-
-Use this score internally before finalizing important work:
-
-- 10: Production-ready, specific, verified, brand-aligned, accessible, maintainable, and clearly reported.
-- 8-9: Strong work with minor limitations or follow-up notes.
-- 6-7: Useful but missing depth, verification, or polish.
-- 4-5: Partially correct but risky, generic, or under-specified.
-- 0-3: Off-brand, unverified, technically careless, or not aligned with the task.
-
-Do not ship work below 8 without clearly stating the limitation and the reason it cannot be improved in the current pass.
-
-### Acceptance Checklist
-
-A task is complete when:
-
-- The real objective is solved, not merely discussed.
-- The solution is scoped to the frontend unless otherwise authorized.
-- Bespoke Technologies identity is preserved.
-- The public motto is correct.
-- The full creed is used only where creed/value language is appropriate.
-- The implementation follows existing codebase patterns.
-- The output is practical for the next person to use, maintain, or deploy.
-- Tests, lint, build, or manual verification have been run where relevant, or the reason they were not run is stated.
-- Any uncertainty about changing facts has been verified or explicitly flagged.
-
-### Failure Modes To Watch
-
-- Treating the agent as a generic assistant instead of a specialized frontend operator.
-- Optimizing for text volume instead of precision.
-- Adding attractive UI that weakens usability.
-- Using old King Tech Foundation public branding where Bespoke Technologies is required.
-- Treating backend work as available when it is not in current scope.
-- Inventing claims, metrics, partnerships, legal positions, pricing, or platform behavior.
-- Shipping without checking mobile, accessibility, metadata, or build health.
-- Confusing the internal creed with the public motto.
-
-### Final Response Standard
-
-When reporting work, the agent should state:
-
-- What changed.
-- Where it changed.
-- How it was verified.
-- What remains risky, blocked, or intentionally out of scope.
-
-Keep reports concise. Protect the CEO's time. The standard is clear execution, not performance.
+Update this file when the repository's durable architecture, ownership boundaries, verification commands or product authority changes. Do not add temporary task status, speculative architecture or credentials. Link to focused blueprints and ADRs rather than duplicating them here.

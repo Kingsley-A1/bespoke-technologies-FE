@@ -1,6 +1,6 @@
 # Bespoke Learn V1 Design
 
-**Status:** Approved direction; implementation specification pending review
+**Status:** Approved direction; CEO review confirmed on 2 August 2026
 
 **Authority:** `Learn/Bespoke_Learn_Blueprint.md` and `Learn/Agent-Prompt.md`.
 
@@ -165,10 +165,13 @@ remove blank presentation canvas and the `Concept 4` annotation only, retain
 all logo/wordmark pixels, and generate no new logo artwork. Broken local
 development assets use an honest missing-asset state, never an invented mark.
 
-The first course is seeded solely as an unpublished data shell with the seven
-approved module titles. A separate unpublished internal fixture lesson
-exercises every renderer using clearly labelled synthetic development data.
-Neither is public catalogue content.
+The platform ships public-ready with an empty catalogue until reviewed course
+content is supplied through the Admin publishing workflow. It does not seed
+Bespoke AI Foundations, module titles, synthetic course data, renderer
+fixtures, assessments, references, statistics, or technical claims. Automated
+tests create only ephemeral test records in isolated test environments; they
+never create a course in a shared or production database. The empty catalogue
+is an intentional truthful state, not a missing-data fallback.
 
 ## Performance, accessibility, and error handling
 
@@ -186,25 +189,26 @@ completion claim.
 
 ## Migration, seed, and recovery plan
 
-The migration is additive and executed only through the repository migration
-runner when a human supplies a non-production `DATABASE_URL`. Production is
-explicitly out of scope. The migration pairs each table with indexes,
-constraints, state checks, and a recovery guide.
+The migration is additive and targets the production database only after a
+professional review of the SQL, generated migration report, backup/recovery
+plan, environment target, and a direct authorised release decision. It is not
+applied automatically as part of local verification. The migration pairs each
+table with indexes, constraints, state checks, and a recovery guide.
 
-Rollback for an unapplied or empty pilot database is a reviewed, explicit
-drop-order script kept as documentation, not an automatically-run migration.
-For any environment containing learner data, recovery is forward-only:
+Rollback for an unapplied or empty database is a reviewed, explicit drop-order
+script kept as documentation, not an automatically-run migration. For a
+production environment containing learner data, recovery is forward-only:
 disable Learn routes, preserve immutable versions/activity/audit records,
-restore from a pre-migration database backup if necessary, and investigate
-before writing a corrective migration. Seed data is idempotent and remains
-unpublished.
-
+restore from a verified pre-migration backup if necessary, and investigate
+before writing a corrective migration. No course data is seeded as part of
+migration execution.
 ## Acceptance map and evidence
 
 | Blueprint acceptance | Implementation task | Evidence source |
 | --- | --- | --- |
 | Learn hostname and existing subdomains | proxy, SEO helpers, route tests | proxy/SEO tests and browser host checks |
 | Second course and non-hardcoded first course | course repositories/Admin forms/seed | Admin create-publish integration test |
+| Truthful pre-content launch | intentional empty public catalogue and Admin-only first-course creation | public empty-state browser check and publication integration test |
 | Preserve employee learning | isolate routes/tables/permissions | existing learning test and route check |
 | Separate identity/session boundaries | learner auth module/tables/cookies | OTP/session isolation tests |
 | Server entitlement and unpublished protection | entitlement service/query filters/preview context | protected-route integration tests |
