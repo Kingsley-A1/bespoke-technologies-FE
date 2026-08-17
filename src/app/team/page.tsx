@@ -99,7 +99,7 @@ export default async function TeamPage() {
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_12%,rgba(10,132,255,.24),transparent_35%),linear-gradient(rgba(255,255,255,.025)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.025)_1px,transparent_1px)] bg-[size:auto,52px_52px,52px_52px]" />
       <Container size="lg" className="relative">
         <p className="text-xs font-bold uppercase tracking-[0.28em] text-blue-300">The Bespoke Team Index</p>
-        <h1 className="mt-5 max-w-4xl text-[2.65rem] font-black leading-[0.98] tracking-[-0.055em] sm:text-7xl">Different disciplines.<span className="mt-2 block text-[#0a84ff]">One standard of craft.</span></h1>
+        <h1 className="mt-5 max-w-4xl text-[2.25rem] font-black leading-[0.98] tracking-[-0.055em] sm:text-[3.5rem]">Different disciplines.<span className="mt-2 block text-[#0a84ff]">One standard of craft.</span></h1>
         <p className="mt-7 max-w-2xl text-base leading-7 text-slate-300">Meet the people who turn ambitious ideas into dependable products, systems, and experiences.</p>
       </Container>
     </section>
@@ -107,7 +107,7 @@ export default async function TeamPage() {
       {groups.map((group) => {
         const groupMembers = members.filter((member) => member.teamGroup === group);
         return <section key={group} className="mb-20 last:mb-0">
-          <div className="mb-7 flex items-end justify-between border-b border-white/10 pb-4"><div><p className="text-[10px] font-bold uppercase tracking-[0.22em] text-blue-300">Discipline</p><h2 className="mt-2 text-2xl font-extrabold">{GROUP_LABELS[group]}</h2></div><span className="font-mono text-xs text-slate-500">{String(groupMembers.length).padStart(2, "0")}</span></div>
+          <div className="mb-7 flex items-end justify-between border-b border-white/10 pb-4"><div><p className="text-[10px] font-bold uppercase tracking-[0.22em] text-blue-300">Discipline</p><h2 className="mt-2 text-[1.375rem] font-extrabold">{GROUP_LABELS[group]}</h2></div><span className="font-mono text-xs text-slate-500">{String(groupMembers.length).padStart(2, "0")}</span></div>
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
             {groupMembers.map((member, index) => <TeamCard key={member.id} member={member} index={index} leadership={group === "leadership"} />)}
           </div>
@@ -130,7 +130,7 @@ function TeamCard({ member, index, leadership }: { member: TeamMember; index: nu
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent" />
         <span className="absolute left-4 top-4 rounded-full border border-white/20 bg-slate-950/50 px-3 py-1 font-mono text-[10px] uppercase tracking-wider backdrop-blur">BT-{member.slug.slice(0, 3).toUpperCase()}-{String(index + 1).padStart(2, "0")}</span>
       </div>
-      <div className="pt-6"><p className="text-[10px] font-bold uppercase tracking-[0.18em] text-blue-300">{member.roleTitle}</p><h3 className="mt-2 text-2xl font-extrabold tracking-[-0.035em]">{member.fullName}</h3>{member.location && <p className="mt-2 flex items-center gap-1.5 text-xs text-slate-400"><MapPin className="h-3.5 w-3.5" />{member.location}</p>}<p className="mt-4 text-sm leading-6 text-slate-300">{member.shortBio}</p>
+      <div className="pt-6"><p className="text-[10px] font-bold uppercase tracking-[0.18em] text-blue-300">{member.roleTitle}</p><h3 className="mt-2 text-[1.375rem] font-extrabold tracking-[-0.035em]">{member.fullName}</h3>{member.location && <p className="mt-2 flex items-center gap-1.5 text-xs text-slate-400"><MapPin className="h-3.5 w-3.5" />{member.location}</p>}<p className="mt-4 text-sm leading-6 text-slate-300">{member.shortBio}</p>
         {member.specialties.length > 0 && <div className="mt-5 flex flex-wrap gap-2">{member.specialties.map(item => <span key={item} className="rounded-full border border-white/10 px-2.5 py-1 text-[10px] font-semibold text-slate-300">{item}</span>)}</div>}
         {links.length > 0 && <div className="mt-5 flex gap-2">{links.map(([key, href]) => <a key={key} href={href} target="_blank" rel="noreferrer" aria-label={`${member.fullName} on ${key}`} className="flex h-9 w-9 items-center justify-center rounded-full border border-white/15 text-slate-300 transition hover:border-blue-400 hover:text-white">{key === "linkedin" ? <BriefcaseBusiness className="h-4 w-4" /> : key === "github" ? <Code2 className="h-4 w-4" /> : <ExternalLink className="h-4 w-4" />}</a>)}</div>}
       </div>

@@ -118,7 +118,7 @@ export async function HomeHero() {
   return (
     <section
       aria-labelledby="home-hero-title"
-      className="relative overflow-hidden border-b border-ktf-gray-200 bg-ktf-surface pt-8 pb-14 sm:pt-10 sm:pb-16 lg:pt-14"
+      className="relative overflow-hidden border-b border-ktf-gray-200 bg-ktf-surface pt-5 pb-14 sm:pt-6 sm:pb-16 lg:pt-8"
     >
       {/* Base wash — a whisper of cool tone so the stage never reads as flat white */}
       <div
