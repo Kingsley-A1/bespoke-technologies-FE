@@ -5,6 +5,7 @@ import { assertAdminPermission, isSameOrigin } from "@/features/admin/access";
 import { createPortfolioProject } from "@/features/admin/portfolio/repository";
 import { imageExtension, parsePortfolioForm, validatePortfolioImage } from "@/features/admin/portfolio/validation";
 import { deleteR2Object, isR2Configured, putR2Object } from "@/lib/storage/r2";
+import { notifyKingsleyPortfolioChange } from "@/features/admin/portfolio/kingsley-sync";
 
 export const runtime = "nodejs";
 
@@ -59,7 +60,15 @@ export async function POST(request: Request) {
     revalidatePath("/");
     revalidatePath("/projects");
     revalidatePath("/admin/portfolio");
-    return NextResponse.json({ ok: true, project }, { status: 201 });
+    const kingsleySync = await notifyKingsleyPortfolioChange({
+      event: "portfolio.created",
+      projectId: project.id,
+      occurredAt: new Date().toISOString(),
+    });
+    return NextResponse.json(
+      { ok: true, project, kingsleySync: kingsleySync.status },
+      { status: 201 },
+    );
   } catch (error) {
     await deleteR2Object(imageKey).catch(() => undefined);
     if (heroScreenshotKey) {

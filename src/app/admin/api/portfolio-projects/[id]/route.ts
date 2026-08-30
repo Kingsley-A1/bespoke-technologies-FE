@@ -9,6 +9,7 @@ import {
 } from "@/features/admin/portfolio/repository";
 import { imageExtension, parsePortfolioForm, validatePortfolioImage } from "@/features/admin/portfolio/validation";
 import { deleteR2Object, isR2Configured, putR2Object } from "@/lib/storage/r2";
+import { notifyKingsleyPortfolioChange } from "@/features/admin/portfolio/kingsley-sync";
 
 export const runtime = "nodejs";
 
@@ -86,7 +87,16 @@ export async function PUT(request: Request, context: { params: Promise<{ id: str
       await deleteR2Object(result.previousHeroScreenshotKey).catch(() => undefined);
     }
     refreshPortfolio();
-    return NextResponse.json({ ok: true, project: result.project });
+    const kingsleySync = await notifyKingsleyPortfolioChange({
+      event: "portfolio.updated",
+      projectId: id,
+      occurredAt: new Date().toISOString(),
+    });
+    return NextResponse.json({
+      ok: true,
+      project: result.project,
+      kingsleySync: kingsleySync.status,
+    });
   } catch (error) {
     if (imageResult.file && nextImageKey) await deleteR2Object(nextImageKey).catch(() => undefined);
     if (screenshotResult.file && nextHeroScreenshotKey) {
@@ -108,5 +118,10 @@ export async function DELETE(request: Request, context: { params: Promise<{ id: 
     await deleteR2Object(result.heroScreenshotKey).catch(() => undefined);
   }
   refreshPortfolio();
-  return NextResponse.json({ ok: true });
+  const kingsleySync = await notifyKingsleyPortfolioChange({
+    event: "portfolio.deleted",
+    projectId: id,
+    occurredAt: new Date().toISOString(),
+  });
+  return NextResponse.json({ ok: true, kingsleySync: kingsleySync.status });
 }
