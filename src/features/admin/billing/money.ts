@@ -1,4 +1,4 @@
-import type { BillingDocument, BillingItem, CurrencyCode, InvoiceTotals, Payment } from "../types";
+import type { BillingDocument, BillingItem, CurrencyCode, InvoiceTotals, Payment, ProgressSummary } from "../types";
 
 export function roundMoney(value: number) {
   return Math.round((Number(value) + Number.EPSILON) * 100) / 100;
@@ -33,6 +33,30 @@ export function calculateDocumentTotals(
       .reduce((sum, payment) => sum + payment.amount, 0),
   );
   return { ...totals, paid, balance: roundMoney(Math.max(0, totals.total - paid)) };
+}
+
+/**
+ * Places this document inside the engagement it bills a part of. Returns null
+ * when no engagement value was stated, which is the case for every ordinary
+ * one-off invoice.
+ */
+export function calculateProgressSummary(
+  document: Pick<BillingDocument, "contractValue" | "previouslyInvoiced">,
+  totals: Pick<InvoiceTotals, "total">,
+): ProgressSummary | null {
+  const contractValue = roundMoney(Math.max(0, Number(document.contractValue || 0)));
+  if (contractValue <= 0) return null;
+  const previouslyInvoiced = roundMoney(Math.max(0, Number(document.previouslyInvoiced || 0)));
+  const thisInvoice = roundMoney(Number(totals.total || 0));
+  const billed = roundMoney(previouslyInvoiced + thisInvoice);
+  return {
+    contractValue,
+    previouslyInvoiced,
+    thisInvoice,
+    remaining: roundMoney(Math.max(0, contractValue - billed)),
+    share: contractValue > 0 ? thisInvoice / contractValue : 0,
+    overBilled: billed > contractValue,
+  };
 }
 
 export function formatMoney(value: number, currency: CurrencyCode = "NGN") {

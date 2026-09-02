@@ -118,12 +118,58 @@ describe.skipIf(!outputDirectory)("official document visual fixtures", () => {
       boldFont: arrayBuffer(bold),
     });
 
+    const deposit: BillingDocument = {
+      ...invoice,
+      id: "40000000-0000-4000-8000-000000000003",
+      documentNumber: "BT-DEP-2026-0001",
+      type: "deposit",
+      customTypeLabel: undefined,
+      valueLabel: undefined,
+      dueDate: "2026-08-04",
+      contractValue: 500_000,
+      items: [
+        {
+          id: "deposit-1",
+          name: "Advance deposit, Community Digital Platform",
+          description:
+            "Forty percent advance deposit against the agreed engagement value, covering discovery, information architecture, brand-aligned interface design, and the first delivery sprint. The remaining balance falls due against the milestone schedule set out in the signed statement of work.",
+          quantity: 1,
+          rate: 200_000,
+          discountRate: 0,
+          taxRate: 0,
+        },
+        {
+          id: "deposit-2",
+          name: "Managed hosting, domain, and transactional email provisioning for the first year",
+          description: "Billed once, renewed annually at prevailing provider pricing.",
+          quantity: 1,
+          rate: 0,
+          discountRate: 0,
+          taxRate: 0,
+        },
+      ],
+      notes: `This deposit secures the delivery slot.
+Work begins on receipt of cleared funds.`,
+      paymentInstructions: `Bank: Sample Bank
+Account name: Bespoke Technologies
+Account number: 0000000000
+
+${THIRD_PARTY_INFRASTRUCTURE_NOTICE}`,
+    };
+    const depositPdf = await generateBillingPdf(deposit, [], {
+      logo: arrayBuffer(logo),
+      regularFont: arrayBuffer(regular),
+      boldFont: arrayBuffer(bold),
+    });
+
     await mkdir(outputDirectory!, { recursive: true });
     await Promise.all([
       writeFile(path.join(outputDirectory!, "ownership-certificate.pdf"), certificatePdf),
       writeFile(path.join(outputDirectory!, "zero-balance-invoice.pdf"), invoicePdf),
+      writeFile(path.join(outputDirectory!, "deposit-invoice.pdf"), depositPdf),
     ]);
     expect(certificatePdf.byteLength).toBeGreaterThan(20_000);
     expect(invoicePdf.byteLength).toBeGreaterThan(100_000);
+    expect(depositPdf.byteLength).toBeGreaterThan(100_000);
   }, 20_000);
 });

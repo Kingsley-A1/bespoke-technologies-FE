@@ -31,6 +31,23 @@ const LABELS = Object.fromEntries(
   BILLING_DOCUMENT_TYPE_OPTIONS.map((option) => [option.value, option.label]),
 ) as Record<BillingDocumentType, string>;
 
+/**
+ * What the document calls itself in print. The picker labels above stay
+ * descriptive so an admin can tell the types apart; a headline set at 50px
+ * needs the short form.
+ */
+const PRINTED_TITLES: Record<BillingDocumentType, string> = {
+  standard: "Invoice",
+  proforma: "Proforma Invoice",
+  recurring: "Recurring Invoice",
+  deposit: "Deposit Invoice",
+  milestone: "Milestone Invoice",
+  final: "Final Invoice",
+  retainer: "Retainer Invoice",
+  subscription: "Subscription Invoice",
+  other: "Invoice",
+};
+
 const PREFIXES: Record<BillingDocumentType, string> = {
   standard: "BT-INV",
   proforma: "BT-PRO",
@@ -51,8 +68,24 @@ export function billingDocumentTypeLabel(
   return LABELS[type];
 }
 
+export function billingDocumentTitle(
+  type: BillingDocumentType,
+  customTypeLabel?: string,
+) {
+  if (type === "other" && customTypeLabel?.trim()) return customTypeLabel.trim();
+  return PRINTED_TITLES[type];
+}
+
 export function billingDocumentPrefix(type: BillingDocumentType) {
   return PREFIXES[type];
+}
+
+/**
+ * Types that bill one part of a larger agreed engagement, and so can state the
+ * whole engagement value alongside what this document covers.
+ */
+export function isProgressBillingType(type: BillingDocumentType) {
+  return type === "deposit" || type === "milestone" || type === "final" || type === "retainer";
 }
 
 export function isRecurringBillingType(type: BillingDocumentType) {

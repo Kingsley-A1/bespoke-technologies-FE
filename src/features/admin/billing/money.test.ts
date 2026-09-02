@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { calculateDocumentTotals, calculateLine, toIsoDate } from "./money";
+import { calculateDocumentTotals, calculateLine, calculateProgressSummary, toIsoDate } from "./money";
 import type { BillingDocument, Payment } from "../types";
 
 describe("billing money", () => {
@@ -22,6 +22,35 @@ describe("billing money", () => {
       { id: "payment-2", documentId: "invoice-1", amount: 1000, state: "reversed" },
     ] as Payment[];
     expect(calculateDocumentTotals(document, payments)).toMatchObject({ total: 5000, paid: 2000, balance: 3000 });
+  });
+
+  it("places a deposit inside the engagement it bills part of", () => {
+    expect(calculateProgressSummary({ contractValue: 500_000 }, { total: 200_000 })).toEqual({
+      contractValue: 500_000,
+      previouslyInvoiced: 0,
+      thisInvoice: 200_000,
+      remaining: 300_000,
+      share: 0.4,
+      overBilled: false,
+    });
+  });
+
+  it("counts what was invoiced earlier when reporting the remaining balance", () => {
+    expect(calculateProgressSummary({ contractValue: 500_000, previouslyInvoiced: 200_000 }, { total: 150_000 })).toMatchObject({
+      remaining: 150_000,
+      overBilled: false,
+    });
+  });
+
+  it("never reports a negative balance, and flags the overrun instead", () => {
+    expect(calculateProgressSummary({ contractValue: 500_000, previouslyInvoiced: 400_000 }, { total: 250_000 })).toMatchObject({
+      remaining: 0,
+      overBilled: true,
+    });
+  });
+
+  it("stays absent for an ordinary invoice with no engagement value", () => {
+    expect(calculateProgressSummary({}, { total: 200_000 })).toBeNull();
   });
 
   it("allocates invoice dates using the company's Lagos calendar day", () => {

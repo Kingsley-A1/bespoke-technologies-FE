@@ -54,6 +54,13 @@ function optionalString(row: Row, key: string) {
   return value === null || value === undefined ? undefined : String(value);
 }
 
+function optionalNumber(row: Row, key: string) {
+  const raw = row[key];
+  if (raw === null || raw === undefined) return undefined;
+  const value = Number(raw);
+  return Number.isFinite(value) ? value : undefined;
+}
+
 function number(row: Row, key: string, fallback = 0) {
   const value = Number(row[key]);
   return Number.isFinite(value) ? value : fallback;
@@ -283,6 +290,8 @@ async function databaseSnapshot(): Promise<AdminSnapshot> {
       paymentInstructions: string(row, "payment_instructions"),
       purchaseOrder: string(row, "purchase_order"),
       valueLabel: optionalString(row, "value_label"),
+      contractValue: optionalNumber(row, "contract_value"),
+      previouslyInvoiced: optionalNumber(row, "previously_invoiced"),
       recurrence,
       revision: number(row, "revision", 1),
       issuedAt: iso(row, "issued_at"),
@@ -717,6 +726,8 @@ export interface CreateBillingInput {
   paymentInstructions: string;
   purchaseOrder: string;
   valueLabel?: string;
+  contractValue?: number;
+  previouslyInvoiced?: number;
   recurrence?: RecurrenceRule;
 }
 
@@ -756,6 +767,8 @@ export async function createBillingRecord(input: CreateBillingInput, session: Ad
     paymentInstructions: input.paymentInstructions,
     purchaseOrder: input.purchaseOrder,
     valueLabel: input.valueLabel?.trim() || undefined,
+    contractValue: input.contractValue || undefined,
+    previouslyInvoiced: input.previouslyInvoiced || undefined,
     recurrence: input.type === "recurring" ? input.recurrence : undefined,
     revision: 1,
     createdBy: session.userId,
@@ -768,9 +781,10 @@ export async function createBillingRecord(input: CreateBillingInput, session: Ad
     await db.query(
       `INSERT INTO billing_documents (
         id, document_number, document_type, custom_type_label, status, client_id, project_id, parent_document_id, client_snapshot, company_snapshot, issue_date, due_date,
-        currency, subtotal, discount_total, tax_total, total, balance, notes, terms, payment_instructions, purchase_order, value_label, created_by
-      ) VALUES ($1,$2,$3,$4,'draft',$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23)`,
-      [document.id, document.documentNumber, document.type, document.customTypeLabel || null, document.clientId, document.projectId || null, document.parentDocumentId || null, JSON.stringify(document.client), JSON.stringify(document.company), document.issueDate, document.dueDate, document.currency, totals.subtotal, totals.discount, totals.tax, totals.total, totals.balance, document.notes || null, document.terms || null, document.paymentInstructions || null, document.purchaseOrder || null, document.valueLabel || null, session.userId],
+        currency, subtotal, discount_total, tax_total, total, balance, notes, terms, payment_instructions, purchase_order, value_label, created_by,
+        contract_value, previously_invoiced
+      ) VALUES ($1,$2,$3,$4,'draft',$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25)`,
+      [document.id, document.documentNumber, document.type, document.customTypeLabel || null, document.clientId, document.projectId || null, document.parentDocumentId || null, JSON.stringify(document.client), JSON.stringify(document.company), document.issueDate, document.dueDate, document.currency, totals.subtotal, totals.discount, totals.tax, totals.total, totals.balance, document.notes || null, document.terms || null, document.paymentInstructions || null, document.purchaseOrder || null, document.valueLabel || null, session.userId, document.contractValue ?? null, document.previouslyInvoiced ?? null],
     );
     for (const [index, item] of document.items.entries()) {
       const line = calculateLine(item);
@@ -834,6 +848,8 @@ export async function updateBillingDraft(id: string, input: CreateBillingInput, 
     paymentInstructions: input.paymentInstructions,
     purchaseOrder: input.purchaseOrder,
     valueLabel: input.valueLabel?.trim() || undefined,
+    contractValue: input.contractValue || undefined,
+    previouslyInvoiced: input.previouslyInvoiced || undefined,
     recurrence: current.type === "recurring" ? input.recurrence : undefined,
     updatedAt: new Date().toISOString(),
   };
@@ -844,9 +860,9 @@ export async function updateBillingDraft(id: string, input: CreateBillingInput, 
       `UPDATE billing_documents SET client_id=$2, project_id=$3, client_snapshot=$4, issue_date=$5, due_date=$6,
        currency=$7, subtotal=$8, discount_total=$9, tax_total=$10, total=$11, balance=$11,
        notes=$12, terms=$13, payment_instructions=$14, purchase_order=$15,
-       custom_type_label=$16, value_label=$17, updated_at=now()
+       custom_type_label=$16, value_label=$17, contract_value=$18, previously_invoiced=$19, updated_at=now()
        WHERE id=$1 AND status='draft' RETURNING id`,
-      [id, updated.clientId, updated.projectId || null, JSON.stringify(updated.client), updated.issueDate, updated.dueDate, updated.currency, totals.subtotal, totals.discount, totals.tax, totals.total, updated.notes || null, updated.terms || null, updated.paymentInstructions || null, updated.purchaseOrder || null, updated.customTypeLabel || null, updated.valueLabel || null],
+      [id, updated.clientId, updated.projectId || null, JSON.stringify(updated.client), updated.issueDate, updated.dueDate, updated.currency, totals.subtotal, totals.discount, totals.tax, totals.total, updated.notes || null, updated.terms || null, updated.paymentInstructions || null, updated.purchaseOrder || null, updated.customTypeLabel || null, updated.valueLabel || null, updated.contractValue ?? null, updated.previouslyInvoiced ?? null],
     );
     if (!updateResult.rows[0]) throw new Error("The document is no longer an editable draft.");
     await db.query("DELETE FROM billing_document_items WHERE document_id=$1", [id]);
@@ -984,6 +1000,8 @@ export async function createBillingRevision(id: string, session: AdminSession) {
       paymentInstructions: source.paymentInstructions,
       purchaseOrder: source.documentNumber,
       valueLabel: source.valueLabel,
+      contractValue: source.contractValue,
+      previouslyInvoiced: source.previouslyInvoiced,
     },
     session,
   );

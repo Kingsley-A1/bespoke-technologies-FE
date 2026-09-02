@@ -45,3 +45,23 @@ describe("billing input schema", () => {
     }).success).toBe(false);
   });
 });
+
+describe("progress billing input", () => {
+  const deposit = { ...validInput, type: "deposit" } as const;
+
+  it("accepts an engagement value on a deposit invoice", () => {
+    expect(billingInputSchema.safeParse({ ...deposit, contractValue: 500_000, previouslyInvoiced: 0 }).success).toBe(true);
+  });
+
+  it("rejects an engagement value on an invoice type that never prints it", () => {
+    const result = billingInputSchema.safeParse({ ...validInput, contractValue: 500_000 });
+    expect(result.success).toBe(false);
+    expect(result.error?.issues[0]?.message).toContain("deposit, milestone, final, or retainer");
+  });
+
+  it("rejects an earlier-invoiced figure with no engagement value to measure it against", () => {
+    const result = billingInputSchema.safeParse({ ...deposit, previouslyInvoiced: 200_000 });
+    expect(result.success).toBe(false);
+    expect(result.error?.issues[0]?.message).toContain("total engagement value");
+  });
+});

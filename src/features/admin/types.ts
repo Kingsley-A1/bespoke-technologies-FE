@@ -351,6 +351,10 @@ export interface BillingDocument {
   paymentInstructions: string;
   purchaseOrder: string;
   valueLabel?: string;
+  /** Total agreed value of the engagement this document bills a part of. */
+  contractValue?: number;
+  /** Value already billed on earlier documents for the same engagement. */
+  previouslyInvoiced?: number;
   recurrence?: RecurrenceRule;
   parentRecurringId?: string;
   revision: number;
@@ -525,6 +529,17 @@ export interface AdminSnapshot {
   audits: AuditEvent[];
   submissions: ContactSubmission[];
   settings: CompanySettings;
+}
+
+export interface ProgressSummary {
+  contractValue: number;
+  previouslyInvoiced: number;
+  thisInvoice: number;
+  remaining: number;
+  /** Share of the engagement value billed by this document, from 0 to 1. */
+  share: number;
+  /** True when the stated parts add up to more than the engagement value. */
+  overBilled: boolean;
 }
 
 export interface InvoiceTotals {

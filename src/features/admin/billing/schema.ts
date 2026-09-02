@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { BILLING_DOCUMENT_TYPES } from "./document-types";
+import { BILLING_DOCUMENT_TYPES, isProgressBillingType } from "./document-types";
 
 const itemSchema = z.object({
   id: z.string().min(1),
@@ -27,6 +27,8 @@ export const billingInputSchema = z.object({
   paymentInstructions: z.string().trim().max(2000),
   purchaseOrder: z.string().trim().max(120),
   valueLabel: z.string().trim().max(120).optional(),
+  contractValue: z.number().min(0).max(1_000_000_000_000).optional(),
+  previouslyInvoiced: z.number().min(0).max(1_000_000_000_000).optional(),
   recurrence: z.object({
     frequency: z.enum(["weekly", "monthly", "quarterly", "yearly"]),
     startDate: z.iso.date(),
@@ -43,4 +45,6 @@ export const billingInputSchema = z.object({
   if (value.type === "recurring" && !value.recurrence) context.addIssue({ code: "custom", message: "Choose a recurring schedule.", path: ["recurrence"] });
   if (value.type !== "recurring" && value.recurrence) context.addIssue({ code: "custom", message: "Only recurring templates can include a schedule.", path: ["recurrence"] });
   if (value.dueDate < value.issueDate) context.addIssue({ code: "custom", message: "Due date cannot be before issue date.", path: ["dueDate"] });
+  if (!isProgressBillingType(value.type) && (value.contractValue || value.previouslyInvoiced)) context.addIssue({ code: "custom", message: "Only a deposit, milestone, final, or retainer invoice can state an engagement value.", path: ["contractValue"] });
+  if (!value.contractValue && value.previouslyInvoiced) context.addIssue({ code: "custom", message: "Enter the total engagement value before recording what was invoiced earlier.", path: ["contractValue"] });
 });
