@@ -156,7 +156,7 @@ export async function generateBillingPdf(
     y -= 14;
     page.drawRectangle({ x: 46, y: y - bandHeight, width: A4.width - 92, height: bandHeight, color: paleBlue });
     page.drawText(progressHeading(document.type).toUpperCase(), { x: BAND_TEXT_X, y: y - 16, font: bold, size: 6.2, color: blue });
-    const figures = progressFigures(progress, document.currency);
+    const figures = progressFigures(progress, document.currency, document.type);
     const columnWidth = BAND_WIDTH / figures.length;
     figures.forEach((figure, index) => {
       const x = BAND_TEXT_X + index * columnWidth;

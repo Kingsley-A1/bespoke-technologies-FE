@@ -38,14 +38,22 @@ describe("InvoiceDocument", () => {
   it("shows what the deposit covers and what remains", () => {
     render(<InvoiceDocument document={depositDocument()} payments={[]} />);
     expect(screen.getByText("Deposit against the engagement value")).toBeInTheDocument();
-    expect(screen.getByText("Balance remaining")).toBeInTheDocument();
-    expect(screen.getByText(/A balance of .*300,000 remains/)).toBeInTheDocument();
+    expect(screen.getByText("Deposit on this invoice")).toBeInTheDocument();
+    expect(screen.getByText("Remaining to invoice")).toBeInTheDocument();
+    expect(screen.getByText(/remaining .*300,000 will be invoiced separately/)).toBeInTheDocument();
     expect(screen.getByText(/covers 40%/)).toBeInTheDocument();
+    expect(screen.queryByText("Invoiced earlier")).not.toBeInTheDocument();
+  });
+
+  it("reports the earlier total once the engagement has been part-billed", () => {
+    render(<InvoiceDocument document={depositDocument({ previouslyInvoiced: 150_000 })} payments={[]} />);
+    expect(screen.getByText("Invoiced earlier")).toBeInTheDocument();
+    expect(screen.getByText(/was invoiced earlier/)).toBeInTheDocument();
   });
 
   it("leaves an ordinary invoice with no engagement value unchanged", () => {
     render(<InvoiceDocument document={SAMPLE_DOCUMENT} payments={[]} />);
-    expect(screen.queryByText("Balance remaining")).not.toBeInTheDocument();
+    expect(screen.queryByText("Remaining to invoice")).not.toBeInTheDocument();
     expect(screen.getByText("Invoice")).toBeInTheDocument();
   });
 });

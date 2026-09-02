@@ -136,7 +136,7 @@ export function InvoiceDocument({
               {progressHeading(document.type)}
             </p>
             <div className="mt-[1.6%] flex items-start gap-4">
-              {progressFigures(progress, document.currency).map((figure) => (
+              {progressFigures(progress, document.currency, document.type).map((figure) => (
                 <div key={figure.label} className="flex-1">
                   <p className="text-[clamp(6px,0.85vw,11px)] font-bold uppercase tracking-[0.1em] text-slate-500">
                     {figure.label}

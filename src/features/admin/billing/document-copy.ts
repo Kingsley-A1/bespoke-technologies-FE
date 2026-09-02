@@ -29,6 +29,20 @@ export function progressHeading(type: BillingDocumentType) {
   return PROGRESS_HEADINGS[type] ?? "Engagement value";
 }
 
+/**
+ * What the amount on this document is called next to the engagement it belongs
+ * to. A deposit reads as a deposit, so the three figures a client scans are the
+ * engagement value, the deposit, and what is left.
+ */
+const THIS_INVOICE_LABELS: Partial<Record<BillingDocumentType, string>> = {
+  deposit: "Deposit on this invoice",
+  retainer: "Retainer on this invoice",
+};
+
+export function thisInvoiceLabel(type?: BillingDocumentType) {
+  return (type && THIS_INVOICE_LABELS[type]) ?? "This invoice";
+}
+
 function sharePercentage(share: number) {
   const percent = share * 100;
   if (percent > 0 && percent < 1) return "under 1%";
@@ -45,32 +59,41 @@ export function progressStatement(
   currency: CurrencyCode,
 ): string {
   const contract = formatMoney(summary.contractValue, currency);
+  const firstInvoice = summary.previouslyInvoiced <= 0;
   if (summary.overBilled) {
     return `This invoice, together with ${formatMoney(summary.previouslyInvoiced, currency)} invoiced earlier, exceeds the stated engagement value of ${contract}. Please contact us before paying.`;
   }
   if (summary.remaining <= 0) {
-    return `This invoice settles the remaining balance of the ${contract} engagement value in full.`;
+    return firstInvoice
+      ? `This invoice covers the ${contract} engagement value in full.`
+      : `This invoice settles the remaining balance of the ${contract} engagement value in full.`;
   }
-  const covered = `This invoice covers ${sharePercentage(summary.share)} of the ${contract} engagement value.`;
-  const earlier =
-    summary.previouslyInvoiced > 0
-      ? ` A further ${formatMoney(summary.previouslyInvoiced, currency)} was invoiced earlier.`
-      : "";
-  return `${covered}${earlier} A balance of ${formatMoney(summary.remaining, currency)} remains and is invoiced separately.`;
+  const remaining = formatMoney(summary.remaining, currency);
+  if (firstInvoice) {
+    return `This is the first invoice on the ${contract} engagement. It covers ${sharePercentage(summary.share)} of that value, and the remaining ${remaining} will be invoiced separately.`;
+  }
+  return `This invoice covers ${sharePercentage(summary.share)} of the ${contract} engagement value. A further ${formatMoney(summary.previouslyInvoiced, currency)} was invoiced earlier, and the remaining ${remaining} will be invoiced separately.`;
 }
 
 /**
  * The figures a progress-billing document shows, in reading order. Shared so
- * the web document, the PDF, and the editor preview cannot drift apart.
+ * the web document, the PDF, and the editor preview cannot drift apart. The
+ * earlier-invoiced figure is omitted on a first invoice: an engagement that has
+ * never been billed has no history to report, and a zero column reads like a
+ * missing number rather than a stated fact.
  */
-export function progressFigures(summary: ProgressSummary, currency: CurrencyCode) {
+export function progressFigures(
+  summary: ProgressSummary,
+  currency: CurrencyCode,
+  type?: BillingDocumentType,
+) {
   return [
     { label: "Engagement value", value: formatMoney(summary.contractValue, currency), emphasis: false },
     ...(summary.previouslyInvoiced > 0
       ? [{ label: "Invoiced earlier", value: formatMoney(summary.previouslyInvoiced, currency), emphasis: false }]
       : []),
-    { label: "This invoice", value: formatMoney(summary.thisInvoice, currency), emphasis: true },
-    { label: "Balance remaining", value: formatMoney(summary.remaining, currency), emphasis: false },
+    { label: thisInvoiceLabel(type), value: formatMoney(summary.thisInvoice, currency), emphasis: true },
+    { label: "Remaining to invoice", value: formatMoney(summary.remaining, currency), emphasis: false },
   ];
 }
 

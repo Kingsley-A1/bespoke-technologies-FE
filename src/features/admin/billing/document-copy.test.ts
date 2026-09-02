@@ -27,6 +27,25 @@ describe("invoice document copy", () => {
     expect(statement).toContain("invoiced separately");
   });
 
+  it("states plainly that a first deposit opens the engagement", () => {
+    const summary = calculateProgressSummary({ contractValue: 300_000 }, { total: 150_000 })!;
+    const statement = progressStatement(summary, "NGN");
+    expect(statement).toContain("first invoice on the ₦300,000 engagement");
+    expect(statement).not.toContain("invoiced earlier");
+  });
+
+  it("reports the earlier total only once an engagement has been part-billed", () => {
+    const summary = calculateProgressSummary({ contractValue: 500_000, previouslyInvoiced: 150_000 }, { total: 150_000 })!;
+    const statement = progressStatement(summary, "NGN");
+    expect(statement).toContain("₦150,000 was invoiced earlier");
+    expect(statement).toContain("₦200,000 will be invoiced separately");
+  });
+
+  it("says a single invoice covers the whole engagement when nothing preceded it", () => {
+    const summary = calculateProgressSummary({ contractValue: 300_000 }, { total: 300_000 })!;
+    expect(progressStatement(summary, "NGN")).toBe("This invoice covers the ₦300,000 engagement value in full.");
+  });
+
   it("says plainly when a final invoice closes the engagement", () => {
     const summary = calculateProgressSummary({ contractValue: 500_000, previouslyInvoiced: 300_000 }, { total: 200_000 })!;
     expect(progressStatement(summary, "NGN")).toContain("in full");
@@ -42,7 +61,12 @@ describe("invoice document copy", () => {
     expect(progressFigures(first, "NGN").map((figure) => figure.label)).toEqual([
       "Engagement value",
       "This invoice",
-      "Balance remaining",
+      "Remaining to invoice",
+    ]);
+    expect(progressFigures(first, "NGN", "deposit").map((figure) => figure.label)).toEqual([
+      "Engagement value",
+      "Deposit on this invoice",
+      "Remaining to invoice",
     ]);
     const later = calculateProgressSummary({ contractValue: 500_000, previouslyInvoiced: 200_000 }, { total: 150_000 })!;
     expect(progressFigures(later, "NGN").map((figure) => figure.label)).toContain("Invoiced earlier");
