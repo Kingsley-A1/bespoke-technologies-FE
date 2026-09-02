@@ -1,6 +1,13 @@
 import { formatMoney } from "./money";
 import type { BillingDocumentType, CurrencyCode, ProgressSummary } from "../types";
 
+/**
+ * What a recorded payment is called on the document. One constant so the web
+ * page, the PDF, and the live preview cannot drift, which they had: the page
+ * said "Paid" while the PDF clients receive said "Amount paid".
+ */
+export const PAID_LABEL = "Amount paid";
+
 export const DEFAULT_PAYMENT_TERMS =
   "Payment is due on or before the stated due date.";
 

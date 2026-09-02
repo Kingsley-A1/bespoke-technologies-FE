@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { assertAdminPermission, isSameOrigin } from "@/features/admin/access";
 import { billingInputSchema } from "@/features/admin/billing/schema";
-import { createBillingRecord, createClientRecord, createProjectRecord, getAdminSnapshot } from "@/features/admin/repository";
+import { createBillingRecord, createClientRecord, createProjectRecord, getAdminSnapshot, issueBillingDocumentWithPayment } from "@/features/admin/repository";
 
 export async function GET() {
   const access = await assertAdminPermission("billing.manage");
@@ -34,9 +34,31 @@ export async function POST(request: Request) {
       projectId = project.id;
     }
     const invoiceInput = { ...parsed.data };
+    const depositReceived = invoiceInput.depositReceived;
     delete invoiceInput.clientName;
     delete invoiceInput.projectName;
+    delete invoiceInput.depositReceived;
     const document = await createBillingRecord({ ...invoiceInput, clientId, projectId }, access.session);
+    if (!depositReceived) return NextResponse.json({ document }, { status: 201 });
+    // Issuing and taking money are separate authorities from preparing an
+    // invoice, so both are demanded before either is exercised.
+    for (const permission of ["billing.issue", "payments.record"] as const) {
+      const granted = await assertAdminPermission(permission);
+      if (!granted.ok) {
+        return NextResponse.json(
+          { document, depositError: `The invoice was saved as a draft. ${granted.error}` },
+          { status: 201 },
+        );
+      }
+    }
+    try {
+      await issueBillingDocumentWithPayment(document.id, depositReceived, access.session);
+    } catch (error) {
+      // The invoice exists and is recoverable, so it is returned with the
+      // reason rather than reported as a failed save.
+      const reason = error instanceof Error ? error.message : "The payment could not be recorded.";
+      return NextResponse.json({ document, depositError: reason }, { status: 201 });
+    }
     return NextResponse.json({ document }, { status: 201 });
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : "The invoice could not be saved." }, { status: 500 });

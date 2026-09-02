@@ -3,12 +3,12 @@
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { FileText, Plus, Save, Trash2 } from "lucide-react";
+import { FileText, Plus, Save, Trash2, WalletCards } from "lucide-react";
 import { COMPANY_IDENTITY } from "@/lib/company";
 import { LoadingSpinner } from "../components/admin-loading";
 import { inputClass, labelClass, primaryButtonClass, secondaryButtonClass, textareaClass } from "../components/admin-ui";
-import { DEFAULT_PAYMENT_TERMS, invoiceDateWarnings, progressFigures, progressHeading, progressStatement, termsForBalance, thisInvoiceLabel } from "./document-copy";
-import { BILLING_DOCUMENT_TYPE_OPTIONS, billingDocumentTitle, isProgressBillingType } from "./document-types";
+import { DEFAULT_PAYMENT_TERMS, PAID_LABEL, invoiceDateWarnings, progressFigures, progressHeading, progressStatement, termsForBalance, thisInvoiceLabel } from "./document-copy";
+import { BILLING_DOCUMENT_TYPE_OPTIONS, billingDocumentTitle, isPayableBillingType, isProgressBillingType } from "./document-types";
 import { addDays, calculateDocumentTotals, calculateLine, calculateProgressSummary, formatMoney, toIsoDate } from "./money";
 import type { BillingDocument, BillingDocumentType, BillingItem, Client, CompanySettings, CurrencyCode, InvoiceDraft, Project, RecurrenceFrequency } from "../types";
 
@@ -91,6 +91,10 @@ export function BillingEditor({ clients, projects, settings, initialDocument, in
   const [frequency, setFrequency] = useState<RecurrenceFrequency>(draftString(initialDraft, "frequency", initialDocument?.recurrence?.frequency ?? "monthly") as RecurrenceFrequency);
   const [nextRunDate, setNextRunDate] = useState(draftString(initialDraft, "nextRunDate", initialDocument?.recurrence?.nextRunDate ?? issueDefault));
   const [autoIssue, setAutoIssue] = useState(draftBoolean(initialDraft, "autoIssue", initialDocument?.recurrence?.autoIssue ?? false));
+  const [depositAmount, setDepositAmount] = useState(draftString(initialDraft, "depositAmount"));
+  const [depositPaidAt, setDepositPaidAt] = useState(draftString(initialDraft, "depositPaidAt"));
+  const [depositMethod, setDepositMethod] = useState(draftString(initialDraft, "depositMethod", "Bank transfer"));
+  const [depositReference, setDepositReference] = useState(draftString(initialDraft, "depositReference"));
   const [saving, setSaving] = useState<"draft" | "invoice" | null>(null);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState(initialDraft ? "Recovered saved invoice draft." : "");
@@ -102,7 +106,13 @@ export function BillingEditor({ clients, projects, settings, initialDocument, in
   const effectiveTerms = termsForBalance(terms, totals.balance);
   const dateWarnings = invoiceDateWarnings(issueDate, dueDate, toIsoDate());
   const displayType = billingDocumentTitle(type, customTypeLabel);
-  const displayBalance = valueLabel.trim() || formatMoney(totals.total, currency);
+  const payableBilling = isPayableBillingType(type) && !initialDocument;
+  // Money the client has already handed over. It reduces what this invoice
+  // asks for, and is saved as a real payment rather than a figure on the page.
+  const depositPaid = payableBilling ? Math.max(0, Number(depositAmount) || 0) : 0;
+  const depositOverpays = depositPaid > totals.total;
+  const previewBalance = Math.max(0, totals.total - Math.min(depositPaid, totals.total));
+  const displayBalance = valueLabel.trim() || formatMoney(previewBalance, currency);
   const progressBilling = isProgressBillingType(type);
   // A first invoice on an engagement has nothing invoiced earlier. The stage
   // choice, not a number left at zero, is what makes that explicit.
@@ -123,7 +133,7 @@ export function BillingEditor({ clients, projects, settings, initialDocument, in
   }, [totals.balance]);
 
   function payload() {
-    return { type, customTypeLabel, clientChoice, newClientName, projectChoice, newProjectName, issueDate, dueDate, currency, items, notes, terms: effectiveTerms, paymentInstructions, purchaseOrder, valueLabel, contractValue, previouslyInvoiced, hasEarlierInvoices, frequency, nextRunDate, autoIssue };
+    return { type, customTypeLabel, clientChoice, newClientName, projectChoice, newProjectName, issueDate, dueDate, currency, items, notes, terms: effectiveTerms, paymentInstructions, purchaseOrder, valueLabel, contractValue, previouslyInvoiced, hasEarlierInvoices, depositAmount, depositPaidAt, depositMethod, depositReference, frequency, nextRunDate, autoIssue };
   }
 
   function updateItem(id: string, field: keyof BillingItem, value: string) {
@@ -147,6 +157,11 @@ export function BillingEditor({ clients, projects, settings, initialDocument, in
   }
 
   async function saveInvoice() {
+    if (depositOverpays) { setError("The payment already received is more than the invoice total."); return; }
+    if (depositPaid > 0 && (!depositPaidAt || depositReference.trim().length < 2)) {
+      setError("A payment already received needs the time it was received and a reference.");
+      return;
+    }
     setSaving("invoice"); setError(""); setNotice("");
     try {
       const response = await fetch(initialDocument ? `/admin/api/billing/${initialDocument.id}` : "/admin/api/billing", {
@@ -162,11 +177,17 @@ export function BillingEditor({ clients, projects, settings, initialDocument, in
           contractValue: progressBilling && Number(contractValue) > 0 ? Number(contractValue) : undefined,
           previouslyInvoiced: progressBilling && earlierInvoiced > 0 ? earlierInvoiced : undefined,
           recurrence: type === "recurring" ? { frequency, startDate: issueDate, nextRunDate, autoIssue, state: "active" } : undefined,
+          depositReceived: depositPaid > 0
+            ? { amount: depositPaid, paidAt: depositPaidAt, method: depositMethod, reference: depositReference, note: "" }
+            : undefined,
         }),
       });
-      const data = await response.json() as { document?: BillingDocument; error?: string };
+      const data = await response.json() as { document?: BillingDocument; error?: string; depositError?: string };
       if (!response.ok || !data.document) throw new Error(data.error || "The invoice could not be saved.");
       if (initialDraft) await fetch(`/admin/api/billing/drafts/${initialDraft.id}`, { method: "DELETE" }).catch(() => undefined);
+      // The invoice exists either way. Staying put with the reason is more use
+      // than navigating away from a payment that was not recorded.
+      if (data.depositError) { setError(`Invoice ${data.document.documentNumber} was saved, but the payment was not recorded. ${data.depositError}`); router.refresh(); return; }
       router.push(`/admin/billing/${data.document.id}`); router.refresh();
     } catch (reason) { setError(reason instanceof Error ? reason.message : "The invoice could not be saved."); }
     finally { setSaving(null); }
@@ -240,6 +261,49 @@ export function BillingEditor({ clients, projects, settings, initialDocument, in
           )}
         </section>
 
+        {payableBilling && (
+          <section className="rounded-lg border border-ktf-gray-200 bg-white p-5 shadow-card sm:p-6">
+            <div className="flex items-start gap-3">
+              <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700"><WalletCards className="h-5 w-5" /></span>
+              <div>
+                <h2 className="text-base font-bold text-ktf-navy">Payment already received</h2>
+                <p className="mt-1 text-xs text-ktf-gray-500">For an invoice raised after the client has paid a deposit. Leave the amount empty when nothing has been paid yet.</p>
+              </div>
+            </div>
+            <div className="mt-5 grid gap-4 sm:grid-cols-2">
+              <label>
+                <span className={labelClass}>Amount received ({currency})</span>
+                <input className={inputClass} type="number" min="0" step="0.01" value={depositAmount} onChange={(event) => setDepositAmount(event.target.value)} placeholder="0" />
+                <span className="mt-1 block text-[11px] leading-4 text-ktf-gray-500">Deducted from the invoice total. The balance due becomes what is still owed.</span>
+              </label>
+              <label>
+                <span className={labelClass}>Received at</span>
+                <input className={inputClass} type="datetime-local" value={depositPaidAt} onChange={(event) => setDepositPaidAt(event.target.value)} />
+              </label>
+              {depositPaid > 0 && (
+                <>
+                  <label>
+                    <span className={labelClass}>Method</span>
+                    <select className={inputClass} value={depositMethod} onChange={(event) => setDepositMethod(event.target.value)}><option>Bank transfer</option><option>Cash</option><option>Card</option><option>Other</option></select>
+                  </label>
+                  <label>
+                    <span className={labelClass}>Reference</span>
+                    <input className={inputClass} value={depositReference} onChange={(event) => setDepositReference(event.target.value)} maxLength={160} placeholder="Transfer or receipt reference" />
+                    <span className="mt-1 block text-[11px] leading-4 text-ktf-gray-500">Must be unique for this client. It is how the payment is traced back.</span>
+                  </label>
+                </>
+              )}
+            </div>
+            {depositPaid > 0 && (
+              <p className={`mt-4 text-xs leading-5 ${depositOverpays ? "font-semibold text-amber-800" : "text-ktf-gray-600"}`}>
+                {depositOverpays
+                  ? `${formatMoney(depositPaid, currency)} is more than the ${formatMoney(totals.total, currency)} invoice total. Reduce it, or add the missing items.`
+                  : `Saving records ${formatMoney(depositPaid, currency)} as a payment and issues this invoice, which is then marked sent. ${formatMoney(previewBalance, currency)} remains due.`}
+              </p>
+            )}
+          </section>
+        )}
+
         <section className="rounded-lg border border-ktf-gray-200 bg-white shadow-card">
           <div className="flex items-center justify-between border-b border-ktf-gray-200 px-5 py-4 sm:px-6"><div><h2 className="text-base font-bold text-ktf-navy">Invoice items</h2><p className="mt-1 text-xs text-ktf-gray-500">Quantity, rate, discount, and tax stay visible.</p></div><button type="button" onClick={() => setItems((current) => [...current, createItem()])} className={secondaryButtonClass}><Plus className="h-4 w-4" /> Add item</button></div>
           <div className="space-y-4 p-5 sm:p-6">{items.map((item, index) => <div key={item.id} className="rounded-lg border border-ktf-gray-200 p-4"><div className="grid gap-3"><label><span className={labelClass}>Item {index + 1}</span><input className={inputClass} value={item.name} onChange={(e) => updateItem(item.id, "name", e.target.value)} placeholder="Service name" maxLength={180} /></label><label><span className={labelClass}>Description</span><textarea className={textareaClass} rows={3} maxLength={FIELD_LIMITS.description} value={item.description} onChange={(e) => updateItem(item.id, "description", e.target.value)} placeholder="What this item covers. It prints in full as its own row beneath the service name. Line breaks are kept." /><FieldCount value={item.description} max={FIELD_LIMITS.description} /></label></div><div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-5"><label><span className={labelClass}>Quantity</span><input className={inputClass} type="number" min="0.01" step="0.01" value={item.quantity} onChange={(e) => updateItem(item.id, "quantity", e.target.value)} /></label><label><span className={labelClass}>Rate</span><input className={inputClass} type="number" min="0" value={item.rate} onChange={(e) => updateItem(item.id, "rate", e.target.value)} /></label><label><span className={labelClass}>Discount %</span><input className={inputClass} type="number" min="0" max="100" value={item.discountRate} onChange={(e) => updateItem(item.id, "discountRate", e.target.value)} /></label><label><span className={labelClass}>Tax %</span><input className={inputClass} type="number" min="0" max="100" value={item.taxRate} onChange={(e) => updateItem(item.id, "taxRate", e.target.value)} /></label><div><span className={labelClass}>Total</span><div className="flex h-10 items-center justify-between rounded-lg bg-ktf-surface px-3 text-xs font-bold text-ktf-navy">{formatMoney(calculateLine(item).total, currency)}{items.length > 1 && <button type="button" onClick={() => setItems((current) => current.filter((entry) => entry.id !== item.id))} aria-label={`Remove item ${index + 1}`} className="text-ktf-error"><Trash2 className="h-4 w-4" /></button>}</div></div></div></div>)}</div>
@@ -259,7 +323,7 @@ export function BillingEditor({ clients, projects, settings, initialDocument, in
             <div className="flex items-start justify-between gap-6"><Image src={COMPANY_IDENTITY.logoPath} alt={COMPANY_IDENTITY.registeredName} width={340} height={112} className="h-auto w-[42%] object-contain object-left" /><div className="text-right"><p className="text-[8px] font-bold uppercase tracking-wider text-ktf-blue">{type === "proforma" ? "For approval" : "Billing invoice"}</p><p className="mt-1 max-w-[190px] text-[20px] font-extrabold leading-tight">{displayType}</p><p className="mt-3 text-[8px] font-bold text-slate-700">Number allocated on complete save</p><p className="mt-1 text-[8px] text-slate-500">Issued {issueDate}</p><p className="text-[8px] text-slate-500">Due {dueDate}</p></div></div>
             <div className="mt-[7%] grid grid-cols-2 gap-8 border-t border-slate-200 pt-[5%]"><div><p className="text-[7px] font-bold uppercase tracking-wider text-slate-500">From</p><p className="mt-2 text-[11px] font-bold">{settings.name}</p><p className="mt-1 text-[8px] leading-4 text-slate-500">{settings.email}<br />{settings.phone} · {settings.website}</p></div><div><p className="text-[7px] font-bold uppercase tracking-wider text-slate-500">Bill to</p><p className="mt-2 text-[11px] font-bold">{previewClientName || "Choose a client"}</p><p className="mt-1 text-[8px] leading-4 text-slate-500">{selectedClient?.contacts.find((contact) => contact.isBilling)?.name}<br />{selectedClient?.email}<br />{selectedClient?.address}</p></div></div>
             <div className="mt-[5%]"><div className="grid grid-cols-[1fr_42px_74px_84px] border-y border-blue-200 bg-blue-50 px-2 py-2 text-[7px] font-bold uppercase tracking-wide text-blue-700"><span>Service</span><span>Qty</span><span className="text-right">Rate</span><span className="text-right">Amount</span></div>{items.map((item) => <div key={item.id} className="border-b border-slate-100 px-2 py-2 text-[8px]"><div className="grid grid-cols-[1fr_42px_74px_84px] items-baseline"><strong className="text-[9px]">{item.name || "Service name"}</strong><span>{item.quantity}</span><span className="text-right">{formatMoney(item.rate, currency)}</span><span className="text-right font-bold">{formatMoney(calculateLine(item).total, currency)}</span></div>{item.description && <p className="mt-1 whitespace-pre-line text-[7px] leading-[1.6] text-slate-500">{item.description}</p>}</div>)}</div>
-            {progress && <div className="mt-[4%] border border-blue-200 bg-blue-50/70 px-2 py-2"><p className="text-[6px] font-bold uppercase tracking-wider text-blue-700">{progressHeading(type)}</p><div className="mt-1 flex gap-2">{progressFigures(progress, currency, type).map((figure) => <div key={figure.label} className="flex-1"><p className="text-[5px] font-bold uppercase tracking-wider text-slate-500">{figure.label}</p><p className={`text-[8px] ${figure.emphasis ? "font-extrabold text-ktf-blue" : "font-bold text-slate-900"}`}>{figure.value}</p></div>)}</div><p className="mt-1 text-[6px] leading-[1.5] text-slate-600">{progressStatement(progress, currency)}</p></div>}<div className="mt-[4%] grid grid-cols-2 gap-8"><div className="text-[7px] leading-4 text-slate-500"><p className="font-bold uppercase text-slate-600">Notes</p><p className="whitespace-pre-line">{notes}</p><p className="mt-2 font-bold uppercase text-slate-600">Terms</p><p className="whitespace-pre-line">{effectiveTerms}</p></div><div className="text-[8px]"><div className="flex justify-between py-1.5 text-slate-500"><span>Subtotal</span><span>{formatMoney(totals.subtotal, currency)}</span></div>{totals.discount > 0 && <div className="flex justify-between py-1 text-slate-500"><span>Discount</span><span>-{formatMoney(totals.discount, currency)}</span></div>}{totals.tax > 0 && <div className="flex justify-between py-1 text-slate-500"><span>Tax</span><span>{formatMoney(totals.tax, currency)}</span></div>}<div className="mt-1 flex items-center justify-between gap-2 bg-ktf-blue p-3 text-white"><span className="text-[7px] font-bold uppercase">{totals.balance <= 0 ? "Project value" : "Balance due"}</span><span className="max-w-[100px] text-right text-[10px] font-extrabold leading-tight">{displayBalance}</span></div></div></div>
+            {progress && <div className="mt-[4%] border border-blue-200 bg-blue-50/70 px-2 py-2"><p className="text-[6px] font-bold uppercase tracking-wider text-blue-700">{progressHeading(type)}</p><div className="mt-1 flex gap-2">{progressFigures(progress, currency, type).map((figure) => <div key={figure.label} className="flex-1"><p className="text-[5px] font-bold uppercase tracking-wider text-slate-500">{figure.label}</p><p className={`text-[8px] ${figure.emphasis ? "font-extrabold text-ktf-blue" : "font-bold text-slate-900"}`}>{figure.value}</p></div>)}</div><p className="mt-1 text-[6px] leading-[1.5] text-slate-600">{progressStatement(progress, currency)}</p></div>}<div className="mt-[4%] grid grid-cols-2 gap-8"><div className="text-[7px] leading-4 text-slate-500"><p className="font-bold uppercase text-slate-600">Notes</p><p className="whitespace-pre-line">{notes}</p><p className="mt-2 font-bold uppercase text-slate-600">Terms</p><p className="whitespace-pre-line">{effectiveTerms}</p></div><div className="text-[8px]"><div className="flex justify-between py-1.5 text-slate-500"><span>Subtotal</span><span>{formatMoney(totals.subtotal, currency)}</span></div>{totals.discount > 0 && <div className="flex justify-between py-1 text-slate-500"><span>Discount</span><span>-{formatMoney(totals.discount, currency)}</span></div>}{totals.tax > 0 && <div className="flex justify-between py-1 text-slate-500"><span>Tax</span><span>{formatMoney(totals.tax, currency)}</span></div>}{depositPaid > 0 && <div className="flex justify-between py-1 text-emerald-700"><span>{PAID_LABEL}</span><span>{formatMoney(Math.min(depositPaid, totals.total), currency)}</span></div>}<div className="mt-1 flex items-center justify-between gap-2 bg-ktf-blue p-3 text-white"><span className="text-[7px] font-bold uppercase">{previewBalance <= 0 ? "Project value" : "Balance due"}</span><span className="max-w-[100px] text-right text-[10px] font-extrabold leading-tight">{displayBalance}</span></div></div></div>
             <div className="mt-auto flex items-center justify-between border-t border-blue-200 pt-2 text-[6px] font-bold uppercase tracking-wide text-slate-500"><span>{settings.motto}</span><span>Page 1</span></div>
           </div>
         </div>

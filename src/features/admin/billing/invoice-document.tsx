@@ -8,6 +8,7 @@ import {
   formatMoney,
 } from "./money";
 import {
+  PAID_LABEL,
   progressFigures,
   progressHeading,
   progressStatement,
@@ -202,7 +203,7 @@ export function InvoiceDocument({
             )}
             {totals.paid > 0 && (
               <div className="flex justify-between py-1.5 text-emerald-700">
-                <span>Paid</span>
+                <span>{PAID_LABEL}</span>
                 <span>{formatMoney(totals.paid, document.currency)}</span>
               </div>
             )}

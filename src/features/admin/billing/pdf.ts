@@ -3,7 +3,7 @@ import "server-only";
 import fontkit from "@pdf-lib/fontkit";
 import { PDFDocument, rgb, type PDFFont, type PDFImage, type PDFPage } from "pdf-lib";
 import { calculateDocumentTotals, calculateLine, calculateProgressSummary, formatAdminDate, formatMoney } from "./money";
-import { progressFigures, progressHeading, progressStatement, termsForBalance } from "./document-copy";
+import { PAID_LABEL, progressFigures, progressHeading, progressStatement, termsForBalance } from "./document-copy";
 import { billingDocumentTitle, billingDocumentTypeLabel } from "./document-types";
 import { clampLines, wrapText } from "./text-layout";
 import type { BillingDocument, Payment } from "../types";
@@ -184,7 +184,7 @@ export async function generateBillingPdf(
     ...(totals.discount ? [["Discount", `- ${formatMoney(totals.discount, document.currency)}`, false] as [string, string, boolean]] : []),
     ...(totals.tax ? [["Tax", formatMoney(totals.tax, document.currency), false] as [string, string, boolean]] : []),
     ["Total", formatMoney(totals.total, document.currency), true],
-    ...(totals.paid ? [["Amount paid", formatMoney(totals.paid, document.currency), false] as [string, string, boolean]] : []),
+    ...(totals.paid ? [[PAID_LABEL, formatMoney(totals.paid, document.currency), false] as [string, string, boolean]] : []),
   ];
   for (const [label, value, strong] of rows) {
     page.drawText(label, { x: totalsX, y, font: strong ? bold : regular, size: 8, color: strong ? dark : grey });

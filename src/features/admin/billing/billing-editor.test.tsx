@@ -49,6 +49,69 @@ async function openDepositEngagement(user: ReturnType<typeof userEvent.setup>) {
   await user.type(screen.getByLabelText(/^Rate$/i), "150000");
 }
 
+describe("BillingEditor payment already received", () => {
+  async function fillProjectInvoice(user: ReturnType<typeof userEvent.setup>) {
+    await user.type(screen.getByLabelText(/^Rate$/i), "300000");
+  }
+
+  it("deducts money already received from the balance the invoice asks for", async () => {
+    const user = userEvent.setup();
+    renderEditor();
+    await fillProjectInvoice(user);
+    await user.type(screen.getByLabelText(/Amount received/i), "150000");
+
+    expect(screen.getByText("Amount paid")).toBeInTheDocument();
+    expect(screen.getAllByText("₦150,000").length).toBeGreaterThan(0);
+    expect(screen.getByText(/remains due/i)).toBeInTheDocument();
+  });
+
+  it("refuses to save a payment larger than the invoice total", async () => {
+    const user = userEvent.setup();
+    const fetchSpy = vi.spyOn(globalThis, "fetch");
+    renderEditor();
+    await fillProjectInvoice(user);
+    await user.type(screen.getByLabelText(/Amount received/i), "400000");
+    await user.click(screen.getByRole("button", { name: /Save complete invoice/i }));
+
+    expect(screen.getByRole("alert")).toHaveTextContent(/more than the invoice total/i);
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
+  it("refuses to save a payment with no reference to trace it by", async () => {
+    const user = userEvent.setup();
+    const fetchSpy = vi.spyOn(globalThis, "fetch");
+    renderEditor();
+    await fillProjectInvoice(user);
+    await user.type(screen.getByLabelText(/Amount received/i), "150000");
+    await user.click(screen.getByRole("button", { name: /Save complete invoice/i }));
+
+    expect(screen.getByRole("alert")).toHaveTextContent(/reference/i);
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
+  it("keeps the admin on the form when the invoice saves but the payment does not", async () => {
+    const user = userEvent.setup();
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          document: { id: "40000000-0000-4000-8000-000000000009", documentNumber: "BT-DEP-2026-0001" },
+          depositError: "This payment reference has already been recorded for the client.",
+        }),
+        { status: 201, headers: { "Content-Type": "application/json" } },
+      ),
+    );
+    renderEditor();
+    await fillProjectInvoice(user);
+    await user.type(screen.getByLabelText(/Amount received/i), "150000");
+    await user.type(screen.getByLabelText(/Received at/i), "2026-09-01T10:00");
+    await user.type(screen.getByLabelText(/Reference/i), "TRF-001");
+    await user.click(screen.getByRole("button", { name: /Save complete invoice/i }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(/BT-DEP-2026-0001 was saved, but the payment was not recorded/i);
+    expect(screen.getByRole("alert")).toHaveTextContent(/already been recorded/i);
+  });
+});
+
 describe("BillingEditor engagement panel", () => {
   it("treats a deposit as the first invoice and never asks what came earlier", async () => {
     const user = userEvent.setup();

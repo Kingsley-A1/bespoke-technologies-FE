@@ -65,3 +65,26 @@ describe("progress billing input", () => {
     expect(result.error?.issues[0]?.message).toContain("total engagement value");
   });
 });
+
+describe("payment already received", () => {
+  const received = { amount: 150_000, paidAt: "2026-09-01T10:00", method: "Bank transfer", reference: "TRF-001", note: "" };
+
+  it("accepts money already paid on a payable invoice", () => {
+    expect(billingInputSchema.safeParse({ ...validInput, type: "deposit", depositReceived: received }).success).toBe(true);
+  });
+
+  it("rejects money already paid on a proforma, which never takes payment", () => {
+    const result = billingInputSchema.safeParse({ ...validInput, type: "proforma", depositReceived: received });
+    expect(result.success).toBe(false);
+    expect(result.error?.issues[0]?.message).toContain("payable invoice");
+  });
+
+  it("rejects a payment with no reference to trace it by", () => {
+    expect(billingInputSchema.safeParse({ ...validInput, depositReceived: { ...received, reference: "" } }).success).toBe(false);
+  });
+
+  it("rejects a zero or negative payment rather than storing a meaningless one", () => {
+    expect(billingInputSchema.safeParse({ ...validInput, depositReceived: { ...received, amount: 0 } }).success).toBe(false);
+    expect(billingInputSchema.safeParse({ ...validInput, depositReceived: { ...received, amount: -1 } }).success).toBe(false);
+  });
+});

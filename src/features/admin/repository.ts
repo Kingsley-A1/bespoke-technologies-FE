@@ -1190,6 +1190,31 @@ export async function recordPayment(
   return payment;
 }
 
+/**
+ * Issues an invoice and records money the client has already paid against it.
+ *
+ * An invoice raised after the client has paid still has to travel the ordinary
+ * lifecycle, because a payment can only attach to an issued document. Each step
+ * below is the same permission-checked, audited call the invoice page makes, so
+ * a manager over the approval threshold is refused here exactly as they are
+ * refused when issuing by hand. The steps are deliberately not folded into one
+ * transaction: if the payment is rejected the invoice remains, correctly issued,
+ * and the payment can be recorded again from the invoice itself.
+ */
+export async function issueBillingDocumentWithPayment(
+  documentId: string,
+  payment: Pick<Payment, "amount" | "paidAt" | "method" | "reference" | "note">,
+  session: AdminSession,
+) {
+  const document = await getBillingDocument(documentId);
+  if (!document) throw new Error("Billing document not found.");
+  if (!isPayableBillingType(document.type)) throw new Error("Only a payable invoice can record a payment already received.");
+  if (document.status === "draft") await transitionBillingDocument(documentId, "approved", session, "Issued to record a payment already received.");
+  const approved = await getBillingDocument(documentId);
+  if (approved?.status === "approved") await transitionBillingDocument(documentId, "sent", session, "Issued to record a payment already received.");
+  return recordPayment({ ...payment, documentId }, session);
+}
+
 export async function reversePayment(id: string, reason: string, session: AdminSession) {
   const snapshot = await getAdminSnapshot();
   const payment = snapshot.payments.find((candidate) => candidate.id === id && candidate.state === "recorded");

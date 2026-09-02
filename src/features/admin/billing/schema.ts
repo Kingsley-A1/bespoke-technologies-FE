@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { BILLING_DOCUMENT_TYPES, isProgressBillingType } from "./document-types";
+import { BILLING_DOCUMENT_TYPES, isPayableBillingType, isProgressBillingType } from "./document-types";
 
 const itemSchema = z.object({
   id: z.string().min(1),
@@ -29,6 +29,13 @@ export const billingInputSchema = z.object({
   valueLabel: z.string().trim().max(120).optional(),
   contractValue: z.number().min(0).max(1_000_000_000_000).optional(),
   previouslyInvoiced: z.number().min(0).max(1_000_000_000_000).optional(),
+  depositReceived: z.object({
+    amount: z.number().positive().max(1_000_000_000_000),
+    paidAt: z.string().min(10).max(40),
+    method: z.string().trim().min(2).max(80),
+    reference: z.string().trim().min(2).max(160),
+    note: z.string().trim().max(500),
+  }).optional(),
   recurrence: z.object({
     frequency: z.enum(["weekly", "monthly", "quarterly", "yearly"]),
     startDate: z.iso.date(),
@@ -47,4 +54,5 @@ export const billingInputSchema = z.object({
   if (value.dueDate < value.issueDate) context.addIssue({ code: "custom", message: "Due date cannot be before issue date.", path: ["dueDate"] });
   if (!isProgressBillingType(value.type) && (value.contractValue || value.previouslyInvoiced)) context.addIssue({ code: "custom", message: "Only a deposit, milestone, final, or retainer invoice can state an engagement value.", path: ["contractValue"] });
   if (!value.contractValue && value.previouslyInvoiced) context.addIssue({ code: "custom", message: "Enter the total engagement value before recording what was invoiced earlier.", path: ["contractValue"] });
+  if (value.depositReceived && !isPayableBillingType(value.type)) context.addIssue({ code: "custom", message: "Only a payable invoice can record a payment already received.", path: ["depositReceived"] });
 });
