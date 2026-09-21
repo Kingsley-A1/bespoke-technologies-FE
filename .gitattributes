@@ -1,0 +1,4 @@
+# Binary documents: never line-ending-convert or text-diff them.
+# Generated PDFs can be pure ASCII (e.g. ASCII85 streams), which defeats
+# git's binary heuristic and exposes them to core.autocrlf rewriting.
+*.pdf binary
