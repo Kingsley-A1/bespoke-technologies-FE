@@ -4,6 +4,7 @@ import { assertAdminPermission, isSameOrigin } from "@/features/admin/access";
 import { buildBespokeCoworkerPrompt } from "@/lib/ai/bespoke-coworker-prompt";
 import { createBespokeAIError, getBespokeAIErrorPayload, serializeBespokeAIError } from "@/lib/ai/bespoke-ai-errors";
 import { getLastUserMessageText } from "@/lib/db/cockroach";
+import { GEMINI_MODEL_ID } from "@/lib/ai/model";
 
 export const maxDuration = 30;
 const MAX_MESSAGES = 16;
@@ -33,7 +34,7 @@ export async function POST(request: Request) {
   try {
     const system = await buildBespokeCoworkerPrompt(access.session);
     const result = streamText({
-      model: google("gemini-2.5-flash"),
+      model: google(GEMINI_MODEL_ID),
       system,
       messages: await convertToModelMessages(messages),
       maxRetries: 1,

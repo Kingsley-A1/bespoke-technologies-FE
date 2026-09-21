@@ -8,6 +8,7 @@ import {
   type UIMessage,
 } from "ai";
 import { bespokeAITools } from "@/lib/ai/bespoke-ai-tools";
+import { GEMINI_MODEL_ID } from "@/lib/ai/model";
 import {
   buildBespokeAISystemPrompt,
   type BespokeAIResponseDetail,
@@ -120,7 +121,7 @@ export async function POST(req: Request) {
 
   try {
     const result = streamText({
-      model: google("gemini-2.5-flash"),
+      model: google(GEMINI_MODEL_ID),
       system: buildBespokeAISystemPrompt({ detail: detailLevel }),
       messages: await convertToModelMessages(messages),
       tools: bespokeAITools,
