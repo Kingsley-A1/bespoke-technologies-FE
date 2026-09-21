@@ -14,7 +14,8 @@
     "admin:totp": "node scripts/admin-totp.mjs",
     "admin:recovery": "node scripts/admin-recovery.mjs",
     "admin:verify": "node scripts/verify-admin-config.mjs",
-    "qa:admin-browser": "node scripts/admin-browser-qa.mjs"
+    "qa:admin-browser": "node scripts/admin-browser-qa.mjs",
+    "verify:idea-gate-ai": "node scripts/verify-idea-gate-ai.mjs"
   },
   "dependencies": {
     "@ai-sdk/google": "^3.0.80",
