@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { DIGITAL_AUDIT_RECOMMENDATIONS } from "@/features/digital-audits/definition";
 import {
   completeDigitalAudit,
   getDigitalAuditForResume,
@@ -42,6 +43,16 @@ export async function POST(
         businessName: audit.businessName,
         score: audit.result.overall,
         tier: audit.result.tier,
+        interpretation: audit.result.interpretation,
+        dimensions: audit.result.dimensions.map((dimension) => ({
+          label: dimension.label,
+          score: dimension.score,
+        })),
+        priorities: audit.result.weakest.map((dimension) => ({
+          area: dimension.short,
+          title: DIGITAL_AUDIT_RECOMMENDATIONS[dimension.id].title,
+          move: DIGITAL_AUDIT_RECOMMENDATIONS[dimension.id].move,
+        })),
         reportUrl: absoluteUrl(reportPath),
       });
       const delivery = await sendEmail({

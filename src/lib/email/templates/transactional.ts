@@ -5,7 +5,9 @@ import {
   detailRow,
   escapeHtml,
   paragraphsToHtml,
+  progressBar,
   renderLayout,
+  sectionLabel,
 } from "./layout";
 
 export interface RenderedEmail {
@@ -121,35 +123,123 @@ export function contactAcknowledgementEmail(
   };
 }
 
+export interface DigitalAuditEmailDimension {
+  label: string;
+  /** 0-100 */
+  score: number;
+}
+
+export interface DigitalAuditEmailPriority {
+  area: string;
+  title: string;
+  move: string;
+}
+
 export function digitalAuditReportEmail(input: {
   businessName: string;
   score: number;
   tier: string;
+  interpretation: string;
+  dimensions: DigitalAuditEmailDimension[];
+  priorities: DigitalAuditEmailPriority[];
   reportUrl: string;
 }): RenderedEmail {
-  const subject = `Your Digital Readiness Report — ${input.businessName}`;
-  const text = `Your Digital Readiness Audit is complete.
+  const name = escapeHtml(input.businessName);
+  const subject = `Your Bespoke Business Audit report — ${input.businessName}`;
 
-Score: ${input.score}/100
-Readiness tier: ${input.tier}
+  const scoreCard = `
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 28px;background:#0b1f3a;border-radius:14px;">
+      <tr><td style="padding:24px 26px;">
+        <p style="margin:0;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:#8a94a3;">Readiness score</p>
+        <p style="margin:8px 0 0;font-size:44px;line-height:1;font-weight:700;letter-spacing:-.03em;color:#ffffff;">
+          ${input.score}<span style="font-size:18px;font-weight:600;color:#8a94a3;">&nbsp;/100</span>
+        </p>
+        <table role="presentation" cellpadding="0" cellspacing="0" style="margin:16px 0 0;"><tr>
+          <td style="padding:5px 12px;border-radius:999px;background:#12345e;font-size:12px;font-weight:700;color:#9cc9ff;">${escapeHtml(input.tier)}</td>
+        </tr></table>
+        <p style="margin:16px 0 0;font-size:14px;line-height:1.6;color:#c4ccd6;">${escapeHtml(input.interpretation)}</p>
+      </td></tr>
+    </table>`;
 
-View and share the report:
-${input.reportUrl}
+  const dimensionRows = input.dimensions
+    .map(
+      (dimension) => `
+      <tr><td style="padding:0 0 14px;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>
+          <td style="padding:0 0 6px;font-size:14px;font-weight:600;color:#0b1f3a;">${escapeHtml(dimension.label)}</td>
+          <td align="right" style="padding:0 0 6px;font-size:13px;color:#66707d;white-space:nowrap;">${Math.round(dimension.score)}/100</td>
+        </tr></table>
+        ${progressBar(dimension.score)}
+      </td></tr>`,
+    )
+    .join("");
 
-This is a strategic self-assessment, not a formal security or compliance audit.`;
+  const priorityRows = input.priorities
+    .map(
+      (priority, index) => `
+      <tr>
+        <td width="32" style="padding:0 0 18px;vertical-align:top;">
+          <table role="presentation" cellpadding="0" cellspacing="0"><tr>
+            <td align="center" style="width:24px;height:24px;border-radius:999px;background:#e8f2ff;font-size:12px;font-weight:700;color:#0057d9;">${index + 1}</td>
+          </tr></table>
+        </td>
+        <td style="padding:0 0 18px;vertical-align:top;">
+          <p style="margin:0;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#0057d9;">${escapeHtml(priority.area)}</p>
+          <p style="margin:4px 0 0;font-size:15px;line-height:1.4;font-weight:700;color:#0b1f3a;">${escapeHtml(priority.title)}</p>
+          <p style="margin:4px 0 0;font-size:14px;line-height:1.6;color:#49515c;">${escapeHtml(priority.move)}</p>
+        </td>
+      </tr>`,
+    )
+    .join("");
+
+  const contentHtml = `
+    <p style="margin:0 0 24px;font-size:15px;line-height:1.65;color:#49515c;">
+      Here is where <strong style="color:#0b1f3a;">${name}</strong> stands today, and the moves worth making first.
+    </p>
+    ${scoreCard}
+    ${sectionLabel("Six-dimension overview")}
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 18px;">${dimensionRows}</table>
+    ${input.priorities.length ? `${sectionLabel("Where to focus first")}
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 10px;">${priorityRows}</table>` : ""}
+    ${button("View your full report", input.reportUrl)}
+    <p style="margin:14px 0 0;font-size:13px;line-height:1.6;color:#66707d;">
+      Share the link with your team, save it as a PDF, or reply to this email to talk the roadmap through with us.
+    </p>
+    <p style="margin:24px 0 0;padding-top:16px;border-top:1px solid #e8edf3;font-size:12px;line-height:1.6;color:#8a94a3;">
+      This is a strategic self-assessment based on six responses, not a formal security, compliance or technical audit.
+    </p>`;
+
+  const text = [
+    `Your Bespoke Business Audit report — ${input.businessName}`,
+    "",
+    `Readiness score: ${input.score}/100 (${input.tier})`,
+    input.interpretation,
+    "",
+    "SIX-DIMENSION OVERVIEW",
+    ...input.dimensions.map((dimension) => `- ${dimension.label}: ${Math.round(dimension.score)}/100`),
+    ...(input.priorities.length
+      ? [
+          "",
+          "WHERE TO FOCUS FIRST",
+          ...input.priorities.flatMap((priority, index) => [
+            `${index + 1}. ${priority.title} (${priority.area})`,
+            `   ${priority.move}`,
+          ]),
+        ]
+      : []),
+    "",
+    "View your full report:",
+    input.reportUrl,
+    "",
+    "Reply to this email to talk the roadmap through with us.",
+    "",
+    "This is a strategic self-assessment, not a formal security, compliance or technical audit.",
+  ].join("\n");
+
   const html = renderLayout({
-    preheader: `Your digital readiness score is ${input.score}/100.`,
-    heading: "Your Digital Readiness Report",
-    contentHtml: `
-      <p style="margin:0 0 18px;font-size:15px;line-height:1.7;color:#49515c;">
-        ${escapeHtml(input.businessName)} completed the Bespoke Digital Readiness Audit.
-      </p>
-      ${detailRow("Score", `${input.score}/100`)}
-      ${detailRow("Readiness tier", escapeHtml(input.tier))}
-      <div style="margin:24px 0;">${button("View and share the report", input.reportUrl)}</div>
-      <p style="margin:20px 0 0;font-size:12px;line-height:1.6;color:#66707d;">
-        This is a strategic self-assessment, not a formal security or compliance audit.
-      </p>`,
+    preheader: `${input.businessName} scored ${input.score}/100 — ${input.tier}. See the breakdown and where to focus first.`,
+    heading: "Your business audit report",
+    contentHtml,
   });
   return { subject, html, text };
 }
@@ -182,9 +272,11 @@ Bespoke Technologies`;
       <p style="margin:0 0 18px;font-size:15px;line-height:1.7;color:#49515c;">
         ${escapeHtml(input.ideaTitle)} has been assessed against the ten Bespoke execution gates.
       </p>
-      ${detailRow("Score", `${input.totalScore}/${input.maxScore}`)}
-      ${detailRow("Gates passed", `${input.gatesPassed}/10`)}
-      ${detailRow("Verdict", escapeHtml(input.decisionLabel))}
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 20px;border-top:1px solid #e8edf3;border-bottom:1px solid #e8edf3;">
+        ${detailRow("Score", `${input.totalScore}/${input.maxScore}`)}
+        ${detailRow("Gates passed", `${input.gatesPassed}/10`)}
+        ${detailRow("Verdict", escapeHtml(input.decisionLabel))}
+      </table>
       <div style="margin:24px 0;">${button("View the full report", input.reportUrl)}</div>
       <p style="margin:20px 0 0;font-size:12px;line-height:1.6;color:#66707d;">
         The report includes the gate-by-gate breakdown, strengths, gaps, risks, a recommended first version

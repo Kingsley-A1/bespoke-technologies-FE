@@ -16,6 +16,10 @@ const MUTED = "#66707d";
 const HAIRLINE = "#e8edf3";
 const SURFACE = "#f6f8fb";
 
+/** System sans stack. Without it, most clients fall back to Times New Roman. */
+export const FONT_STACK =
+  "-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Helvetica,Arial,sans-serif";
+
 const SITE_URL = "https://www.bespoketech.com.ng";
 
 export function escapeHtml(value: string) {
@@ -48,7 +52,34 @@ export function button(label: string, url: string) {
     </td></tr></table>`;
 }
 
-/** A key/value definition row, e.g. for the internal enquiry notification. */
+/** Small uppercase label that opens a section of an email body. */
+export function sectionLabel(text: string) {
+  return `<p style="margin:0 0 14px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:${MUTED};">${escapeHtml(text)}</p>`;
+}
+
+/**
+ * A horizontal score bar built from table cells, which Outlook renders
+ * reliably where CSS widths and gradients are not. A zero-width cell collapses
+ * unpredictably, so the empty and full states use a single cell.
+ */
+export function progressBar(percent: number, color = BLUE) {
+  const value = Math.max(0, Math.min(100, Math.round(percent)));
+  const cell = (width: string, background: string) =>
+    `<td width="${width}" style="height:6px;background:${background};font-size:0;line-height:0;">&nbsp;</td>`;
+  const cells =
+    value === 0
+      ? cell("100%", HAIRLINE)
+      : value === 100
+        ? cell("100%", color)
+        : cell(`${value}%`, color) + cell(`${100 - value}%`, HAIRLINE);
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-radius:3px;overflow:hidden;"><tr>${cells}</tr></table>`;
+}
+
+/**
+ * A key/value definition row, e.g. for the internal enquiry notification.
+ * Returns a bare `<tr>`: callers must wrap rows in a `<table>`, or clients
+ * repair the markup by hoisting the rows into the layout table and collapse it.
+ */
 export function detailRow(label: string, value: string) {
   return `<tr>
     <td style="padding:8px 0;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:${MUTED};width:120px;vertical-align:top;">${escapeHtml(label)}</td>
@@ -73,11 +104,11 @@ export function renderLayout({ preheader, heading, contentHtml }: LayoutInput) {
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="color-scheme" content="light only" />
 </head>
-<body style="margin:0;padding:0;background:#ffffff;">
+<body style="margin:0;padding:0;background:#ffffff;font-family:${FONT_STACK};">
   <div style="display:none;max-height:0;overflow:hidden;opacity:0;">${escapeHtml(preheader)}</div>
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#ffffff;padding:0;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#ffffff;padding:0;font-family:${FONT_STACK};">
     <tr><td align="center">
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:760px;background:#ffffff;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:760px;background:#ffffff;font-family:${FONT_STACK};">
         <tr><td style="height:4px;background:${BLUE};font-size:0;line-height:0;">&nbsp;</td></tr>
         <tr><td style="padding:24px 32px 20px;border-bottom:1px solid ${HAIRLINE};">
           <a href="${SITE_URL}" style="text-decoration:none;">
