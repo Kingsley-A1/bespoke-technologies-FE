@@ -27,8 +27,8 @@ export function DigitalAuditStartShare() {
   async function share() {
     const url = `${window.location.origin}/digital-readiness-audit`;
     const data = {
-      title: "Bespoke Digital Readiness Audit",
-      text: "Assess six practical dimensions of your organisation's digital readiness.",
+      title: "Bespoke Business Audit",
+      text: "How ready is your business for the digital revolution? Six sharp questions, one clear report.",
       url,
     };
     if (navigator.share) {
@@ -45,7 +45,7 @@ export function DigitalAuditStartShare() {
     <button
       type="button"
       onClick={() => void share()}
-      className="inline-flex h-12 items-center justify-center gap-2 rounded-lg border border-ktf-gray-300 bg-white px-5 text-sm font-semibold text-ktf-gray-700 transition hover:border-ktf-blue/40 hover:text-ktf-blue"
+      className="inline-flex h-12 items-center justify-center gap-2 rounded-full border border-ktf-gray-300 bg-white px-6 text-sm font-semibold text-ktf-gray-700 transition hover:border-ktf-blue/40 hover:text-ktf-blue"
     >
       {copied ? <Check className="h-4 w-4 text-emerald-600" /> : <Share2 className="h-4 w-4" />}
       {copied ? "Link copied" : "Share audit"}
@@ -58,8 +58,8 @@ export function DigitalAuditShareActions({ businessName }: { businessName: strin
 
   async function share() {
     const data = {
-      title: `${businessName} — Digital Readiness Report`,
-      text: `View ${businessName}'s Bespoke Digital Readiness Report.`,
+      title: `${businessName} — Business Audit Report`,
+      text: `View ${businessName}'s Bespoke Business Audit report.`,
       url: window.location.href,
     };
     if (navigator.share) {
@@ -77,7 +77,7 @@ export function DigitalAuditShareActions({ businessName }: { businessName: strin
   }
 
   const buttonClass =
-    "inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-ktf-gray-300 bg-white px-3 text-xs font-semibold text-ktf-gray-700 transition hover:border-ktf-blue/40 hover:text-ktf-blue print:hidden";
+    "inline-flex h-10 items-center justify-center gap-2 rounded-full border border-ktf-gray-300 bg-white px-4 text-xs font-semibold text-ktf-gray-700 transition hover:border-ktf-blue/40 hover:text-ktf-blue print:hidden";
 
   return (
     <div className="flex flex-wrap gap-2">
@@ -116,7 +116,7 @@ export function DigitalAuditAdminShareLink({
     <button
       type="button"
       onClick={() => void copy()}
-      className={className || "inline-flex h-9 items-center gap-2 rounded-lg border border-slate-200 px-3 text-xs font-semibold text-slate-600"}
+      className={className || "inline-flex h-9 items-center gap-2 rounded-full border border-slate-200 px-4 text-xs font-semibold text-slate-600"}
       aria-label={copied ? "Audit report link copied" : "Copy audit report link"}
     >
       {copied ? <Check className="h-3.5 w-3.5 text-emerald-600" /> : <Copy className="h-3.5 w-3.5" />}

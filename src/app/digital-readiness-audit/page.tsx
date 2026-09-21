@@ -3,30 +3,21 @@ import { DigitalAuditExperience } from "@/features/digital-audits/audit-experien
 import { AUDIT_ORIGIN, WEBSITE_ORIGIN } from "@/lib/subdomain-seo";
 
 export const metadata: Metadata = {
-  title: "Bespoke Digital Readiness Audit | Free Six-Dimension Assessment",
+  title: "Bespoke Business Audit | How Ready Is Your Business for the Digital Revolution?",
   description:
-    "Assess six practical dimensions of digital readiness and receive a clear, shareable report from Bespoke Technologies.",
+    "Six sharp questions. A clear readiness score, a six-part breakdown, and the moves that matter next — from Bespoke Technologies.",
   alternates: { canonical: AUDIT_ORIGIN },
   openGraph: {
     type: "website",
-    siteName: "Bespoke Digital Readiness Audit",
-    title: "Bespoke Digital Readiness Audit | Free Six-Dimension Assessment",
-    description: "Six focused questions. One clear digital readiness report.",
+    siteName: "Bespoke Business Audit",
+    title: "Bespoke Business Audit | How Ready Is Your Business for the Digital Revolution?",
+    description: "Six sharp questions. One clear readiness report.",
     url: AUDIT_ORIGIN,
-    images: [
-      {
-        url: `${WEBSITE_ORIGIN}/icons/og.png`,
-        width: 1200,
-        height: 630,
-        alt: "Bespoke Digital Readiness Audit",
-      },
-    ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Bespoke Digital Readiness Audit | Free Six-Dimension Assessment",
-    description: "Six focused questions. One clear digital readiness report.",
-    images: [`${WEBSITE_ORIGIN}/icons/og.png`],
+    title: "Bespoke Business Audit | How Ready Is Your Business for the Digital Revolution?",
+    description: "Six sharp questions. One clear readiness report.",
   },
   robots: {
     index: true,
@@ -45,13 +36,13 @@ export default function DigitalReadinessAuditPage() {
   const auditJsonLd = {
     "@context": "https://schema.org",
     "@type": "WebApplication",
-    name: "Bespoke Digital Readiness Audit",
+    name: "Bespoke Business Audit",
     url: AUDIT_ORIGIN,
     applicationCategory: "BusinessApplication",
     operatingSystem: "Web",
     isAccessibleForFree: true,
     description:
-      "A six-dimension digital readiness assessment with a clear, shareable report.",
+      "A six-dimension business readiness assessment with a clear, shareable report.",
     provider: {
       "@type": "Organization",
       name: "Bespoke Technologies",

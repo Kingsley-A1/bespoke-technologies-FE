@@ -5,6 +5,7 @@ import { WHATSAPP_NUMBER } from "@/lib/constants";
 import { getSharedDigitalAudit } from "@/features/digital-audits/repository";
 import { DIGITAL_AUDIT_RECOMMENDATIONS } from "@/features/digital-audits/definition";
 import { DigitalAuditShareActions } from "@/features/digital-audits/share-actions";
+import auditLogo from "@/app/digital-readiness-audit/assets/bespoke_business_audit_logo.svg";
 
 export const dynamic = "force-dynamic";
 
@@ -15,14 +16,14 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { token } = await params;
   const audit = await getSharedDigitalAudit(token);
-  if (!audit?.result) return { title: "Digital Readiness Report", robots: { index: false } };
-  const name = audit.shareBusinessName ? audit.businessName : "Digital Readiness Report";
+  if (!audit?.result) return { title: "Business Audit Report", robots: { index: false } };
+  const name = audit.shareBusinessName ? audit.businessName : "Business Audit Report";
   return {
     title: `${name} — ${audit.result.overall}/100`,
-    description: `${name} received a ${audit.result.tier} digital readiness result from Bespoke Technologies.`,
+    description: `${name} received a ${audit.result.tier} business readiness result from Bespoke Technologies.`,
     robots: { index: false, follow: false },
     openGraph: {
-      title: `${name} — Digital Readiness ${audit.result.overall}/100`,
+      title: `${name} — Business Audit ${audit.result.overall}/100`,
       description: `${audit.result.tier} readiness across six practical business dimensions.`,
     },
   };
@@ -36,20 +37,23 @@ export default async function DigitalAuditReportPage({
   const { token } = await params;
   const audit = await getSharedDigitalAudit(token);
   if (!audit?.result) notFound();
-  const displayName = audit.shareBusinessName ? audit.businessName : "Digital Readiness Report";
+  const displayName = audit.shareBusinessName ? audit.businessName : "Business Audit Report";
   const discussRoadmapHref = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
-    `Hello Bespoke Technologies, I completed the Digital Readiness Audit for ${audit.businessName} and would like to discuss the recommended roadmap.`,
+    `Hello Bespoke Technologies, I completed the Bespoke Business Audit for ${audit.businessName} and would like to discuss the recommended roadmap.`,
   )}`;
 
   return (
-    <div className="bg-ktf-surface px-4 py-10 sm:px-6 sm:py-16 print:bg-white print:p-0">
-      <div className="mx-auto max-w-5xl space-y-7">
+    <div className="bg-ktf-surface px-4 py-10 sm:px-6 sm:py-16 print:bg-white print:px-[14mm] print:py-[14mm]">
+      <div className="mx-auto max-w-5xl space-y-7 print:space-y-6">
         <section className="rounded-2xl border border-ktf-gray-200 bg-white p-6 shadow-sm sm:p-9 print:border-0 print:p-0 print:shadow-none">
           <div className="flex flex-wrap items-start justify-between gap-5">
             <div>
-              <p className="text-xs font-bold uppercase tracking-[0.16em] text-ktf-blue">
-                Bespoke Digital Readiness Report
-              </p>
+              <div className="flex items-center gap-2">
+                <img src={auditLogo.src} alt="" className="h-5 w-5" aria-hidden="true" />
+                <p className="text-xs font-bold uppercase tracking-[0.16em] text-ktf-blue">
+                  Bespoke Business Audit Report
+                </p>
+              </div>
               <h1 className="mt-3 text-3xl font-bold tracking-[-0.03em] text-ktf-navy sm:text-4xl">
                 {displayName}
               </h1>
@@ -129,7 +133,7 @@ export default async function DigitalAuditReportPage({
               Bespoke Technologies can translate these priorities into a sequenced delivery plan.
             </p>
           </div>
-          <a href={discussRoadmapHref} className="mt-5 inline-flex h-11 shrink-0 items-center gap-2 rounded-lg bg-ktf-blue px-5 text-sm font-semibold text-white sm:mt-0">
+          <a href={discussRoadmapHref} className="mt-5 inline-flex h-11 shrink-0 items-center gap-2 rounded-full bg-ktf-blue px-6 text-sm font-semibold text-white transition hover:bg-ktf-blue-deep sm:mt-0">
             Discuss the roadmap <ArrowRight className="h-4 w-4" />
           </a>
         </section>
@@ -138,6 +142,12 @@ export default async function DigitalAuditReportPage({
           <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-ktf-blue" />
           This report is a strategic self-assessment based on six responses. It is not a formal cybersecurity, compliance or technical audit.
         </p>
+
+        <div className="flex flex-col items-center gap-1.5 border-t border-ktf-gray-200 pt-6 text-center">
+          <img src={auditLogo.src} alt="" className="h-6 w-6" aria-hidden="true" />
+          <p className="text-xs font-semibold text-ktf-gray-600">Bespoke Business Audit</p>
+          <p className="text-overline text-ktf-gray-400">from Bespoke Technologies</p>
+        </div>
       </div>
     </div>
   );

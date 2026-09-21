@@ -466,3 +466,18 @@ body {
     display: none;
   }
 }
+
+/* ---- Print: clean, header/footer-free pages ----
+   Zero page margins suppress the browser's injected date/title header and
+   URL footer. Printed documents supply their own edge padding instead. */
+@page {
+  size: A4;
+  margin: 0;
+}
+
+@media print {
+  html,
+  body {
+    background: #fff;
+  }
+}

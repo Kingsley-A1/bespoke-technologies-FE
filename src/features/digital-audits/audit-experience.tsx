@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import {
   ArrowLeft,
   ArrowRight,
@@ -21,6 +22,7 @@ import type {
   DigitalAuditAnswers,
   DigitalAuditRecord,
 } from "./types";
+import auditLogo from "@/app/digital-readiness-audit/assets/bespoke_business_audit_logo.svg";
 
 type Stage = "landing" | "context" | "assessment";
 type SaveState = "idle" | "saving" | "saved" | "error";
@@ -296,22 +298,25 @@ function LandingStep({
 }) {
   return (
     <div>
-      <section className="bg-linear-to-b from-ktf-surface to-white px-4 py-16 sm:px-6 sm:py-24 lg:py-28">
+      <section className="bg-linear-to-b from-ktf-surface to-white px-4 pb-16 pt-10 sm:px-6 sm:pb-20 sm:pt-14 lg:pb-24 lg:pt-16">
         <div className="mx-auto max-w-5xl">
-          <p className="text-overline font-bold uppercase tracking-[0.18em] text-ktf-blue">
-            Bespoke Digital Readiness Audit
-          </p>
-          <h1 className="mt-5 max-w-4xl text-4xl font-bold leading-[1.08] tracking-[-0.035em] text-ktf-navy sm:text-5xl lg:text-6xl">
-            How ready is your business to operate, grow and compete digitally?
+          <div className="inline-flex items-center gap-2.5 rounded-full border border-ktf-blue/20 bg-ktf-blue/5 py-1.5 pl-2 pr-4">
+            <img src={auditLogo.src} alt="" className="h-6 w-6" aria-hidden="true" />
+            <span className="text-caption font-bold uppercase tracking-[0.14em] text-ktf-blue-deep">
+              Bespoke Business Audit
+            </span>
+          </div>
+          <h1 className="mt-6 max-w-4xl text-4xl font-bold leading-[1.08] tracking-[-0.035em] text-ktf-navy sm:text-5xl lg:text-6xl">
+            How ready is your business for the digital revolution?
           </h1>
           <p className="mt-6 max-w-2xl text-lg leading-8 text-ktf-gray-600">
-            Six focused questions. Receive a consistent readiness score, a six-dimension
-            breakdown and three practical priorities.
+            Six sharp questions. Walk away with a readiness score, a six-dimension
+            breakdown and the priorities worth acting on first.
           </p>
           <div className="mt-9 flex flex-wrap items-center gap-4">
             <button
               onClick={onStart}
-              className="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-ktf-blue px-6 text-sm font-semibold text-white transition hover:bg-ktf-blue-deep"
+              className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-ktf-blue px-7 text-sm font-semibold text-white transition hover:bg-ktf-blue-deep"
             >
               Start the audit <ArrowRight className="h-4 w-4" />
             </button>
@@ -330,7 +335,7 @@ function LandingStep({
               </div>
               <button
                 onClick={onResume}
-                className="inline-flex h-9 items-center gap-2 rounded-lg border border-ktf-blue/30 px-3 text-xs font-semibold text-ktf-blue"
+                className="inline-flex h-9 items-center gap-2 rounded-full border border-ktf-blue/30 px-4 text-xs font-semibold text-ktf-blue"
               >
                 {audit.status === "completed" ? "View report" : "Resume audit"}
                 <ArrowRight className="h-3.5 w-3.5" />
@@ -342,9 +347,9 @@ function LandingStep({
       <section className="px-4 py-14 sm:px-6 sm:py-20">
         <div className="mx-auto grid max-w-5xl gap-4 md:grid-cols-3">
           {[
-            ["01", "Clear assessment", "One consistent maturity choice across each of six business dimensions."],
-            ["02", "Saved progress", "Your progress is securely saved so you can return on this device."],
-            ["03", "Shareable report", "Copy, share, print or send the completed report to your team."],
+            ["01", "Answer six questions", "Pick the option that matches how your business runs today. About two minutes, no jargon."],
+            ["02", "Get your readiness score", "A six-dimension breakdown, scored consistently, with the priorities that matter most."],
+            ["03", "Decide your next move", "Share the report with your team, or talk it through with Bespoke Technologies."],
           ].map(([number, title, body]) => (
             <article key={number} className="rounded-xl border border-ktf-gray-200 bg-white p-6">
               <p className="text-xs font-bold text-ktf-blue">{number}</p>
@@ -374,18 +379,18 @@ function ContextStep({
   error: string;
 }) {
   return (
-    <div className="bg-ktf-surface px-4 py-12 sm:px-6 sm:py-16">
-      <section className="mx-auto max-w-2xl rounded-2xl border border-ktf-gray-200 bg-white p-6 shadow-sm sm:p-9">
+    <div className="bg-ktf-surface px-4 py-8 sm:px-6 sm:py-12">
+      <section className="mx-auto max-w-xl rounded-2xl border border-ktf-gray-200 bg-white p-5 shadow-sm sm:p-8">
         <p className="text-xs font-bold uppercase tracking-[0.16em] text-ktf-blue">
           Business context
         </p>
-        <h1 className="mt-3 text-3xl font-bold tracking-[-0.03em] text-ktf-navy">
+        <h1 className="mt-2 text-2xl font-bold tracking-[-0.025em] text-ktf-navy">
           Set up your report
         </h1>
-        <p className="mt-3 text-sm leading-6 text-ktf-gray-600">
+        <p className="mt-2 text-sm leading-6 text-ktf-gray-600">
           These details personalise the report. Contact details are optional.
         </p>
-        <form onSubmit={onSubmit} className="mt-8 space-y-6">
+        <form onSubmit={onSubmit} className="mt-7 space-y-5">
           <label className="block">
             <span className="mb-2 block text-sm font-semibold text-ktf-navy">
               Business or organisation name
@@ -396,7 +401,7 @@ function ContextStep({
               onChange={(event) =>
                 setContext((current) => ({ ...current, businessName: event.target.value }))
               }
-              className="h-12 w-full rounded-lg border border-ktf-gray-300 px-4 text-sm outline-none focus:border-ktf-blue focus:ring-2 focus:ring-ktf-blue/15"
+              className="h-11 w-full rounded-xl border border-ktf-gray-300 px-4 text-sm outline-none focus:border-ktf-blue focus:ring-2 focus:ring-ktf-blue/15"
               placeholder="e.g. Northstar Services"
             />
           </label>
@@ -429,7 +434,7 @@ function ContextStep({
                 onChange={(event) =>
                   setContext((current) => ({ ...current, email: event.target.value }))
                 }
-                className="h-12 w-full rounded-lg border border-ktf-gray-300 px-4 text-sm outline-none focus:border-ktf-blue focus:ring-2 focus:ring-ktf-blue/15"
+                className="h-11 w-full rounded-xl border border-ktf-gray-300 px-4 text-sm outline-none focus:border-ktf-blue focus:ring-2 focus:ring-ktf-blue/15"
                 placeholder="you@company.com"
               />
               <span className="mt-1.5 block text-xs text-ktf-gray-500">
@@ -445,12 +450,12 @@ function ContextStep({
                 onChange={(event) =>
                   setContext((current) => ({ ...current, phone: event.target.value }))
                 }
-                className="h-12 w-full rounded-lg border border-ktf-gray-300 px-4 text-sm outline-none focus:border-ktf-blue focus:ring-2 focus:ring-ktf-blue/15"
+                className="h-11 w-full rounded-xl border border-ktf-gray-300 px-4 text-sm outline-none focus:border-ktf-blue focus:ring-2 focus:ring-ktf-blue/15"
                 placeholder="+234…"
               />
             </label>
           </div>
-          <div className="space-y-3 rounded-xl border border-ktf-gray-200 bg-ktf-surface p-4">
+          <div className="space-y-3 rounded-2xl border border-ktf-gray-200 bg-ktf-surface p-4">
             <Checkbox
               checked={context.shareBusinessName}
               onChange={(shareBusinessName) =>
@@ -489,16 +494,17 @@ function ContextStep({
             <button
               type="button"
               onClick={onBack}
-              className="inline-flex h-11 items-center justify-center gap-2 px-4 text-sm font-semibold text-ktf-gray-600"
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-full px-4 text-sm font-semibold text-ktf-gray-600 transition hover:text-ktf-navy"
             >
               <ArrowLeft className="h-4 w-4" /> Back
             </button>
             <button
               disabled={submitting}
-              className="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-ktf-blue px-6 text-sm font-semibold text-white transition hover:bg-ktf-blue-deep disabled:opacity-60"
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-ktf-blue px-6 text-sm font-semibold text-white transition hover:bg-ktf-blue-deep disabled:opacity-60"
             >
               {submitting ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
-              Continue to the six questions
+              Continue
+              <ArrowRight className="h-4 w-4" />
             </button>
           </div>
         </form>
@@ -527,58 +533,88 @@ function AssessmentStep({
   onNext: () => void;
 }) {
   const question = DIGITAL_AUDIT_QUESTIONS[questionIndex];
-  const progress = ((questionIndex + (selectedIndex >= 0 ? 1 : 0)) / DIGITAL_AUDIT_QUESTIONS.length) * 100;
+  const reduceMotion = useReducedMotion();
 
   return (
-    <div className="min-h-[calc(100dvh-4.25rem)] bg-ktf-surface px-2 py-2 sm:px-6 sm:py-16">
-      <section className="mx-auto max-w-2xl rounded-lg border border-ktf-gray-200 bg-white p-5 shadow-sm sm:rounded-xl sm:p-9">
+    <div className="bg-ktf-surface px-4 py-8 sm:px-6 sm:py-12">
+      <section className="mx-auto max-w-xl overflow-hidden rounded-2xl border border-ktf-gray-200 bg-white p-5 shadow-sm sm:p-8">
         <div className="flex items-center justify-between gap-4 text-xs font-bold uppercase tracking-[0.14em]">
           <span className="text-ktf-blue">{question.short}</span>
           <span className="text-ktf-gray-500">
-            {questionIndex + 1} of {DIGITAL_AUDIT_QUESTIONS.length}
+            Step {questionIndex + 1} of {DIGITAL_AUDIT_QUESTIONS.length}
           </span>
         </div>
-        <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-ktf-gray-200">
-          <div
-            className="h-full rounded-full bg-ktf-blue transition-[width]"
-            style={{ width: `${progress}%` }}
-          />
+        <div className="mt-3 flex items-center gap-1.5" aria-hidden="true">
+          {DIGITAL_AUDIT_QUESTIONS.map((step, index) => (
+            <span key={step.id} className="h-1.5 flex-1 overflow-hidden rounded-full bg-ktf-gray-200">
+              <motion.span
+                className="block h-full rounded-full bg-ktf-blue"
+                initial={false}
+                animate={{
+                  width:
+                    index < questionIndex || (index === questionIndex && selectedIndex >= 0)
+                      ? "100%"
+                      : "0%",
+                }}
+                transition={reduceMotion ? { duration: 0 } : { duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+              />
+            </span>
+          ))}
         </div>
-        <h1 className="mt-8 text-2xl font-bold leading-snug tracking-[-0.025em] text-ktf-navy">
-          {question.prompt}
-        </h1>
-        <p className="mt-3 text-sm leading-6 text-ktf-gray-600">{question.context}</p>
-        <div className="mt-7 space-y-3" role="radiogroup" aria-label={question.prompt}>
-          {question.options.map((option, index) => {
-            const selected = selectedIndex === index;
-            return (
-              <button
-                key={option.label}
-                type="button"
-                role="radio"
-                aria-checked={selected}
-                disabled={saveState === "saving"}
-                onClick={() => void onSelect(index)}
-                className={`flex w-full items-start gap-4 rounded-lg border p-4 text-left transition ${
-                  selected
-                    ? "border-ktf-blue bg-ktf-blue/5 shadow-[0_0_0_1px_rgba(10,132,255,.2)]"
-                    : "border-ktf-gray-200 hover:border-ktf-blue/40"
-                } disabled:cursor-wait`}
-              >
-                <span
-                  className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border ${
-                    selected ? "border-ktf-blue bg-ktf-blue text-white" : "border-ktf-gray-300"
-                  }`}
-                >
-                  {selected ? <Check className="h-3 w-3" /> : null}
-                </span>
-                <span className="text-sm font-medium leading-6 text-ktf-gray-800">
-                  {option.label}
-                </span>
-              </button>
-            );
-          })}
-        </div>
+
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={questionIndex}
+            initial={reduceMotion ? false : { opacity: 0, x: 18 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={reduceMotion ? undefined : { opacity: 0, x: -18 }}
+            transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <h1 className="mt-7 text-balance text-xl font-bold leading-snug tracking-[-0.02em] text-ktf-navy sm:text-2xl">
+              {question.prompt}
+            </h1>
+            <p className="mt-3 text-sm leading-6 text-ktf-gray-600">{question.context}</p>
+            <div className="mt-6 space-y-2.5" role="radiogroup" aria-label={question.prompt}>
+              {question.options.map((option, index) => {
+                const selected = selectedIndex === index;
+                return (
+                  <motion.button
+                    key={option.label}
+                    type="button"
+                    role="radio"
+                    aria-checked={selected}
+                    disabled={saveState === "saving"}
+                    onClick={() => void onSelect(index)}
+                    initial={reduceMotion ? false : { opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{
+                      duration: 0.28,
+                      ease: [0.22, 1, 0.36, 1],
+                      delay: reduceMotion ? 0 : 0.06 * index,
+                    }}
+                    className={`flex w-full items-start gap-3.5 rounded-2xl border px-4 py-3.5 text-left transition ${
+                      selected
+                        ? "border-ktf-blue bg-ktf-blue/5 shadow-[0_0_0_1px_rgba(10,132,255,.2)]"
+                        : "border-ktf-gray-200 hover:border-ktf-blue/40"
+                    } disabled:cursor-wait`}
+                  >
+                    <span
+                      className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border ${
+                        selected ? "border-ktf-blue bg-ktf-blue text-white" : "border-ktf-gray-300"
+                      }`}
+                    >
+                      {selected ? <Check className="h-3 w-3" /> : null}
+                    </span>
+                    <span className="text-sm font-medium leading-6 text-ktf-gray-800">
+                      {option.label}
+                    </span>
+                  </motion.button>
+                );
+              })}
+            </div>
+          </motion.div>
+        </AnimatePresence>
+
         <div className="mt-4 min-h-5 text-xs">
           {saveState === "saving" && (
             <span className="inline-flex items-center gap-1.5 text-ktf-gray-500">
@@ -592,11 +628,11 @@ function AssessmentStep({
           )}
         </div>
         {error && <ErrorMessage message={error} />}
-        <div className="mt-7 flex items-center justify-between gap-3">
+        <div className="mt-6 flex items-center justify-between gap-3">
           <button
             type="button"
             onClick={onPrevious}
-            className="inline-flex h-11 items-center gap-2 px-3 text-sm font-semibold text-ktf-gray-600"
+            className="inline-flex h-11 items-center gap-2 rounded-full px-3 text-sm font-semibold text-ktf-gray-600 transition hover:text-ktf-navy"
           >
             <ArrowLeft className="h-4 w-4" /> Previous
           </button>
@@ -604,14 +640,14 @@ function AssessmentStep({
             type="button"
             disabled={selectedIndex < 0 || saveState === "saving" || saveState === "error" || submitting}
             onClick={onNext}
-            className="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-ktf-blue px-6 text-sm font-semibold text-white transition hover:bg-ktf-blue-deep disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-ktf-blue px-6 text-sm font-semibold text-white transition hover:bg-ktf-blue-deep disabled:cursor-not-allowed disabled:opacity-50"
           >
             {submitting ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
             {questionIndex === DIGITAL_AUDIT_QUESTIONS.length - 1 ? "Create my report" : "Next"}
             {!submitting && <ArrowRight className="h-4 w-4" />}
           </button>
         </div>
-        <div className="mt-7 flex items-center gap-2 rounded-lg bg-ktf-surface px-3 py-2 text-xs leading-5 text-ktf-gray-500">
+        <div className="mt-6 flex items-center gap-2 rounded-full bg-ktf-surface px-3.5 py-2 text-xs leading-5 text-ktf-gray-500">
           <ShieldCheck className="h-4 w-4 shrink-0 text-ktf-blue" />
           This is a strategic self-assessment, not a formal security or compliance audit.
         </div>
@@ -638,7 +674,7 @@ function SelectField({
         required
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="h-12 w-full rounded-lg border border-ktf-gray-300 bg-white px-4 text-sm outline-none focus:border-ktf-blue focus:ring-2 focus:ring-ktf-blue/15"
+        className="h-11 w-full rounded-xl border border-ktf-gray-300 bg-white px-4 text-sm outline-none focus:border-ktf-blue focus:ring-2 focus:ring-ktf-blue/15"
       >
         <option value="">Select {label.toLowerCase()}</option>
         {options.map((option) => (
@@ -688,8 +724,8 @@ function SearchableIndustryField({
             onChange(event.target.value);
             setIsOpen(true);
           }}
-          className="h-12 w-full rounded-lg border border-ktf-gray-300 bg-white py-0 pl-11 pr-4 text-sm outline-none focus:border-ktf-blue focus:ring-2 focus:ring-ktf-blue/15"
-          placeholder="Search industries, including forex and crypto"
+          className="h-11 w-full rounded-xl border border-ktf-gray-300 bg-white py-0 pl-11 pr-4 text-sm outline-none focus:border-ktf-blue focus:ring-2 focus:ring-ktf-blue/15"
+          placeholder="Search industries"
         />
       </div>
       {isOpen && (
