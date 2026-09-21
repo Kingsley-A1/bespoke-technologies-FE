@@ -77,4 +77,10 @@ export const PUBLIC_SITEMAP_ROUTES = [
     changeFrequency: "weekly",
     priority: 0.8,
   },
+  {
+    path: "/idea-execution-gate",
+    lastModified: "2026-09-21",
+    changeFrequency: "monthly",
+    priority: 0.8,
+  },
 ] satisfies SitemapRoute[];

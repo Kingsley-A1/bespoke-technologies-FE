@@ -154,6 +154,46 @@ This is a strategic self-assessment, not a formal security or compliance audit.`
   return { subject, html, text };
 }
 
+export function ideaExecutionGateReportEmail(input: {
+  ideaTitle: string;
+  totalScore: number;
+  maxScore: number;
+  gatesPassed: number;
+  decisionLabel: string;
+  reportUrl: string;
+}): RenderedEmail {
+  const subject = `Your Idea Execution Gate result — ${input.ideaTitle}`;
+  const text = `Your Bespoke Idea Execution Gate assessment is complete.
+
+Idea: ${input.ideaTitle}
+Score: ${input.totalScore}/${input.maxScore}
+Gates passed: ${input.gatesPassed}/10
+Verdict: ${input.decisionLabel}
+
+View, download or share the full report:
+${input.reportUrl}
+
+From Idea to Execution. With Clarity.
+Bespoke Technologies`;
+  const html = renderLayout({
+    preheader: `${input.ideaTitle} scored ${input.totalScore}/${input.maxScore} — ${input.decisionLabel}.`,
+    heading: "Your Idea Execution Gate result",
+    contentHtml: `
+      <p style="margin:0 0 18px;font-size:15px;line-height:1.7;color:#49515c;">
+        ${escapeHtml(input.ideaTitle)} has been assessed against the ten Bespoke execution gates.
+      </p>
+      ${detailRow("Score", `${input.totalScore}/${input.maxScore}`)}
+      ${detailRow("Gates passed", `${input.gatesPassed}/10`)}
+      ${detailRow("Verdict", escapeHtml(input.decisionLabel))}
+      <div style="margin:24px 0;">${button("View the full report", input.reportUrl)}</div>
+      <p style="margin:20px 0 0;font-size:12px;line-height:1.6;color:#66707d;">
+        The report includes the gate-by-gate breakdown, strengths, gaps, risks, a recommended first version
+        and the first build target. It is a strategic assessment, not a guarantee of commercial outcome.
+      </p>`,
+  });
+  return { subject, html, text };
+}
+
 export function ownershipCertificateEmail(input: {
   ownerName: string;
   projectName: string;

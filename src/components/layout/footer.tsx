@@ -14,6 +14,7 @@ const FOOTER_LINKS = {
   resources: [
     { label: "Library", href: "/library" },
     { label: "Digital Readiness Audit", href: "/digital-readiness-audit" },
+    { label: "Idea Execution Gate", href: "/idea-execution-gate" },
     { label: "Contact", href: "/contact" },
     { label: "Privacy Policy", href: "/privacy" },
     { label: "Terms of Service", href: "/terms" },

@@ -16,7 +16,11 @@ export function PublicExperience({ children, isLearnHost = false }: { children: 
   if (pathname === "/bespoke-ai") {
     return <main className="flex min-h-dvh flex-col">{children}</main>;
   }
-  if (pathname.startsWith("/digital-readiness-audit")) {
+  // Assessment products print to PDF, so their chrome is excluded from print.
+  if (
+    pathname.startsWith("/digital-readiness-audit") ||
+    pathname.startsWith("/idea-execution-gate")
+  ) {
     return (
       <>
         <div className="print:hidden"><Header /></div>

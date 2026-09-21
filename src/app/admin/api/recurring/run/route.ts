@@ -4,6 +4,7 @@ import { applyAdminSecurityRetention, getAdminSession, syncConfiguredAdminUsers 
 import { reconcileOverdueDocuments, runRecurringSchedules } from "@/features/admin/repository";
 import type { AdminSession } from "@/features/admin/types";
 import { applyDigitalAuditRetention } from "@/features/digital-audits/repository";
+import { applyIdeaGateRetention } from "@/features/idea-gate/repository";
 
 export async function POST(request: Request) {
   const authorization = request.headers.get("authorization");
@@ -26,6 +27,7 @@ export async function POST(request: Request) {
   if (cronAuthorized) await syncConfiguredAdminUsers();
   await applyAdminSecurityRetention();
   await applyDigitalAuditRetention();
+  await applyIdeaGateRetention();
   const overdue = await reconcileOverdueDocuments(session);
   const result = await runRecurringSchedules(session);
   return NextResponse.json({ overdue, due: result.due, generated: result.generated.length });
