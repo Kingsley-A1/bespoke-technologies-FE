@@ -46,11 +46,10 @@ const FALLBACK_SCREENS: Record<
 };
 
 /**
- * Homepage hero — a compact two-line promise, then three real product phones
- * front and center. On desktop the side phones slide out into a fanned trio
- * by default; on mobile the trio rotates as a swipeable carousel. Each frame
- * links to the live project it shows. The supporting copy, CTAs, and proof
- * row sit under the devices.
+ * Homepage hero — a compact two-line promise, then one real product phone
+ * front and center. The device rotates through delivered projects as a
+ * swipeable carousel at every breakpoint. Each frame links to the live
+ * project it shows. The supporting copy, CTAs, and proof row sit under it.
  */
 export async function HomeHero() {
   const [assets, projects] = await Promise.all([
@@ -149,15 +148,15 @@ export async function HomeHero() {
         </Reveal>
       </Container>
 
-      {/* Phone trio — fanned out on desktop, rotating carousel on mobile */}
+      {/* One device on stage, rotating through delivered projects */}
       <Container size="xl" className="relative mt-8 sm:mt-10">
         {/* Ambient stage behind the devices — depth and grounding without noise */}
         <div aria-hidden="true" className="pointer-events-none absolute inset-0">
           {/* Cool spotlight pooling behind the trio */}
           <div className="absolute left-1/2 top-1 h-[80%] w-[640px] max-w-[94vw] -translate-x-1/2 rounded-full bg-[radial-gradient(58%_58%_at_50%_44%,rgba(10,132,255,0.20),rgba(0,87,217,0.06)_52%,transparent_74%)] blur-2xl" />
           {/* Blueprint rings — quiet engineering motif */}
-          <div className="absolute left-1/2 top-[46%] h-[280px] w-[280px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-ktf-blue/[0.09] sm:h-[380px] sm:w-[380px] lg:h-[460px] lg:w-[460px]" />
-          <div className="absolute left-1/2 top-[46%] h-[400px] w-[400px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-ktf-blue/[0.06] sm:h-[520px] sm:w-[520px] lg:h-[620px] lg:w-[620px]" />
+          <div className="absolute left-1/2 top-[46%] h-[280px] w-[280px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-ktf-blue/[0.09] sm:h-[380px] sm:w-[380px]" />
+          <div className="absolute left-1/2 top-[46%] h-[400px] w-[400px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-ktf-blue/[0.06] sm:h-[520px] sm:w-[520px]" />
           {/* Grounding reflection beneath the devices */}
           <div className="absolute bottom-2 left-1/2 h-10 w-[64%] max-w-[540px] -translate-x-1/2 rounded-[50%] bg-[radial-gradient(closest-side,rgba(11,31,58,0.18),transparent)] blur-md" />
         </div>

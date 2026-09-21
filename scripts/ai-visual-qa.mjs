@@ -165,21 +165,26 @@ try {
   await setViewport(client, 1365, 768);
   await navigate(client, `${baseUrl}/`);
   for (let attempt = 0; attempt < 60; attempt += 1) {
-    if (await evaluate(client, "document.querySelector('[data-hero-phone-stage=\"desktop\"]')?.dataset.heroHydrated === 'true'")) break;
+    if (await evaluate(client, "document.querySelector('[data-hero-phone-stage=\"carousel\"]')?.dataset.heroHydrated === 'true'")) break;
     await delay(250);
   }
-  results.checks.desktopHeroAlwaysShowsThree = await evaluate(client, `(() => {
-    const stage = document.querySelector('[data-hero-phone-stage="desktop"]');
+  results.checks.desktopHeroShowsOneDevice = await evaluate(client, `(() => {
+    const stage = document.querySelector('[data-hero-phone-stage="carousel"]');
     if (!stage) return false;
-    return stage.querySelectorAll(':scope > a, :scope > div.block').length === 3;
+    const track = stage.firstElementChild;
+    if (!track) return false;
+    const stageWidth = stage.getBoundingClientRect().width;
+    return Array.from(track.children).every(
+      (slide) => Math.abs(slide.getBoundingClientRect().width - stageWidth) <= 1,
+    );
   })()`);
-  const initialDesktopCycle = await evaluate(client, "Number(document.querySelector('[data-hero-phone-stage=\"desktop\"]')?.dataset.heroDesktopCycle)");
+  const initialSlideIndex = await evaluate(client, "Number(document.querySelector('[data-hero-phone-stage=\"carousel\"]')?.dataset.heroSlideIndex)");
   await delay(5_250);
-  results.checks.desktopHeroRotatesEveryFiveSeconds = await evaluate(client, `Number(document.querySelector('[data-hero-phone-stage="desktop"]')?.dataset.heroDesktopCycle) > ${initialDesktopCycle}`);
+  results.checks.desktopHeroRotatesProjects = await evaluate(client, `Number(document.querySelector('[data-hero-phone-stage="carousel"]')?.dataset.heroSlideIndex) !== ${initialSlideIndex}`);
 
   await setViewport(client, 390, 844, true);
   await delay(350);
-  results.checks.mobileHeroHasCircularEdges = await evaluate(client, `(() => {
+  results.checks.heroHasCircularEdges = await evaluate(client, `(() => {
     const carousel = document.querySelector('[aria-label="Delivered projects"]');
     if (!carousel) return false;
     const track = carousel.firstElementChild;
@@ -205,7 +210,7 @@ try {
     return Boolean(width && width >= 360 && width <= 560);
   })()`);
   results.checks.heroSupportClearsPhones = await evaluate(client, `(() => {
-    const stage = document.querySelector('[data-hero-phone-stage="desktop"]')?.getBoundingClientRect();
+    const stage = document.querySelector('[data-hero-phone-stage="carousel"]')?.getBoundingClientRect();
     const support = document.querySelector('[data-home-hero-support="true"]')?.getBoundingClientRect();
     return Boolean(stage && support && support.top >= stage.bottom);
   })()`);
