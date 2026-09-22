@@ -11,6 +11,8 @@ import { WEBSITE_ORIGIN } from "@/lib/subdomain-seo";
 const TITLE = `${IDEA_GATE_PRODUCT_NAME} | ${IDEA_GATE_TAGLINE}`;
 const DESCRIPTION =
   "Test your idea against ten execution gates. Get a score out of 20, a Green, Amber or Red verdict, the risks, a recommended first version and the first thing to build — from Bespoke Technologies.";
+const SHARE_DESCRIPTION =
+  "Ten execution gates. About 6 minutes. A score out of 20. One clear verdict.";
 
 export const metadata: Metadata = {
   title: TITLE,
@@ -20,13 +22,13 @@ export const metadata: Metadata = {
     type: "website",
     siteName: IDEA_GATE_PRODUCT_NAME,
     title: TITLE,
-    description: "Ten execution gates. A score out of 20. One clear verdict.",
+    description: SHARE_DESCRIPTION,
     url: absoluteUrl(IDEA_GATE_PATH),
   },
   twitter: {
     card: "summary_large_image",
     title: TITLE,
-    description: "Ten execution gates. A score out of 20. One clear verdict.",
+    description: SHARE_DESCRIPTION,
   },
   robots: {
     index: true,
