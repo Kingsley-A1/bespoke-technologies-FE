@@ -239,6 +239,19 @@ body {
     display: none !important;
   }
 
+  /* Keep navigation reachable while docked: the menu button and its panel. */
+  body.bespoke-ai-side-panel-open header nav > button[aria-controls="mobile-nav"] {
+    display: flex !important;
+  }
+
+  body.bespoke-ai-side-panel-open #mobile-nav {
+    display: flex !important;
+  }
+
+  body.bespoke-ai-side-panel-open [data-mobile-nav-backdrop] {
+    display: block !important;
+  }
+
   body.bespoke-ai-dock-open [data-bespoke-contact-dock="true"] {
     opacity: 0;
     pointer-events: none;
@@ -394,6 +407,24 @@ body {
   animation: ktfRise 0.3s var(--ease-out) both;
 }
 
+@keyframes ktfSheetIn {
+  from { transform: translateY(100%); }
+  to { transform: none; }
+}
+
+.ktf-sheet-in {
+  animation: ktfSheetIn 0.28s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+
+@keyframes ktfPanelIn {
+  from { opacity: 0; transform: translateX(16px); }
+  to { opacity: 1; transform: none; }
+}
+
+.ktf-panel-in {
+  animation: ktfPanelIn 0.22s var(--ease-out) backwards;
+}
+
 .ktf-slide-in-right {
   animation: ktfSlideInRight 0.26s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
@@ -492,6 +523,8 @@ body {
   .ktf-fade-in,
   .ktf-menu-in,
   .ktf-rise-in,
+  .ktf-sheet-in,
+  .ktf-panel-in,
   .ktf-slide-in-right {
     animation: none;
     opacity: 1;

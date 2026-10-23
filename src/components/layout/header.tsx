@@ -37,7 +37,13 @@ export function Header() {
   const pathname = usePathname();
   const isDesktop = useMediaQuery("(min-width: 1024px)");
 
-  const toggleMobile = () => setMobileOpen((prev) => !prev);
+  // While the Bespoke AI side panel is docked the desktop menus are hidden for
+  // room, so the menu button (and this overlay) also serve wide screens then.
+  const [menuWhileDocked, setMenuWhileDocked] = useState(false);
+  const toggleMobile = () => {
+    setMenuWhileDocked(document.body.classList.contains("bespoke-ai-side-panel-open"));
+    setMobileOpen((prev) => !prev);
+  };
   const closeMobile = () => setMobileOpen(false);
 
   const whatsappHref = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
@@ -135,10 +141,11 @@ export function Header() {
       {/* ── Mobile Navigation Overlay ─────────────────────────
           Rendered OUTSIDE <header> so the sticky z-100 stacking
           context does not clip the fixed panel over the page.     */}
-      {mobileOpen && !isDesktop && (
+      {mobileOpen && (!isDesktop || menuWhileDocked) && (
           <>
             {/* Frosted backdrop */}
             <div
+              data-mobile-nav-backdrop="true"
               className="ktf-fade-in fixed inset-0 z-9998 bg-ktf-obsidian/60 backdrop-blur-sm lg:hidden"
               onClick={closeMobile}
               aria-hidden="true"
