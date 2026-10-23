@@ -37,11 +37,14 @@
   --color-ktf-info: #0a84ff;
 
   /* ---- Typography Scale ---- */
+  /* Geist (self-hosted via next/font) gives every device the same type; the
+     system stack remains the fallback while it loads. */
   --font-sans:
-    "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue",
-    Arial, sans-serif;
+    var(--font-geist-sans), "Segoe UI", system-ui, -apple-system,
+    BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
   --font-mono:
-    "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    var(--font-geist-mono), "SFMono-Regular", Consolas, "Liberation Mono", Menlo,
+    monospace;
 
   --text-display: 3.75rem; /* 60px - hero headlines */
   --text-h1: 3rem; /* 48px */

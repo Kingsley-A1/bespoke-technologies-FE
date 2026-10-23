@@ -41,18 +41,57 @@ export const FOUNDER = {
     "Keeps one accountable team behind every build. Clients fully own their code, documentation, and deployment.",
 } as const;
 
+/**
+ * Primary navigation, grouped the way Stripe and Vercel group theirs: a few
+ * clear menus instead of one long row. The header, mobile menu and footer all
+ * render from this list, so a page is added in exactly one place.
+ */
+export const NAV_GROUPS = [
+  {
+    label: "Services",
+    href: "/services",
+    items: [
+      { label: "Services", href: "/services", description: "Web, mobile, AI, cloud, API and design" },
+      { label: "Bespoke AI", href: "/bespoke-ai", description: "Ask about our work and services" },
+      { label: "Digital Readiness Audit", href: "/digital-readiness-audit", description: "Assess your business online" },
+      { label: "Idea Execution Gate", href: "/idea-execution-gate", description: "Test an idea before you build it" },
+    ],
+  },
+  {
+    label: "Work",
+    href: "/projects",
+    items: [
+      { label: "Projects", href: "/projects", description: "Products we have shipped" },
+      { label: "Reviews", href: "/reviews", description: "What clients say about the work" },
+    ],
+  },
+  {
+    label: "Resources",
+    href: "/news",
+    items: [
+      { label: "What's New", href: "/news", description: "Announcements and product updates" },
+      { label: "Library", href: "/library", description: "Books, research and handover proof" },
+    ],
+  },
+  {
+    label: "Company",
+    href: "/about",
+    items: [
+      { label: "About", href: "/about", description: "Who we are and how we work" },
+      { label: "Team", href: "https://team.bespoketech.com.ng/", description: "The people behind the work" },
+      { label: "Partnerships", href: "/partnerships", description: "Build with us long term" },
+      { label: "Contact", href: "/contact", description: "Start a conversation" },
+    ],
+  },
+] as const;
+
+export type NavGroup = (typeof NAV_GROUPS)[number];
+export type NavItem = NavGroup["items"][number];
+
+/** Every primary destination as a flat list (used by Bespoke AI's site context). */
 export const NAV_LINKS = [
-  {label: "Home", href: "/"},
-  { label: "Services", href: "/services" },
-  { label: "Bespoke AI", href: "/bespoke-ai" },
-  { label: "Projects", href: "/projects" },
-  { label: "News", href: "/news" },
-  { label: "Team", href: "https://team.bespoketech.com.ng/" },
-  { label: "Library", href: "/library" },
-  { label: "Partnership", href: "/partnerships" },
-  { label: "Reviews", href: "/reviews" },
-  { label: "About", href: "/about" },
-  { label: "Contact", href: "/contact" },
+  { label: "Home", href: "/" },
+  ...NAV_GROUPS.flatMap((group) => group.items.map(({ label, href }) => ({ label, href }))),
 ] as const;
 
 // ── Stats ──────────────────────────────────────────────────────────────────

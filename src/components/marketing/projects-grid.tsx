@@ -290,12 +290,12 @@ export function ProjectCard({
             target="_blank"
             rel="noopener noreferrer"
             aria-label={`View ${project.name} live project`}
-            className={cn(
-              "inline-flex items-center justify-center gap-2 rounded-lg bg-ktf-blue font-semibold text-white transition-colors duration-150 hover:bg-ktf-blue-deep active:bg-ktf-blue-pressed",
+            // Template string, not cn(): tailwind-merge would drop the colour next to the custom text-caption size.
+            className={`inline-flex items-center justify-center gap-2 rounded-full border border-ktf-gray-200 bg-white font-medium text-ktf-navy transition-colors duration-150 hover:border-ktf-blue/40 hover:text-ktf-blue-deep ${
               compact
                 ? "mt-4 px-3 py-2 text-caption sm:mt-0 sm:px-5 sm:py-2.5 sm:text-body-sm"
-                : "px-5 py-2.5 text-body-sm",
-            )}
+                : "px-5 py-2.5 text-body-sm"
+            }`}
           >
             <span className={compact ? "hidden sm:inline" : ""}>
               View Live Project
