@@ -28,6 +28,8 @@ import { BookCard, HandoverCard } from "@/components/marketing/publication-cards
 import { ShowcaseCarousel } from "@/components/marketing/showcase-carousel";
 import { listPublishedPublicationsSafe } from "@/features/admin/publications/repository";
 import { listPublishedPortfolioProjectsSafe } from "@/features/admin/portfolio/repository";
+import { NewsCard } from "@/features/news/components/news-cards";
+import { listLatestNewsSafe } from "@/features/news/repository";
 import {
   ENGAGEMENT_PATHS,
   PARTNERS,
@@ -76,10 +78,11 @@ function ServiceIcon({ id }: ServiceIconProps) {
 }
 
 export default async function HomePage() {
-  const [handovers, books, projects] = await Promise.all([
+  const [handovers, books, projects, latestNews] = await Promise.all([
     listPublishedPublicationsSafe("handover"),
     listPublishedPublicationsSafe("book"),
     listPublishedPortfolioProjectsSafe(),
+    listLatestNewsSafe(3),
   ]);
   const homeHandovers = handovers.slice(0, 3);
   const homeBooks = books.slice(0, 3);
@@ -202,6 +205,40 @@ export default async function HomePage() {
           </div>
         </Container>
       </section>
+
+      {latestNews.length > 0 && (
+        <section className="border-b border-ktf-gray-200 bg-white py-20 sm:py-28">
+          <Container size="lg">
+            <Reveal className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+              <div className="max-w-2xl">
+                <p className="text-overline font-bold uppercase tracking-[0.2em] text-ktf-blue-deep">
+                  What&apos;s New at Bespoke
+                </p>
+                <h2 className="mt-4 text-h2 font-bold tracking-tight text-ktf-navy sm:text-h1">
+                  Latest from the team.
+                </h2>
+                <p className="mt-5 max-w-2xl text-body-lg leading-body text-ktf-gray-600">
+                  Announcements, product updates and project documentation, published by Bespoke Technologies.
+                </p>
+              </div>
+              <Link
+                href="/news"
+                className="inline-flex min-h-11 items-center gap-2 text-body-sm font-semibold text-ktf-blue-deep hover:text-ktf-blue-pressed"
+              >
+                See all news
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </Reveal>
+            <ul className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {latestNews.map((post) => (
+                <li key={post.id}>
+                  <NewsCard post={post} />
+                </li>
+              ))}
+            </ul>
+          </Container>
+        </section>
+      )}
 
       {homeHandovers.length > 0 && (
         <section className="bg-white py-20 sm:py-28">

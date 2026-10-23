@@ -11,6 +11,9 @@ import {
   FolderGit2,
   Layers,
   LockKeyhole,
+  Megaphone,
+  PackageCheck,
+  Wrench,
   Sparkles,
   Star,
   type LucideIcon,
@@ -75,6 +78,34 @@ export const NAV_MENUS: Record<string, MegaMenu> = {
         label: "Reviews",
         description: "What clients say about the work",
         href: "/reviews",
+      },
+    ],
+  },
+  "/news": {
+    items: [
+      {
+        icon: Megaphone,
+        label: "Announcements",
+        description: "Official news from Bespoke",
+        href: "/news/category/announcements",
+      },
+      {
+        icon: PackageCheck,
+        label: "Product updates",
+        description: "Releases and improvements",
+        href: "/news/category/product-updates",
+      },
+      {
+        icon: FileSearch,
+        label: "Project documentation",
+        description: "Public notes on shipped work",
+        href: "/news/category/project-documentation",
+      },
+      {
+        icon: Wrench,
+        label: "Engineering notes",
+        description: "How we build and operate software",
+        href: "/news/category/engineering-notes",
       },
     ],
   },
@@ -146,7 +177,7 @@ export function MegaNavItem({ href, label, isActive, menu }: MegaNavItemProps) {
         aria-haspopup="true"
         aria-controls={panelId}
         className={cn(
-          "relative inline-flex items-center gap-1 py-2 text-[13px] font-semibold transition-colors duration-150 after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full after:origin-left after:scale-x-0 after:rounded-full after:bg-ktf-blue after:transition-transform after:duration-150",
+          "relative inline-flex items-center gap-1 whitespace-nowrap py-2 text-[13px] font-semibold transition-colors duration-150 after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full after:origin-left after:scale-x-0 after:rounded-full after:bg-ktf-blue after:transition-transform after:duration-150",
           isActive
             ? "text-ktf-blue after:scale-x-100"
             : "text-ktf-gray-700 hover:text-ktf-obsidian",

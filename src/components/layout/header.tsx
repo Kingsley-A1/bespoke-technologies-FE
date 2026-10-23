@@ -13,6 +13,7 @@ import {
   Layers,
   Library,
   Mail,
+  Newspaper,
   Sparkles,
   Star,
   Users,
@@ -36,6 +37,7 @@ const NAV_ICONS: Record<string, LucideIcon> = {
   "/services": Layers,
   "/bespoke-ai": Sparkles,
   "/projects": FolderGit2,
+  "/news": Newspaper,
   "/library": Library,
   "/partnerships": Handshake,
   "/reviews": Star,
@@ -46,7 +48,7 @@ const NAV_ICONS: Record<string, LucideIcon> = {
 export function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
-  const isDesktop = useMediaQuery("(min-width: 1024px)");
+  const isDesktop = useMediaQuery("(min-width: 1280px)");
 
   const toggleMobile = () => setMobileOpen((prev) => !prev);
   const closeMobile = () => setMobileOpen(false);
@@ -90,7 +92,7 @@ export function Header() {
 
           {/* Desktop Navigation */}
           <ul
-            className="hidden items-center gap-5 lg:flex xl:gap-6"
+            className="hidden items-center gap-4 xl:flex"
             role="list"
           >
             {NAV_LINKS.map((link) => {
@@ -112,7 +114,7 @@ export function Header() {
                   <Link
                     href={link.href}
                     className={cn(
-                      "relative py-2 text-[13px] font-semibold transition-colors duration-150 after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full after:origin-left after:scale-x-0 after:rounded-full after:bg-ktf-blue after:transition-transform after:duration-150",
+                      "relative whitespace-nowrap py-2 text-[13px] font-semibold transition-colors duration-150 after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full after:origin-left after:scale-x-0 after:rounded-full after:bg-ktf-blue after:transition-transform after:duration-150",
                       isActive
                         ? "text-ktf-blue after:scale-x-100"
                         : "text-ktf-gray-700 hover:text-ktf-obsidian",
@@ -127,7 +129,7 @@ export function Header() {
           </ul>
 
           {/* Desktop CTA */}
-          <div className="hidden items-center gap-3 lg:flex">
+          <div className="hidden items-center gap-3 xl:flex">
             <Link
               href="/contact"
               className="inline-flex h-10 items-center justify-center whitespace-nowrap rounded-lg bg-ktf-blue px-4 text-sm font-semibold text-white shadow-sm transition-colors duration-150 hover:bg-ktf-blue-deep active:bg-ktf-blue-pressed xl:px-5"
@@ -140,7 +142,7 @@ export function Header() {
           <button
             type="button"
             onClick={toggleMobile}
-            className="lg:hidden relative z-10000 flex h-10 w-10 items-center justify-center rounded-lg text-ktf-gray-700 transition-colors hover:bg-ktf-surface"
+            className="xl:hidden relative z-10000 flex h-10 w-10 items-center justify-center rounded-lg text-ktf-gray-700 transition-colors hover:bg-ktf-surface"
             aria-expanded={mobileOpen}
             aria-controls="mobile-nav"
             aria-label={mobileOpen ? "Close menu" : "Open menu"}
@@ -182,7 +184,7 @@ export function Header() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.22 }}
-              className="fixed inset-0 z-9998 bg-ktf-obsidian/60 backdrop-blur-sm lg:hidden"
+              className="fixed inset-0 z-9998 bg-ktf-obsidian/60 backdrop-blur-sm xl:hidden"
               onClick={closeMobile}
               aria-hidden="true"
             />
@@ -197,7 +199,7 @@ export function Header() {
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "spring", stiffness: 320, damping: 32 }}
-              className="fixed inset-y-0 right-0 z-9999 flex w-4/5 max-w-xs flex-col border-l border-ktf-blue/20 bg-ktf-white [box-shadow:0_0_80px_rgba(0,0,0,0.35)] lg:hidden"
+              className="fixed inset-y-0 right-0 z-9999 flex w-4/5 max-w-xs flex-col border-l border-ktf-blue/20 bg-ktf-white [box-shadow:0_0_80px_rgba(0,0,0,0.35)] xl:hidden"
             >
               {/* Panel header — branded band */}
               <div className="relative shrink-0 overflow-hidden border-b border-ktf-gray-100 bg-gradient-to-br from-ktf-blue/10 via-white to-white px-5 pb-5 pt-5">

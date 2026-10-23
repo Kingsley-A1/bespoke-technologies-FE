@@ -13,6 +13,8 @@ const managerPermissions: AdminPermission[] = [
   "idea_gates.view",
   "idea_gates.manage",
   "publications.manage",
+  "news.manage",
+  "news.publish",
   "reviews.manage",
   "learning.view",
   "learning.manage",

@@ -481,3 +481,230 @@ body {
     background: #fff;
   }
 }
+
+/* ---- What's New article typography ----
+   One stylesheet for the public article and the admin editor surface, so the
+   editor is a faithful preview of what readers see. */
+.bt-article {
+  color: var(--color-ktf-gray-800);
+  font-size: 1.0625rem;
+  line-height: 1.75;
+  overflow-wrap: anywhere;
+}
+
+.bt-article > * + * {
+  margin-top: 1.25em;
+}
+
+.bt-article h2,
+.bt-article h3,
+.bt-article h4 {
+  color: var(--color-ktf-navy);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  scroll-margin-top: 6.5rem;
+}
+
+.bt-article h2 {
+  margin-top: 2.1em;
+  font-size: 1.625rem;
+  line-height: 1.25;
+}
+
+.bt-article h3 {
+  margin-top: 1.8em;
+  font-size: 1.3125rem;
+  line-height: 1.3;
+}
+
+.bt-article h4 {
+  margin-top: 1.6em;
+  font-size: 1.0625rem;
+  line-height: 1.4;
+}
+
+.bt-article h2 + *,
+.bt-article h3 + *,
+.bt-article h4 + * {
+  margin-top: 0.6em;
+}
+
+.bt-article > :first-child {
+  margin-top: 0;
+}
+
+.bt-article a {
+  color: var(--color-ktf-blue-deep);
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.bt-article a:hover {
+  color: var(--color-ktf-blue-pressed);
+  text-decoration-thickness: 2px;
+}
+
+.bt-article strong {
+  color: var(--color-ktf-gray-900);
+  font-weight: 650;
+}
+
+.bt-article ul,
+.bt-article ol {
+  padding-left: 1.4em;
+}
+
+.bt-article ul {
+  list-style: disc;
+}
+
+.bt-article ol {
+  list-style: decimal;
+}
+
+.bt-article li + li {
+  margin-top: 0.4em;
+}
+
+.bt-article li > * + * {
+  margin-top: 0.4em;
+}
+
+.bt-article li::marker {
+  color: var(--color-ktf-gray-500);
+}
+
+.bt-article blockquote {
+  border-left: 3px solid var(--color-ktf-blue);
+  padding: 0.15em 0 0.15em 1.1em;
+  color: var(--color-ktf-gray-700);
+  font-size: 1.125rem;
+}
+
+.bt-article blockquote > * + * {
+  margin-top: 0.75em;
+}
+
+.bt-article code {
+  border-radius: 0.3rem;
+  background: var(--color-ktf-gray-100);
+  padding: 0.12em 0.36em;
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+  color: var(--color-ktf-gray-900);
+}
+
+.bt-article pre {
+  overflow-x: auto;
+  border-radius: 0.75rem;
+  background: var(--color-ktf-obsidian);
+  padding: 1.1rem 1.25rem;
+  color: #e6e9ef;
+  font-size: 0.875rem;
+  line-height: 1.65;
+}
+
+.bt-article pre code {
+  background: none;
+  padding: 0;
+  color: inherit;
+  font-size: inherit;
+}
+
+.bt-article hr {
+  margin: 2.5em 0;
+  border: 0;
+  border-top: 1px solid var(--color-ktf-gray-200);
+}
+
+.bt-article figure img,
+.bt-article img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 0.75rem;
+  border: 1px solid var(--color-ktf-gray-200);
+}
+
+.bt-article figcaption {
+  margin-top: 0.6em;
+  color: var(--color-ktf-gray-600);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.bt-article-table,
+.bt-article .tableWrapper {
+  overflow-x: auto;
+  border: 1px solid var(--color-ktf-gray-200);
+  border-radius: 0.75rem;
+}
+
+.bt-article table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+  line-height: 1.55;
+}
+
+.bt-article th,
+.bt-article td {
+  min-width: 7rem;
+  border-bottom: 1px solid var(--color-ktf-gray-200);
+  padding: 0.65rem 0.9rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.bt-article tr > * + * {
+  border-left: 1px solid var(--color-ktf-gray-200);
+}
+
+.bt-article tr:last-child > * {
+  border-bottom: 0;
+}
+
+.bt-article th {
+  background: var(--color-ktf-surface);
+  color: var(--color-ktf-navy);
+  font-weight: 650;
+}
+
+.bt-article th > * + *,
+.bt-article td > * + * {
+  margin-top: 0.5em;
+}
+
+/* Editor-only affordances (TipTap / ProseMirror). */
+.bt-article.ProseMirror {
+  min-height: 22rem;
+  outline: none;
+}
+
+.bt-article.ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  color: var(--color-ktf-gray-400);
+  pointer-events: none;
+}
+
+.bt-article.ProseMirror img.ProseMirror-selectednode {
+  outline: 3px solid var(--color-ktf-blue);
+  outline-offset: 2px;
+}
+
+.bt-article.ProseMirror .selectedCell {
+  background: rgba(10, 132, 255, 0.08);
+}
+
+.bt-article.ProseMirror .column-resize-handle {
+  display: none;
+}
+
+.bt-article.ProseMirror a {
+  cursor: text;
+}

@@ -12,6 +12,7 @@ const FOOTER_LINKS = {
     { label: "Reviews", href: "/reviews" },
   ],
   resources: [
+    { label: "What's New", href: "/news" },
     { label: "Library", href: "/library" },
     { label: "Digital Readiness Audit", href: "/digital-readiness-audit" },
     { label: "Idea Execution Gate", href: "/idea-execution-gate" },

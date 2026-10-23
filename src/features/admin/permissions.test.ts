@@ -26,6 +26,15 @@ describe("admin role permissions", () => {
     expect(hasPermission("founder_admin", "learn.publish")).toBe(true);
   });
 
+  it("lets founders and admin managers write and publish What's New posts", () => {
+    for (const role of ["founder_admin", "admin_manager"] as const) {
+      expect(hasPermission(role, "news.manage")).toBe(true);
+      expect(hasPermission(role, "news.publish")).toBe(true);
+    }
+    expect(hasPermission("employee", "news.manage")).toBe(false);
+    expect(hasPermission("employee", "news.publish")).toBe(false);
+  });
+
   it("limits employees to their own work and learning surfaces", () => {
     expect(hasPermission("employee", "dashboard.view")).toBe(true);
     expect(hasPermission("employee", "work.view")).toBe(true);
