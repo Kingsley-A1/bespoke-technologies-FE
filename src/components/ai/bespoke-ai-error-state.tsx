@@ -36,7 +36,7 @@ export function BespokeAIErrorState({
   return (
     <div
       className={cn(
-        "rounded-lg border border-ktf-gray-200 bg-ktf-surface/70 p-4 shadow-xs sm:p-5",
+        "rounded-2xl border border-ktf-gray-200 bg-ktf-surface/70 p-4 shadow-xs sm:p-5",
         className,
       )}
       role="alert"
@@ -65,7 +65,7 @@ export function BespokeAIErrorState({
               <button
                 type="button"
                 onClick={onRetry}
-                className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-ktf-blue px-4 text-sm font-semibold text-white transition-colors hover:bg-ktf-blue-deep focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ktf-blue"
+                className="inline-flex min-h-10 items-center justify-center gap-2 rounded-full bg-ktf-blue px-4 text-sm font-semibold text-white transition-colors hover:bg-ktf-blue-deep focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ktf-blue"
               >
                 <RefreshCw className="h-4 w-4" aria-hidden="true" />
                 Try again
@@ -74,7 +74,7 @@ export function BespokeAIErrorState({
             {payload.contactRecommended && showContactAction ? (
               <Link
                 href="/contact"
-                className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-ktf-gray-300 bg-white px-4 text-sm font-semibold text-ktf-obsidian transition-colors hover:border-ktf-blue/35 hover:text-ktf-blue focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ktf-blue"
+                className="inline-flex min-h-10 items-center justify-center gap-2 rounded-full border border-ktf-gray-300 bg-white px-4 text-sm font-semibold text-ktf-obsidian transition-colors hover:border-ktf-blue/35 hover:text-ktf-blue focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ktf-blue"
               >
                 <LifeBuoy className="h-4 w-4" aria-hidden="true" />
                 Contact the team

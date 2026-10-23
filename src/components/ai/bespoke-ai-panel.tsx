@@ -1,17 +1,11 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
-import {
-  PanelLeft,
-  PanelLeftClose,
-  PanelRightClose,
-  PictureInPicture2,
-  SquarePen,
-  X,
-} from "lucide-react";
+import { ArrowLeft, PanelLeft, PanelLeftClose, SquarePen, X } from "lucide-react";
 import { useMediaQuery } from "@/hooks";
 import { getBespokeAIErrorPayload } from "@/lib/ai/bespoke-ai-errors";
 import type { BespokeAIUIMessage } from "@/lib/ai/bespoke-ai-types";
@@ -25,33 +19,28 @@ import { BespokeAISuggestions } from "./bespoke-ai-suggestions";
 import { useBespokeAIConversations } from "./use-bespoke-ai-conversations";
 
 type BespokeAIPanelProps = {
-  mode?: "page" | "panel" | "admin";
-  isDocked?: boolean;
+  /**
+   * page: the /bespoke-ai route. panel: the desktop side panel. sheet: the
+   * mobile bottom sheet. admin: the Coworker workspace.
+   */
+  mode?: "page" | "panel" | "sheet" | "admin";
   onClose?: () => void;
+  /** Lets the mobile sheet be dragged down from its header. */
   onHeaderPointerDown?: (event: React.PointerEvent<HTMLElement>) => void;
-  onToggleDock?: () => void;
 };
 
-const PUBLIC_HEADLINES = [
-  "Ready to build the big idea?",
-  "What could we make possible today?",
-  "Ready to turn the idea into a plan?",
-] as const;
+const iconButton =
+  "flex h-9 w-9 items-center justify-center rounded-full text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-35";
 
-const ADMIN_HEADLINES = [
-  "What needs your attention today?",
-  "Ready to move the work forward?",
-  "Where can I help you decide faster?",
-] as const;
-
-export function BespokeAIPanel({ mode = "page", isDocked = false, onClose, onHeaderPointerDown, onToggleDock }: BespokeAIPanelProps) {
+export function BespokeAIPanel({ mode = "page", onClose, onHeaderPointerDown }: BespokeAIPanelProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const isDesktop = useMediaQuery("(min-width: 1024px)");
-  const prefersReducedMotion = useMediaQuery("(prefers-reduced-motion: reduce)");
   const isAdmin = mode === "admin";
   const isStandalone = mode === "page";
+  // The side panel and the sheet are narrow surfaces: history opens over the
+  // conversation instead of beside it.
+  const isCompact = mode === "panel" || mode === "sheet";
   const assistantName = isAdmin ? "Bespoke Coworker" : "Bespoke AI";
-  const [headlineIndex, setHeadlineIndex] = useState(0);
   const [isHistoryDockOpen, setIsHistoryDockOpen] = useState(false);
   const [isHistoryDrawerOpen, setIsHistoryDrawerOpen] = useState(false);
   const {
@@ -85,13 +74,17 @@ export function BespokeAIPanel({ mode = "page", isDocked = false, onClose, onHea
   const isStreaming = status === "streaming" || status === "submitted";
   const hasEmptyState = messages.length === 0;
   const aiError = error ? getBespokeAIErrorPayload(error) : null;
-  const headlines = isAdmin ? ADMIN_HEADLINES : PUBLIC_HEADLINES;
+  const headline = isAdmin ? "What needs your attention today?" : "What would you like to build?";
 
+  // Escape closes the history list (the surrounding panel ignores that press).
   useEffect(() => {
-    if (prefersReducedMotion) return;
-    const timer = window.setInterval(() => setHeadlineIndex((current) => (current + 1) % headlines.length), 7000);
-    return () => window.clearInterval(timer);
-  }, [headlines.length, prefersReducedMotion]);
+    if (!isHistoryDrawerOpen) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setIsHistoryDrawerOpen(false);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [isHistoryDrawerOpen]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
@@ -103,23 +96,24 @@ export function BespokeAIPanel({ mode = "page", isDocked = false, onClose, onHea
 
   const sendPrompt = (prompt: string) => sendMessage({ text: prompt });
   const handleRetry = () => { clearError(); void regenerate(); };
+  const usesHistoryDock = isDesktop && !isCompact;
   const handleToggleHistory = () => {
-    if (isDesktop) setIsHistoryDockOpen((current) => !current);
+    if (usesHistoryDock) setIsHistoryDockOpen((current) => !current);
     else setIsHistoryDrawerOpen(true);
   };
   const handleCloseHistory = () => {
-    if (isDesktop) setIsHistoryDockOpen(false);
+    if (usesHistoryDock) setIsHistoryDockOpen(false);
     else setIsHistoryDrawerOpen(false);
   };
   const handleStartNewConversation = () => {
     if (isStreaming) stop();
     startNewConversation();
-    if (!isDesktop) setIsHistoryDrawerOpen(false);
+    setIsHistoryDrawerOpen(false);
   };
   const handleSelectConversation = (conversationId: string) => {
     if (isStreaming) stop();
     selectConversation(conversationId);
-    if (!isDesktop) setIsHistoryDrawerOpen(false);
+    setIsHistoryDrawerOpen(false);
   };
   const handleDeleteConversation = (conversationId: string) => {
     if (isStreaming && conversationId === activeConversationId) stop();
@@ -130,7 +124,7 @@ export function BespokeAIPanel({ mode = "page", isDocked = false, onClose, onHea
     <BespokeAIHistorySidebar
       assistantName={assistantName}
       activeConversationId={activeConversationId}
-      className={cn("hidden lg:flex", mode === "panel" ? "w-[42%] min-w-52 max-w-60" : "w-72 max-w-72")}
+      className="hidden w-72 max-w-72 lg:flex"
       conversations={conversations}
       onClose={handleCloseHistory}
       onDeleteConversation={handleDeleteConversation}
@@ -143,7 +137,10 @@ export function BespokeAIPanel({ mode = "page", isDocked = false, onClose, onHea
   );
 
   const mobileHistoryDrawer = isHistoryDrawerOpen ? (
-    <div className="fixed inset-0 z-400 lg:hidden">
+    <div
+      data-bespoke-ai-history-drawer="true"
+      className={cn("z-400", isCompact ? "absolute inset-0 flex" : "fixed inset-0 lg:hidden")}
+    >
       <button type="button" className="absolute inset-0 bg-slate-950/35" aria-label="Close conversation history overlay" onClick={() => setIsHistoryDrawerOpen(false)} />
       <BespokeAIHistorySidebar
         assistantName={assistantName}
@@ -177,39 +174,64 @@ export function BespokeAIPanel({ mode = "page", isDocked = false, onClose, onHea
       className={cn(
         "flex min-h-0 flex-1 overflow-hidden bg-white",
         isStandalone && "h-dvh bg-[#f7f9fc] p-0 sm:p-3 lg:p-5",
-        mode === "panel" && "h-full",
+        isCompact && "relative h-full bg-[linear-gradient(180deg,#ffffff_0%,#ffffff_58%,#edf4fd_100%)]",
         isAdmin && "h-[calc(100dvh-86px)] min-h-[620px]",
       )}
       aria-labelledby="bespoke-ai-panel-title"
     >
-      <div className={cn("flex min-h-0 flex-1 overflow-hidden bg-white", isStandalone && "mx-auto max-w-[1440px] sm:rounded-lg sm:border sm:border-slate-200 sm:shadow-[0_30px_90px_-45px_rgba(15,38,71,0.45)]") }>
-        {isDesktop && isHistoryDockOpen ? historySidebar : null}
+      <div className={cn("flex min-h-0 flex-1 overflow-hidden", isCompact ? "bg-transparent" : "bg-white", isStandalone && "mx-auto max-w-[1440px] sm:rounded-lg sm:border sm:border-slate-200 sm:shadow-[0_30px_90px_-45px_rgba(15,38,71,0.45)]") }>
+        {usesHistoryDock && isHistoryDockOpen ? historySidebar : null}
         {mobileHistoryDrawer}
 
-        <div className="flex min-w-0 flex-1 flex-col bg-white">
+        <div className={cn("flex min-w-0 flex-1 flex-col", isCompact ? "bg-transparent" : "bg-white")}>
           <header
             onPointerDown={onHeaderPointerDown}
-            className={cn("flex h-14 shrink-0 items-center justify-between border-b border-slate-100 px-3 sm:px-5", onHeaderPointerDown && "cursor-grab touch-none select-none active:cursor-grabbing")}
+            className={cn(
+              "flex h-14 shrink-0 items-center justify-between gap-2 px-3 sm:px-4",
+              !isCompact && "border-b border-slate-100",
+              onHeaderPointerDown && "touch-none select-none",
+            )}
           >
-            <div className="flex min-w-0 items-center gap-2.5">
-              <button type="button" onClick={handleToggleHistory} className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-50 hover:text-ktf-blue" aria-label={isDesktop && isHistoryDockOpen ? "Hide conversation history" : "Show conversation history"} aria-expanded={isDesktop ? isHistoryDockOpen : isHistoryDrawerOpen}>
-                {isDesktop && isHistoryDockOpen ? <PanelLeftClose className="h-4.5 w-4.5" /> : <PanelLeft className="h-4.5 w-4.5" />}
+            <div className="flex min-w-0 items-center gap-2">
+              <button
+                type="button"
+                onClick={handleToggleHistory}
+                className={iconButton}
+                aria-label={usesHistoryDock && isHistoryDockOpen ? "Hide conversation history" : "Show conversation history"}
+                aria-expanded={usesHistoryDock ? isHistoryDockOpen : isHistoryDrawerOpen}
+              >
+                {usesHistoryDock && isHistoryDockOpen ? <PanelLeftClose className="h-4.5 w-4.5" /> : <PanelLeft className="h-4.5 w-4.5" />}
               </button>
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-ktf-blue text-white"><BespokeAIIcon className="h-4 w-4" inverse /></span>
-              <div className="min-w-0">
-                <h1 id="bespoke-ai-panel-title" className="truncate text-sm font-bold text-slate-950">{assistantName}</h1>
-                <p className="truncate text-[10px] font-medium text-slate-500">{isAdmin ? "Your private operations partner" : "Ideas, proof, and a clear way forward"}</p>
-              </div>
+              <h1 id="bespoke-ai-panel-title" className="flex min-w-0 items-center gap-2 truncate text-[15px] font-semibold text-slate-950">
+                <BespokeAIIcon className="h-4.5 w-4.5 shrink-0 text-ktf-blue-deep" />
+                {assistantName}
+              </h1>
             </div>
-            <div className="flex items-center gap-1">
-              <span className="mr-1 hidden items-center gap-1.5 text-[10px] font-semibold text-emerald-700 sm:flex"><span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />Ready</span>
-              {onToggleDock ? (
-                <button type="button" onClick={onToggleDock} className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-50 hover:text-ktf-blue" aria-label={isDocked ? "Detach Bespoke AI panel" : "Dock Bespoke AI to the side"} title={isDocked ? "Detach panel" : "Dock to side"}>
-                  {isDocked ? <PictureInPicture2 className="h-4 w-4" /> : <PanelRightClose className="h-4 w-4" />}
+            <div className="flex items-center gap-0.5">
+              <button
+                type="button"
+                onClick={handleStartNewConversation}
+                disabled={hasEmptyState && !isStreaming}
+                className={iconButton}
+                aria-label="Start a new chat"
+                title="New chat"
+              >
+                <SquarePen className="h-4 w-4" />
+              </button>
+              {isStandalone ? (
+                <Link
+                  href="/"
+                  className="ml-1 inline-flex h-9 items-center gap-1.5 rounded-full border border-slate-200 px-3.5 text-[13px] font-medium text-slate-700 transition-colors hover:border-slate-300 hover:text-slate-950"
+                >
+                  <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+                  Website
+                </Link>
+              ) : null}
+              {onClose ? (
+                <button data-bespoke-ai-close="true" type="button" onClick={onClose} className={iconButton} aria-label={`Close ${assistantName}`}>
+                  <X className="h-4.5 w-4.5" />
                 </button>
               ) : null}
-              <button type="button" onClick={handleStartNewConversation} disabled={hasEmptyState && !isStreaming} className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-50 hover:text-ktf-blue disabled:cursor-not-allowed disabled:opacity-35" aria-label="Start a new chat" title="New chat"><SquarePen className="h-4 w-4" /></button>
-              {onClose ? <button data-bespoke-ai-close="true" type="button" onClick={onClose} className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-50 hover:text-slate-900" aria-label={`Close ${assistantName}`}><X className="h-4 w-4" /></button> : null}
             </div>
           </header>
 
@@ -218,18 +240,22 @@ export function BespokeAIPanel({ mode = "page", isDocked = false, onClose, onHea
               <div data-bespoke-ai-empty-state="true" className="relative flex min-h-full items-center justify-center overflow-hidden px-4 py-7 sm:px-6">
                 {isStandalone && !isAdmin ? (
                   <Image src="/ai/bespoke-ai-glass-orb.png" alt="" width={1672} height={909} priority className="pointer-events-none absolute left-1/2 top-[-16%] w-[min(680px,82vw)] -translate-x-1/2 opacity-[0.14] mix-blend-multiply" />
-                ) : (
+                ) : isCompact ? null : (
                   <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-[radial-gradient(circle_at_50%_0%,rgba(10,132,255,0.07),transparent_70%)]" />
                 )}
-                <div data-bespoke-ai-empty-content="true" className={cn("relative z-10 w-full pt-8 sm:pt-10", mode === "panel" ? "max-w-[360px]" : "max-w-[720px]")}>
+                <div data-bespoke-ai-empty-content="true" className={cn("relative z-10 w-full pt-6 sm:pt-8", isCompact ? "max-w-[380px]" : "max-w-[720px]")}>
                   <div className="text-center">
                     <p className="text-sm font-medium text-slate-500">{isAdmin ? "Welcome back." : "Hello there."}</p>
-                    <h2 key={headlineIndex} className={cn("mt-1 animate-fade-in font-semibold leading-[1.08] tracking-[-0.04em] text-slate-950", mode === "panel" ? "text-[1.75rem]" : "text-[clamp(1.9rem,4vw,2.75rem)]")}>{headlines[headlineIndex]}</h2>
-                    <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-slate-500">{isAdmin ? "Ask one clear question about the work. I’ll use only the admin context your role is allowed to see." : "Start with a question or choose a quick path."}</p>
+                    <h2 className={cn("mt-1 font-semibold leading-[1.1] tracking-[-0.035em] text-slate-950", isCompact ? "text-[1.6rem]" : "text-[clamp(1.9rem,4vw,2.6rem)]")}>{headline}</h2>
+                    {isAdmin ? <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-slate-500">Ask one clear question about the work. I’ll use only the admin context your role is allowed to see.</p> : null}
                   </div>
-                  <div data-bespoke-ai-empty-suggestions="true" className="mt-5"><BespokeAISuggestions compact={mode === "panel"} experience={isAdmin ? "admin" : "public"} onSelect={sendPrompt} /></div>
-                  <div className="mt-4">{composer}</div>
-                  <p className="mt-2.5 text-center text-[10px] leading-4 text-slate-400">{assistantName} can make mistakes. Verify important decisions.</p>
+                  <div data-bespoke-ai-empty-suggestions="true" className="mt-5"><BespokeAISuggestions compact={isCompact} experience={isAdmin ? "admin" : "public"} onSelect={sendPrompt} /></div>
+                  {!isCompact ? (
+                    <>
+                      <div className="mt-4">{composer}</div>
+                      <p className="mt-2.5 text-center text-[10px] leading-4 text-slate-400">{assistantName} can make mistakes. Verify important decisions.</p>
+                    </>
+                  ) : null}
                 </div>
               </div>
             ) : (
@@ -241,7 +267,7 @@ export function BespokeAIPanel({ mode = "page", isDocked = false, onClose, onHea
             )}
           </div>
 
-          {!hasEmptyState ? <div className="shrink-0 border-t border-slate-100 bg-white/96 px-3 py-3 backdrop-blur sm:px-5"><div className="mx-auto w-full max-w-3xl">{composer}<p className="mt-2 text-center text-[10px] text-slate-400">{assistantName} can make mistakes. Verify important decisions.</p></div></div> : null}
+          {!hasEmptyState || isCompact ? <div className={cn("shrink-0 px-3 pb-3 pt-2 sm:px-4", isCompact ? "bg-transparent pb-[max(0.75rem,env(safe-area-inset-bottom))]" : "border-t border-slate-100 bg-white py-3")}><div className="mx-auto w-full max-w-3xl">{composer}<p className="mt-2 text-center text-[10px] text-slate-400">{assistantName} can make mistakes. Verify important decisions.</p></div></div> : null}
         </div>
       </div>
     </section>

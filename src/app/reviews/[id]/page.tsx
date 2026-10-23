@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
-import { Button } from "@/components/ui";
+import { Button } from "@/components/ui/button";
 import { Container } from "@/components/layout";
 import { ReviewCard } from "@/components/marketing/review-card";
 import { getPublishedReviewByIdSafe } from "@/features/admin/reviews/repository";

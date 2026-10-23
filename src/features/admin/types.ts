@@ -48,6 +48,8 @@ export type AdminPermission =
   | "exports.all"
   | "approvals.resolve"
   | "publications.manage"
+  | "news.manage"
+  | "news.publish"
   | "reviews.manage"
   | "work.view"
   | "learning.view"

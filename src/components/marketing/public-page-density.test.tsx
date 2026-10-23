@@ -52,6 +52,7 @@ vi.mock("@/components/marketing/hero-headline", () => ({
   HeroHeadline: ({ className }: { className?: string }) => (
     <h1 className={className}>Homepage promise</h1>
   ),
+  heroWordForProjectType: () => "Website",
 }));
 
 vi.mock("@/components/marketing/hero-phone-showcase", () => ({

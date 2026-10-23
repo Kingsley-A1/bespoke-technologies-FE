@@ -1,54 +1,49 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { motion, AnimatePresence } from "motion/react";
-import {
-  ArrowUpRight,
-  FolderGit2,
-  Handshake,
-  Home,
-  Layers,
-  Library,
-  Mail,
-  Sparkles,
-  Star,
-  Users,
-  type LucideIcon,
-} from "lucide-react";
+import { ArrowUpRight, Sparkles } from "lucide-react";
 import {
   BRAND_ICON_SRC,
-  NAV_LINKS,
+  NAV_GROUPS,
   SITE_NAME,
   WHATSAPP_INQUIRY_MESSAGE,
   WHATSAPP_NUMBER,
 } from "@/lib/constants";
 import { WhatsAppIcon } from "@/components/icons/whatsapp-icon";
-import { MegaNavItem, NAV_MENUS } from "@/components/layout/nav-mega-menu";
+import { isNavGroupActive, MegaNavItem, NAV_ICONS } from "@/components/layout/nav-mega-menu";
 import { cn } from "@/lib/utils";
 import { useMediaQuery } from "@/hooks";
 
-/** Icon per nav destination — gives the mobile menu life and scannability. */
-const NAV_ICONS: Record<string, LucideIcon> = {
-  "/": Home,
-  "/services": Layers,
-  "/bespoke-ai": Sparkles,
-  "/projects": FolderGit2,
-  "/library": Library,
-  "/partnerships": Handshake,
-  "/reviews": Star,
-  "/about": Users,
-  "/contact": Mail,
-};
 
 export function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const headerRef = useRef<HTMLElement>(null);
+
+  // A hairline shadow appears once the page scrolls. Stored as a data
+  // attribute so scrolling never re-renders the header.
+  useEffect(() => {
+    const header = headerRef.current;
+    if (!header) return;
+    const update = () => {
+      header.dataset.scrolled = window.scrollY > 4 ? "true" : "false";
+    };
+    update();
+    window.addEventListener("scroll", update, { passive: true });
+    return () => window.removeEventListener("scroll", update);
+  }, []);
   const pathname = usePathname();
   const isDesktop = useMediaQuery("(min-width: 1024px)");
 
-  const toggleMobile = () => setMobileOpen((prev) => !prev);
+  // While the Bespoke AI side panel is docked the desktop menus are hidden for
+  // room, so the menu button (and this overlay) also serve wide screens then.
+  const [menuWhileDocked, setMenuWhileDocked] = useState(false);
+  const toggleMobile = () => {
+    setMenuWhileDocked(document.body.classList.contains("bespoke-ai-side-panel-open"));
+    setMobileOpen((prev) => !prev);
+  };
   const closeMobile = () => setMobileOpen(false);
 
   const whatsappHref = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
@@ -57,7 +52,11 @@ export function Header() {
 
   return (
     <>
-      <header className="sticky top-0 z-100 border-b border-ktf-blue/10 bg-ktf-white/92 shadow-xs backdrop-blur-xl">
+      <header
+        ref={headerRef}
+        data-scrolled="false"
+        className="sticky top-0 z-100 border-b border-ktf-gray-200/70 bg-ktf-white/90 backdrop-blur-xl transition-shadow duration-200 data-[scrolled=true]:shadow-[0_1px_12px_rgba(11,31,58,0.08)]"
+      >
         <nav
           className="mx-auto flex h-[4.25rem] max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8"
           aria-label="Main navigation"
@@ -88,49 +87,24 @@ export function Header() {
             </span>
           </Link>
 
-          {/* Desktop Navigation */}
-          <ul
-            className="hidden items-center gap-5 lg:flex xl:gap-6"
-            role="list"
-          >
-            {NAV_LINKS.map((link) => {
-              const isActive = pathname === link.href;
-              const menu = NAV_MENUS[link.href];
-              if (menu) {
-                return (
-                  <MegaNavItem
-                    key={link.href}
-                    href={link.href}
-                    label={link.label}
-                    isActive={isActive}
-                    menu={menu}
-                  />
-                );
-              }
-              return (
-                <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    className={cn(
-                      "relative py-2 text-[13px] font-semibold transition-colors duration-150 after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full after:origin-left after:scale-x-0 after:rounded-full after:bg-ktf-blue after:transition-transform after:duration-150",
-                      isActive
-                        ? "text-ktf-blue after:scale-x-100"
-                        : "text-ktf-gray-700 hover:text-ktf-obsidian",
-                    )}
-                    aria-current={isActive ? "page" : undefined}
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              );
-            })}
+          {/* Desktop Navigation — four grouped menus, as on Stripe and Vercel */}
+          <ul className="ml-8 mr-auto hidden items-center gap-0.5 lg:flex" role="list">
+            {NAV_GROUPS.map((group) => (
+              <MegaNavItem key={group.label} group={group} isActive={isNavGroupActive(group, pathname)} />
+            ))}
           </ul>
 
           {/* Desktop CTA */}
-          <div className="hidden items-center gap-3 lg:flex">
+          <div className="hidden items-center gap-2 lg:flex">
+            <Link
+              href="/bespoke-ai"
+              className="hidden h-9 items-center justify-center whitespace-nowrap rounded-full border border-ktf-gray-200 bg-white px-4 text-sm font-medium text-ktf-obsidian xl:inline-flex transition-colors duration-150 hover:border-ktf-gray-300 hover:bg-ktf-surface"
+            >
+              Ask Bespoke AI
+            </Link>
             <Link
               href="/contact"
-              className="inline-flex h-10 items-center justify-center whitespace-nowrap rounded-lg bg-ktf-blue px-4 text-sm font-semibold text-white shadow-sm transition-colors duration-150 hover:bg-ktf-blue-deep active:bg-ktf-blue-pressed xl:px-5"
+              className="inline-flex h-9 items-center justify-center whitespace-nowrap rounded-full bg-ktf-obsidian px-4 text-sm font-medium text-white transition-colors duration-150 hover:bg-ktf-charcoal"
             >
               Contact Us
             </Link>
@@ -146,24 +120,18 @@ export function Header() {
             aria-label={mobileOpen ? "Close menu" : "Open menu"}
           >
             <div className="flex w-5 flex-col gap-1.25">
-              <motion.span
-                animate={
-                  mobileOpen ? { rotate: 45, y: 7 } : { rotate: 0, y: 0 }
-                }
-                transition={{ duration: 0.2 }}
-                className="block h-0.5 w-full bg-current origin-center"
+              <span
+                className={cn(
+                  "block h-0.5 w-full origin-center bg-current transition-transform duration-200",
+                  mobileOpen && "translate-y-[7px] rotate-45",
+                )}
               />
-              <motion.span
-                animate={mobileOpen ? { opacity: 0 } : { opacity: 1 }}
-                transition={{ duration: 0.15 }}
-                className="block h-0.5 w-full bg-current"
-              />
-              <motion.span
-                animate={
-                  mobileOpen ? { rotate: -45, y: -7 } : { rotate: 0, y: 0 }
-                }
-                transition={{ duration: 0.2 }}
-                className="block h-0.5 w-full bg-current origin-center"
+              <span className={cn("block h-0.5 w-full bg-current transition-opacity duration-150", mobileOpen && "opacity-0")} />
+              <span
+                className={cn(
+                  "block h-0.5 w-full origin-center bg-current transition-transform duration-200",
+                  mobileOpen && "-translate-y-[7px] -rotate-45",
+                )}
               />
             </div>
           </button>
@@ -173,31 +141,23 @@ export function Header() {
       {/* ── Mobile Navigation Overlay ─────────────────────────
           Rendered OUTSIDE <header> so the sticky z-100 stacking
           context does not clip the fixed panel over the page.     */}
-      <AnimatePresence>
-        {mobileOpen && !isDesktop && (
+      {mobileOpen && (!isDesktop || menuWhileDocked) && (
           <>
             {/* Frosted backdrop */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.22 }}
-              className="fixed inset-0 z-9998 bg-ktf-obsidian/60 backdrop-blur-sm lg:hidden"
+            <div
+              data-mobile-nav-backdrop="true"
+              className="ktf-fade-in fixed inset-0 z-9998 bg-ktf-obsidian/60 backdrop-blur-sm lg:hidden"
               onClick={closeMobile}
               aria-hidden="true"
             />
 
             {/* Sidebar Panel */}
-            <motion.div
+            <div
               id="mobile-nav"
               role="dialog"
               aria-modal="true"
               aria-label="Navigation menu"
-              initial={{ x: "100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "100%" }}
-              transition={{ type: "spring", stiffness: 320, damping: 32 }}
-              className="fixed inset-y-0 right-0 z-9999 flex w-4/5 max-w-xs flex-col border-l border-ktf-blue/20 bg-ktf-white [box-shadow:0_0_80px_rgba(0,0,0,0.35)] lg:hidden"
+              className="ktf-slide-in-right fixed inset-y-0 right-0 z-9999 flex w-4/5 max-w-xs flex-col border-l border-ktf-blue/20 bg-ktf-white [box-shadow:0_0_80px_rgba(0,0,0,0.35)] lg:hidden"
             >
               {/* Panel header — branded band */}
               <div className="relative shrink-0 overflow-hidden border-b border-ktf-gray-100 bg-gradient-to-br from-ktf-blue/10 via-white to-white px-5 pb-5 pt-5">
@@ -234,59 +194,61 @@ export function Header() {
                 </p>
               </div>
 
-              {/* Nav Links */}
-              <nav className="flex-1 overflow-y-auto px-3 py-4">
-                <ul className="flex flex-col gap-1" role="list">
-                  {NAV_LINKS.map((link, i) => {
-                    const isActive = pathname === link.href;
-                    const Icon = NAV_ICONS[link.href] ?? Sparkles;
-                    return (
-                      <motion.li
-                        key={link.href}
-                        initial={{ opacity: 0, x: 16 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.04 * i, duration: 0.18 }}
-                      >
-                        <Link
-                          href={link.href}
-                          onClick={closeMobile}
-                          className={cn(
-                            "group/nav flex items-center gap-3 rounded-md px-2.5 py-2.5 text-[15px] font-semibold transition-colors duration-150",
-                            isActive
-                              ? "bg-ktf-blue/8 text-ktf-navy"
-                              : "text-ktf-gray-700 hover:bg-ktf-surface hover:text-ktf-navy",
-                          )}
-                          aria-current={isActive ? "page" : undefined}
-                        >
-                          <span
-                            className={cn(
-                              "flex h-9 w-9 shrink-0 items-center justify-center rounded-md border transition-colors duration-150",
-                              isActive
-                                ? "border-transparent bg-ktf-blue text-white shadow-xs"
-                                : "border-ktf-gray-200 bg-white text-ktf-gray-500 group-hover/nav:border-ktf-blue/30 group-hover/nav:text-ktf-blue",
-                            )}
-                          >
-                            <Icon
-                              className="h-[18px] w-[18px]"
-                              strokeWidth={2}
-                              aria-hidden="true"
-                            />
-                          </span>
-                          <span className="flex-1">{link.label}</span>
-                          <ArrowUpRight
-                            className={cn(
-                              "h-4 w-4 shrink-0 transition-all duration-150",
-                              isActive
-                                ? "text-ktf-blue-deep opacity-100"
-                                : "text-ktf-gray-400 opacity-0 group-hover/nav:translate-x-0.5 group-hover/nav:opacity-100",
-                            )}
-                            aria-hidden="true"
-                          />
-                        </Link>
-                      </motion.li>
-                    );
-                  })}
-                </ul>
+              {/* Nav Links — the same groups as the desktop menus */}
+              <nav className="flex-1 overflow-y-auto px-3 py-4" aria-label="Mobile navigation">
+                {NAV_GROUPS.map((group, groupIndex) => (
+                  <section
+                    key={group.label}
+                    className={groupIndex > 0 ? "mt-4 border-t border-ktf-gray-100 pt-4" : undefined}
+                    aria-label={group.label}
+                  >
+                    <p className="px-2.5 text-overline font-semibold uppercase tracking-[0.14em] text-ktf-gray-500">
+                      {group.label}
+                    </p>
+                    <ul className="mt-1.5 flex flex-col gap-0.5" role="list">
+                      {group.items.map((link) => {
+                        const isActive = pathname === link.href;
+                        const Icon = NAV_ICONS[link.href] ?? Sparkles;
+                        return (
+                          <li key={link.href}>
+                            <Link
+                              href={link.href}
+                              onClick={closeMobile}
+                              className={cn(
+                                "group/nav flex items-center gap-3 rounded-md px-2.5 py-2 text-[15px] font-medium transition-colors duration-150",
+                                isActive
+                                  ? "bg-ktf-blue/8 text-ktf-navy"
+                                  : "text-ktf-gray-700 hover:bg-ktf-surface hover:text-ktf-navy",
+                              )}
+                              aria-current={isActive ? "page" : undefined}
+                            >
+                              <span
+                                className={cn(
+                                  "flex h-8 w-8 shrink-0 items-center justify-center rounded-md border transition-colors duration-150",
+                                  isActive
+                                    ? "border-transparent bg-ktf-blue text-white"
+                                    : "border-ktf-gray-200 bg-white text-ktf-gray-500 group-hover/nav:border-ktf-blue/30 group-hover/nav:text-ktf-blue",
+                                )}
+                              >
+                                <Icon className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
+                              </span>
+                              <span className="flex-1">{link.label}</span>
+                              <ArrowUpRight
+                                className={cn(
+                                  "h-4 w-4 shrink-0 transition-all duration-150",
+                                  isActive
+                                    ? "text-ktf-blue-deep opacity-100"
+                                    : "text-ktf-gray-400 opacity-0 group-hover/nav:opacity-100",
+                                )}
+                                aria-hidden="true"
+                              />
+                            </Link>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </section>
+                ))}
               </nav>
 
               {/* Footer */}
@@ -331,10 +293,9 @@ export function Header() {
                   </Link>
                 </div>
               </div>
-            </motion.div>
+            </div>
           </>
         )}
-      </AnimatePresence>
     </>
   );
 }

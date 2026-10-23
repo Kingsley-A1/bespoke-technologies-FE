@@ -13,6 +13,11 @@ export const TEAM_ORIGIN = `https://${TEAM_HOSTNAME}`;
 export const VERIFY_ORIGIN = `https://${VERIFY_HOSTNAME}`;
 export const LEARN_ORIGIN = `https://${LEARN_HOSTNAME}`;
 
+/** Every hostname that is not a dedicated subdomain serves the main website. */
+export function isWebsiteHostname(hostname?: string) {
+  return ![AUDIT_HOSTNAME, TEAM_HOSTNAME, VERIFY_HOSTNAME, LEARN_HOSTNAME].includes(hostname ?? "");
+}
+
 export function hostnameFromHeader(value?: string | null) {
   return value?.split(",")[0]?.trim().split(":")[0]?.toLowerCase();
 }
@@ -126,7 +131,8 @@ export function subdomainRobots(hostname?: string): MetadataRoute.Robots {
   return {
     rules: {
       userAgent: "*",
-      allow: "/",
+      // Publication covers are share images; link-preview crawlers must be able to fetch them.
+      allow: ["/", "/api/publications/"],
       disallow: ["/api/", "/digital-readiness-audit/report/"],
     },
     sitemap: absoluteUrl("/sitemap.xml"),

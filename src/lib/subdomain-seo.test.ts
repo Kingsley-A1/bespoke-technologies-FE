@@ -7,6 +7,7 @@ import {
   VERIFY_HOSTNAME,
   VERIFY_ORIGIN,
   hostnameFromHeader,
+  isWebsiteHostname,
   subdomainRobots,
   subdomainSitemap,
 } from "./subdomain-seo";
@@ -59,5 +60,22 @@ describe("subdomain SEO", () => {
       sitemap: `${AUDIT_ORIGIN}/sitemap.xml`,
       rules: { disallow: expect.arrayContaining(["/report/"]) },
     });
+  });
+
+  it("lists the library and lets link-preview crawlers fetch publication covers on the website", () => {
+    expect(subdomainSitemap("www.bespoketech.com.ng")).toEqual(
+      expect.arrayContaining([expect.objectContaining({ url: "https://www.bespoketech.com.ng/library" })]),
+    );
+    expect(subdomainRobots("www.bespoketech.com.ng")).toMatchObject({
+      rules: { allow: expect.arrayContaining(["/", "/api/publications/"]), disallow: expect.arrayContaining(["/api/"]) },
+    });
+  });
+
+  it("treats every non-subdomain host as the main website", () => {
+    expect(isWebsiteHostname("www.bespoketech.com.ng")).toBe(true);
+    expect(isWebsiteHostname("bespoke-preview.vercel.app")).toBe(true);
+    expect(isWebsiteHostname(undefined)).toBe(true);
+    expect(isWebsiteHostname(TEAM_HOSTNAME)).toBe(false);
+    expect(isWebsiteHostname("learn.bespoketech.com.ng")).toBe(false);
   });
 });

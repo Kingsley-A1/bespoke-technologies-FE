@@ -1,36 +1,20 @@
 import Link from "next/link";
 import Image from "next/image";
-import { BRAND_ICON_SRC, SITE_NAME, SITE_TAGLINE } from "@/lib/constants";
-import { NewsletterForm } from "./newsletter-form";
+import { BRAND_ICON_SRC, CONTACT_EMAIL, NAV_GROUPS, SITE_NAME, SITE_TAGLINE } from "@/lib/constants";
 
-const FOOTER_LINKS = {
-  company: [
-    { label: "About", href: "/about" },
-    { label: "Team", href: "https://team.bespoketech.com.ng/" },
-    { label: "Services", href: "/services" },
-    { label: "Partnerships", href: "/partnerships" },
-    { label: "Reviews", href: "/reviews" },
-  ],
-  resources: [
-    { label: "Library", href: "/library" },
-    { label: "Digital Readiness Audit", href: "/digital-readiness-audit" },
-    { label: "Idea Execution Gate", href: "/idea-execution-gate" },
-    { label: "Contact", href: "/contact" },
-    { label: "Privacy Policy", href: "/privacy" },
-    { label: "Terms of Service", href: "/terms" },
-  ],
-} as const;
-
+/**
+ * Site footer — a complete, scannable sitemap built from the same groups as
+ * the header, so every public page is one click from anywhere.
+ */
 export function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
     <footer className="bg-linear-to-b from-ktf-navy to-ktf-obsidian text-ktf-gray-400">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        {/* Main Footer */}
-        <div className="grid grid-cols-1 gap-8 py-10 sm:grid-cols-2 sm:py-12 lg:grid-cols-4">
-          {/* Brand Column */}
-          <div className="sm:col-span-2 lg:col-span-1">
+        <div className="grid grid-cols-2 gap-x-6 gap-y-10 py-12 sm:grid-cols-4 lg:grid-cols-[1.7fr_repeat(4,1fr)] lg:gap-x-8 lg:py-16">
+          {/* Brand and newsletter */}
+          <div className="col-span-2 sm:col-span-4 lg:col-span-1 lg:pr-6">
             <Link href="/" className="inline-flex items-center gap-3">
               <Image
                 src={BRAND_ICON_SRC}
@@ -39,64 +23,49 @@ export function Footer() {
                 height={40}
                 className="h-10 w-10 rounded-xl object-cover"
               />
-              <span className="text-lg font-bold tracking-tight">
+              <span className="whitespace-nowrap text-base font-bold tracking-tight">
                 <span className="text-ktf-blue">BESPOKE</span>{" "}
                 <span className="text-white">TECHNOLOGIES</span>
               </span>
             </Link>
-            <p className="mt-4 text-sm leading-relaxed text-ktf-gray-500 max-w-xs">
-              {SITE_TAGLINE}
-            </p>
+            <p className="mt-4 max-w-xs text-sm leading-relaxed text-ktf-gray-500">{SITE_TAGLINE}</p>
+            {/* A real follow path; there is no email list yet, so no signup form that would discard addresses. */}
+            <div className="mt-6 flex flex-wrap gap-2">
+              <Link
+                href="/news"
+                className="inline-flex h-9 items-center rounded-full bg-white px-4 text-sm font-medium text-ktf-obsidian transition-colors hover:bg-ktf-gray-200"
+              >
+                Follow What&apos;s New
+              </Link>
+              <a
+                href="/news/feed.xml"
+                className="inline-flex h-9 items-center rounded-full border border-white/15 px-4 text-sm font-medium text-ktf-gray-400 transition-colors hover:border-white/30 hover:text-white"
+              >
+                RSS feed
+              </a>
+            </div>
+            <a
+              href={`mailto:${CONTACT_EMAIL}`}
+              className="mt-5 inline-block text-sm text-ktf-gray-500 transition-colors hover:text-white"
+            >
+              {CONTACT_EMAIL}
+            </a>
           </div>
 
-          {/* Company */}
-          <div>
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-white">
-              Company
-            </h3>
-            <ul className="mt-4 flex flex-col gap-3" role="list">
-              {FOOTER_LINKS.company.map((link) => (
-                <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    className="text-sm text-ktf-gray-500 transition-colors hover:text-white"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Resources */}
-          <div>
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-white">
-              Resources
-            </h3>
-            <ul className="mt-4 flex flex-col gap-3" role="list">
-              {FOOTER_LINKS.resources.map((link) => (
-                <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    className="text-sm text-ktf-gray-500 transition-colors hover:text-white"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Newsletter */}
-          <div>
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-white">
-              Stay Updated
-            </h3>
-            <p className="mt-4 text-sm text-ktf-gray-500">
-              Get the latest from Bespoke Technologies — directly in your inbox.
-            </p>
-            <NewsletterForm />
-          </div>
+          {NAV_GROUPS.map((group) => (
+            <nav key={group.label} aria-label={group.label}>
+              <h3 className="text-sm font-medium text-white">{group.label}</h3>
+              <ul className="mt-4 flex flex-col gap-3" role="list">
+                {group.items.map((link) => (
+                  <li key={link.href}>
+                    <Link href={link.href} className="text-sm text-ktf-gray-500 transition-colors hover:text-white">
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          ))}
         </div>
 
         {/* Divider */}

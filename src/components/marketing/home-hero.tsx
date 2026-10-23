@@ -1,21 +1,11 @@
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/layout/container";
-import { HeroHeadline } from "@/components/marketing/hero-headline";
-import {
-  HeroPhoneShowcase,
-  type HeroPhone,
-} from "@/components/marketing/hero-phone-showcase";
-import { Reveal } from "@/components/marketing/motion-reveal";
+import { heroWordForProjectType } from "@/components/marketing/hero-headline";
+import type { HeroPhone } from "@/components/marketing/hero-phone-showcase";
+import { HeroStage } from "@/components/marketing/hero-stage";
 import { listPublishedPortfolioProjectsSafe } from "@/features/admin/portfolio/repository";
 import { listSiteAssetsSafe, type SiteAssetKey } from "@/features/admin/site-assets/repository";
-
-const PROOF_POINTS = [
-  { value: "16+", label: "Projects delivered" },
-  { value: "3–4 wks", label: "Focused launch paths" },
-  { value: "99%", label: "Client satisfaction" },
-  { value: "You own it", label: "Code, docs, deployment" },
-] as const;
 
 /**
  * Baked-in hero screens remain in the rotation even when administrators add
@@ -79,6 +69,7 @@ export async function HomeHero() {
       label: project ? `View the live ${project.name} project` : undefined,
       name: project?.name ?? fallback.discipline,
       discipline: fallback.discipline,
+      word: heroWordForProjectType(project?.type),
     } satisfies HeroPhone;
   });
 
@@ -102,7 +93,11 @@ export async function HomeHero() {
       label: project.liveUrl ? `View the live ${project.name} project` : undefined,
       name: project.name,
       discipline: project.category,
+      word: heroWordForProjectType(project.type),
     } satisfies HeroPhone));
+
+  // Real delivered work, named — the Stripe-style proof row under the hero.
+  const deliveredFor = projects.filter((project) => !project.comingSoon).map((project) => project.name).slice(0, 8);
 
   const fallbackProjectIds = new Set(
     Object.values(FALLBACK_SCREENS).map((screen) => screen.projectId),
@@ -142,14 +137,11 @@ export async function HomeHero() {
         className="pointer-events-none absolute inset-x-0 top-0 h-[340px] bg-[radial-gradient(ellipse_60%_55%_at_50%_0%,rgba(10,132,255,0.10),transparent_70%)]"
       />
 
-      <Container size="lg" className="relative">
-        <Reveal className="mx-auto max-w-2xl text-center">
-          <HeroHeadline className="text-[1.25rem] font-bold leading-[1.2] tracking-[-0.03em] sm:text-[2.5rem] lg:text-[2.9rem]" />
-        </Reveal>
-      </Container>
-
-      {/* One device on stage, rotating through delivered projects */}
-      <Container size="xl" className="relative mt-8 sm:mt-10">
+      <HeroStage
+        phones={phones}
+        headlineClassName="text-[1.65rem] font-semibold leading-[1.1] tracking-[-0.045em] sm:text-[2.75rem] lg:text-[3.4rem]"
+        stageDecor={
+          <>
         {/* Ambient stage behind the devices — depth and grounding without noise */}
         <div aria-hidden="true" className="pointer-events-none absolute inset-0">
           {/* Cool spotlight pooling behind the trio */}
@@ -167,13 +159,14 @@ export async function HomeHero() {
           <span className="h-px flex-1 bg-gradient-to-r from-ktf-blue/50 via-ktf-blue/25 to-transparent" />
           <span className="text-[9px] font-bold uppercase tracking-[0.18em] text-ktf-gray-400">Live</span>
         </div>
-        <HeroPhoneShowcase phones={phones} />
-      </Container>
+          </>
+        }
+      />
 
       {/* Supporting copy, actions, and proof under the devices */}
       <Container size="lg" className="relative mt-9 sm:mt-11">
         <div data-home-hero-support="true">
-          <Reveal className="mx-auto max-w-2xl text-center">
+          <div className="mx-auto max-w-2xl text-center">
             <p className="mx-auto max-w-xl text-body leading-body text-ktf-gray-600 sm:text-body-lg">
               Designed, engineered, secured, and handed over — by one accountable
               team.
@@ -183,7 +176,7 @@ export async function HomeHero() {
             <Button
               size="lg"
               href="/contact"
-              className="w-full bg-ktf-blue-deep hover:bg-ktf-blue-pressed sm:w-auto"
+              className="w-full rounded-full bg-ktf-blue-deep hover:bg-ktf-blue-pressed sm:w-auto"
             >
               Contact Us
               <ArrowRight className="ml-2 h-4 w-4" />
@@ -192,25 +185,31 @@ export async function HomeHero() {
               variant="outline"
               size="lg"
               href="/projects"
-              className="w-full border-ktf-gray-300 sm:w-auto"
+              className="w-full rounded-full border-ktf-gray-300 bg-white sm:w-auto"
             >
               See Relevant Work
             </Button>
           </div>
 
-          <dl className="mx-auto mt-9 flex max-w-2xl flex-wrap items-center justify-center gap-x-8 gap-y-4 border-t border-ktf-gray-200 pt-7">
-            {PROOF_POINTS.map((point) => (
-              <div key={point.label} className="text-center">
-                <dt className="text-body font-bold leading-none text-ktf-navy">{point.value}</dt>
-                <dd className="mt-1.5 text-[10px] font-medium uppercase tracking-[0.06em] text-ktf-gray-500">
-                  {point.label}
-                </dd>
-              </div>
-            ))}
-          </dl>
-          </Reveal>
+
+          </div>
         </div>
       </Container>
+
+      {deliveredFor.length > 0 && (
+        <Container size="lg" className="relative mt-12 sm:mt-14">
+          <div className="border-t border-ktf-gray-200 pt-6">
+            <p className="text-center text-caption font-medium text-ktf-gray-500">Products we have built and shipped</p>
+            <ul className="mt-4 flex flex-wrap items-center justify-center gap-x-8 gap-y-3" role="list">
+              {deliveredFor.map((name) => (
+                <li key={name} className="text-body-sm font-semibold tracking-[-0.01em] text-ktf-gray-600">
+                  {name}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </Container>
+      )}
     </section>
   );
 }

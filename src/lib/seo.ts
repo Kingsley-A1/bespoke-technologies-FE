@@ -66,6 +66,12 @@ export const PUBLIC_SITEMAP_ROUTES = [
     priority: 0.7,
   },
   {
+    path: "/library",
+    lastModified: "2026-10-23",
+    changeFrequency: "weekly",
+    priority: 0.7,
+  },
+  {
     path: "/reviews",
     lastModified: "2026-06-05",
     changeFrequency: "monthly",

@@ -58,6 +58,7 @@ The repository contains several connected surfaces:
 - Bespoke Admin under `/admin`, including operational data, employee work, publications, reviews, portfolio, ownership certificates, site assets and internal learning.
 - Bespoke AI and the internal Coworker assistant.
 - Digital Readiness Audit and its shareable reports.
+- What's New at Bespoke, the official publication channel: public pages under `/news`, authoring under `/admin/news`, domain code in `src/features/news/`. Article bodies are structured TipTap JSON that is allow-list normalized on every save (`content.ts`) and rendered without raw HTML. Covers produce a 1200×630 JPEG share image for Open Graph and WhatsApp. Run `src/features/news/repository.integration.test.ts` by setting `NEWS_TEST_DATABASE_URL` to a disposable migrated database.
 - Team and document-verification subdomain experiences.
 - Bespoke Learn, currently being specified and built as a multi-course learning product.
 

@@ -27,7 +27,7 @@ export function BespokeAIMessage({ assistantName = "Bespoke AI", message }: Besp
       {textParts.length > 0 ? (
         isUser ? (
           // User turn — a quiet, compact pill.
-          <div className="max-w-[85%] rounded-lg bg-[#edf5ff] px-4 py-2.5 text-sm leading-relaxed text-ktf-obsidian">
+          <div className="max-w-[85%] rounded-[20px] rounded-br-md bg-[#edf3fb] px-4 py-2.5 text-sm leading-relaxed text-ktf-obsidian">
             <div className="grid gap-2">
               {textParts.map((part, index) => {
                 if (part.type !== "text") return null;
@@ -43,7 +43,7 @@ export function BespokeAIMessage({ assistantName = "Bespoke AI", message }: Besp
           // Assistant turn — flat, document-like, no bubble chrome.
           <div className="flex w-full gap-3">
             <span
-              className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-ktf-blue text-white shadow-sm"
+              className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-ktf-blue text-white"
               aria-hidden="true"
             >
               <BespokeAIIcon className="h-4 w-4" inverse />
@@ -103,7 +103,7 @@ function ToolPart({
 
   if (part.state === "input-streaming" || part.state === "input-available") {
     return (
-      <div className="mt-3 rounded-md border border-ktf-gray-200 bg-ktf-surface px-3 py-2 text-xs font-medium text-ktf-gray-600">
+      <div className="mt-3 rounded-xl border border-ktf-gray-200 bg-ktf-surface px-3 py-2 text-xs font-medium text-ktf-gray-600">
         Preparing Bespoke action...
       </div>
     );

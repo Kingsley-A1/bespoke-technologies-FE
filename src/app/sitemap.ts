@@ -1,7 +1,8 @@
 import type { MetadataRoute } from "next";
 import { headers } from "next/headers";
-import { hostnameFromHeader, LEARN_HOSTNAME, LEARN_ORIGIN, subdomainSitemap } from "@/lib/subdomain-seo";
+import { hostnameFromHeader, isWebsiteHostname, LEARN_HOSTNAME, LEARN_ORIGIN, subdomainSitemap } from "@/lib/subdomain-seo";
 import { listReviewedCourseCatalogue } from "@/features/learn/public-courses.server";
+import { dynamicWebsiteSitemap } from "@/features/news/sitemap.server";
 
 export const dynamic = "force-dynamic";
 
@@ -12,6 +13,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   );
 
   const base = subdomainSitemap(hostname);
+  if (isWebsiteHostname(hostname)) return [...base, ...(await dynamicWebsiteSitemap())];
   if (hostname !== LEARN_HOSTNAME) return base;
   const courses = await listReviewedCourseCatalogue();
   return [

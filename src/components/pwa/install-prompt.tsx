@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "motion/react";
 import Image from "next/image";
 import { BRAND_ICON_SRC, SITE_NAME } from "@/lib/constants";
 
@@ -82,14 +81,10 @@ export function InstallPrompt() {
   if (dismissed || (!deferredPrompt && !isIOS)) return null;
 
   return (
-    <AnimatePresence>
+    <>
       {show && (
-        <motion.div
-          initial={{ y: 100, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          exit={{ y: 100, opacity: 0 }}
-          transition={{ type: "spring", stiffness: 300, damping: 30 }}
-          className="fixed bottom-5 left-4 right-4 z-300 md:bottom-6 md:left-auto md:right-6 md:w-96"
+        <div
+          className="ktf-rise-in fixed bottom-5 left-4 right-4 z-300 md:bottom-6 md:left-auto md:right-6 md:w-96"
           role="dialog"
           aria-label={`Install ${SITE_NAME} app`}
         >
@@ -169,8 +164,8 @@ export function InstallPrompt() {
               )}
             </div>
           </div>
-        </motion.div>
+        </div>
       )}
-    </AnimatePresence>
+    </>
   );
 }

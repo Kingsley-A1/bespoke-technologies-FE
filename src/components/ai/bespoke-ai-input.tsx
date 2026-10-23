@@ -52,7 +52,7 @@ export function BespokeAIInput({
       }}
     >
       <label htmlFor={inputId} className="sr-only">Message {assistantName}</label>
-      <div className="relative overflow-hidden rounded-lg border border-slate-300 bg-white shadow-[0_12px_32px_-24px_rgba(15,38,71,0.42)] transition-[border-color,box-shadow] focus-within:border-ktf-blue focus-within:shadow-[0_14px_34px_-22px_rgba(10,132,255,0.3)]">
+      <div className="relative overflow-hidden rounded-[26px] border border-slate-200 bg-white shadow-[0_8px_24px_-18px_rgba(15,38,71,0.35)] transition-[border-color,box-shadow] focus-within:border-slate-300 focus-within:shadow-[0_10px_28px_-16px_rgba(10,132,255,0.28)]">
         <textarea
           ref={inputRef}
           id={inputId}
@@ -67,7 +67,7 @@ export function BespokeAIInput({
           }}
           autoComplete="off"
           placeholder={placeholder}
-          className="block max-h-[120px] min-h-[52px] w-full resize-none appearance-none border-0 bg-transparent py-3 pl-4 pr-14 text-sm leading-6 text-ktf-obsidian outline-none placeholder:text-slate-400 disabled:cursor-not-allowed disabled:opacity-60"
+          className="block max-h-[140px] min-h-[52px] w-full resize-none appearance-none border-0 bg-transparent py-3.5 pl-5 pr-14 text-sm leading-6 text-ktf-obsidian outline-none placeholder:text-slate-400 disabled:cursor-not-allowed disabled:opacity-60"
           disabled={disabled}
           rows={1}
         />
@@ -76,10 +76,10 @@ export function BespokeAIInput({
           onClick={isStreaming ? onStop : undefined}
           disabled={!isStreaming && (disabled || !input.trim())}
           className={cn(
-            "absolute bottom-2 right-2 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-white shadow-sm transition-[background-color,transform] hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ktf-blue",
+            "absolute bottom-2 right-2 flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-white transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ktf-blue",
             isStreaming
               ? "bg-ktf-obsidian hover:bg-slate-800"
-              : "bg-ktf-blue hover:bg-ktf-blue-deep disabled:translate-y-0 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400 disabled:shadow-none",
+              : "bg-ktf-obsidian hover:bg-ktf-charcoal disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400",
           )}
           aria-label={isStreaming ? `Stop ${assistantName} response` : "Send message"}
         >

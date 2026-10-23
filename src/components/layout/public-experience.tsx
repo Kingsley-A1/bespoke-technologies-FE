@@ -1,12 +1,18 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
-import { BespokeAILauncher } from "@/components/ai";
-import { InstallPrompt } from "@/components/pwa/install-prompt";
+import { BespokeAILauncher } from "@/components/ai/bespoke-ai-launcher";
 import { ServiceWorkerRegistration } from "@/components/pwa/service-worker-registration";
 import { Header } from "./header";
 import { Footer } from "./footer";
 import { PageTransition } from "./page-transition";
+
+// Shown only after a delay and on eligible devices; it should not weigh on first load.
+const InstallPrompt = dynamic(
+  () => import("@/components/pwa/install-prompt").then((module) => module.InstallPrompt),
+  { ssr: false },
+);
 
 export function PublicExperience({ children, isLearnHost = false }: { children: React.ReactNode; isLearnHost?: boolean }) {
   const pathname = usePathname();

@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, Pause, Play } from "lucide-react";
 import { PhoneFrame } from "@/components/marketing/phone-frame";
 import { cn } from "@/lib/utils";
 
@@ -25,11 +25,15 @@ export interface HeroPhone {
   /** Visible project identity beneath the device. */
   name: string;
   discipline: string;
+  /** Product word the hero headline shows while this phone is on stage. */
+  word: string;
 }
 
 interface HeroPhoneShowcaseProps {
   /** All admin-selected and fallback screens in their display order. */
   phones: readonly HeroPhone[];
+  /** Reports the logical slide on stage, so the headline can follow it. */
+  onActiveChange?: (index: number) => void;
 }
 
 export const SCREEN_REVEAL_DELAY_MS = 1300;
@@ -113,8 +117,12 @@ function PhoneScreen({
  * without a visible dead end; desktop adds arrow controls because there is no
  * touch affordance there.
  */
-export function HeroPhoneShowcase({ phones }: HeroPhoneShowcaseProps) {
+export function HeroPhoneShowcase({ phones, onActiveChange }: HeroPhoneShowcaseProps) {
   const [active, setActive] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const pausedRef = useRef(false);
+  const hoverRef = useRef(false);
+  const visibleRef = useRef(true);
   const [revealScreenshot, setRevealScreenshot] = useState(false);
   const stageRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
@@ -176,6 +184,17 @@ export function HeroPhoneShowcase({ phones }: HeroPhoneShowcaseProps) {
     };
   }, [phones.length]);
 
+  // Autoplay only runs while the carousel is on screen.
+  useEffect(() => {
+    const stage = stageRef.current;
+    if (!stage) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      visibleRef.current = entry.isIntersecting;
+    });
+    observer.observe(stage);
+    return () => observer.disconnect();
+  }, []);
+
   // Autoplay walks onto a cloned edge, then the scroll-settle handler silently
   // repositions it to the equivalent real slide.
   useEffect(() => {
@@ -184,7 +203,7 @@ export function HeroPhoneShowcase({ phones }: HeroPhoneShowcaseProps) {
 
     const id = window.setInterval(() => {
       const track = trackRef.current;
-      if (!track || document.hidden) return;
+      if (!track || document.hidden || pausedRef.current || hoverRef.current || !visibleRef.current) return;
       const width = track.clientWidth;
       if (width === 0) return;
       if (performance.now() - lastInteractionRef.current < INTERACTION_GRACE_MS) return;
@@ -220,6 +239,7 @@ export function HeroPhoneShowcase({ phones }: HeroPhoneShowcaseProps) {
       activeRef.current = logicalIndex;
       setRevealScreenshot(false);
       setActive(logicalIndex);
+      onActiveChange?.(logicalIndex);
     }
 
     if (settleTimerRef.current !== undefined) {
@@ -268,7 +288,13 @@ export function HeroPhoneShowcase({ phones }: HeroPhoneShowcaseProps) {
       data-hero-phone-stage="carousel"
       data-hero-hydrated="false"
       data-hero-slide-index={active}
-      className="ktf-hero-console relative mx-auto max-w-3xl"
+      className="relative mx-auto max-w-3xl"
+      onMouseEnter={() => (hoverRef.current = true)}
+      onMouseLeave={() => (hoverRef.current = false)}
+      onFocus={() => (hoverRef.current = true)}
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget as Node | null)) hoverRef.current = false;
+      }}
       role="region"
       aria-roledescription="carousel"
       aria-label="Delivered projects"
@@ -335,7 +361,21 @@ export function HeroPhoneShowcase({ phones }: HeroPhoneShowcaseProps) {
         </>
       )}
 
-      <div className="mt-5 flex justify-center gap-2">
+      <div className="mt-5 flex items-center justify-center gap-2">
+        {phones.length > 1 && (
+          <button
+            type="button"
+            onClick={() => {
+              pausedRef.current = !pausedRef.current;
+              setPaused(pausedRef.current);
+            }}
+            aria-pressed={paused}
+            aria-label={paused ? "Play project rotation" : "Pause project rotation"}
+            className="mr-2 flex h-7 w-7 items-center justify-center rounded-full border border-ktf-gray-200 bg-white text-ktf-gray-600 transition-colors hover:border-ktf-gray-300 hover:text-ktf-navy"
+          >
+            {paused ? <Play className="h-3 w-3" fill="currentColor" aria-hidden="true" /> : <Pause className="h-3 w-3" fill="currentColor" aria-hidden="true" />}
+          </button>
+        )}
         {phones.map((phone, index) => (
           <button
             key={phone.slot}

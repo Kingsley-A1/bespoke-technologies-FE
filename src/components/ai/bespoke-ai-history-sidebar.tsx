@@ -100,7 +100,7 @@ export function BespokeAIHistorySidebar({
         <button
           type="button"
           onClick={onNewConversation}
-          className="flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-ktf-blue px-3 text-sm font-semibold text-white transition-colors hover:bg-ktf-blue-deep focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ktf-blue"
+          className="flex min-h-11 w-full items-center justify-center gap-2 rounded-full bg-ktf-obsidian px-3 text-sm font-semibold text-white transition-colors hover:bg-ktf-charcoal focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ktf-blue"
         >
           <Plus className="h-4 w-4" aria-hidden="true" />
           New chat
@@ -119,7 +119,7 @@ export function BespokeAIHistorySidebar({
                 <div
                   key={conversation.id}
                   className={cn(
-                    "group relative rounded-lg transition-colors",
+                    "group relative rounded-xl transition-colors",
                     isActive
                       ? "bg-white shadow-xs ring-1 ring-ktf-blue/20"
                       : "hover:bg-white",
@@ -147,7 +147,7 @@ export function BespokeAIHistorySidebar({
                       />
                       <button
                         type="submit"
-                        className="flex h-10 w-10 items-center justify-center rounded-md text-ktf-blue hover:bg-ktf-blue/8 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ktf-blue"
+                        className="flex h-10 w-10 items-center justify-center rounded-full text-ktf-blue hover:bg-ktf-blue/8 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ktf-blue"
                         aria-label="Save conversation title"
                       >
                         <Check className="h-4 w-4" aria-hidden="true" />
@@ -155,7 +155,7 @@ export function BespokeAIHistorySidebar({
                       <button
                         type="button"
                         onClick={handleCancelEditing}
-                        className="flex h-10 w-10 items-center justify-center rounded-md text-ktf-gray-500 hover:bg-ktf-gray-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ktf-blue"
+                        className="flex h-10 w-10 items-center justify-center rounded-full text-ktf-gray-500 hover:bg-ktf-gray-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ktf-blue"
                         aria-label="Cancel rename"
                       >
                         <X className="h-4 w-4" aria-hidden="true" />
@@ -201,7 +201,7 @@ export function BespokeAIHistorySidebar({
                             isMenuOpen ? undefined : conversation.id,
                           )
                         }
-                        className="flex h-10 w-10 items-center justify-center rounded-md text-ktf-gray-500 opacity-100 transition-colors hover:bg-ktf-gray-200 hover:text-ktf-obsidian focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ktf-blue lg:opacity-0 lg:group-hover:opacity-100"
+                        className="flex h-10 w-10 items-center justify-center rounded-full text-ktf-gray-500 opacity-100 transition-colors hover:bg-ktf-gray-200 hover:text-ktf-obsidian focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ktf-blue lg:opacity-0 lg:group-hover:opacity-100"
                         aria-expanded={isMenuOpen}
                         aria-label={`Conversation actions for ${conversation.title}`}
                       >
