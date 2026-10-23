@@ -23,7 +23,7 @@ function CoverImage({ post, sizes, priority }: { post: NewsPostSummary; sizes: s
       fill
       sizes={sizes}
       priority={priority}
-      className="object-cover transition-transform duration-500 group-hover:scale-[1.02] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+      className="object-cover"
     />
   );
 }
@@ -47,7 +47,7 @@ function PostMeta({ post, className }: { post: NewsPostSummary; className?: stri
 export function NewsCard({ post, headingLevel = "h3" }: { post: NewsPostSummary; headingLevel?: "h2" | "h3" }) {
   const Heading = headingLevel;
   return (
-    <article className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-ktf-gray-200 bg-white shadow-card transition-shadow hover:shadow-card-hover">
+    <article className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-ktf-gray-200 bg-white transition-colors duration-200 hover:border-ktf-gray-300">
       <div className="relative aspect-[16/9] overflow-hidden bg-ktf-gray-100">
         <CoverImage post={post} sizes="(min-width: 1024px) 380px, (min-width: 640px) 50vw, 100vw" />
       </div>
@@ -73,7 +73,7 @@ export function NewsCard({ post, headingLevel = "h3" }: { post: NewsPostSummary;
 
 export function NewsLeadStory({ post }: { post: NewsPostSummary }) {
   return (
-    <article className="group relative grid overflow-hidden rounded-2xl border border-ktf-gray-200 bg-white shadow-card lg:grid-cols-[1.25fr_1fr]">
+    <article className="group relative grid overflow-hidden rounded-2xl border border-ktf-gray-200 bg-white transition-colors duration-200 hover:border-ktf-gray-300 lg:grid-cols-[1.25fr_1fr]">
       <div className="relative aspect-[16/9] overflow-hidden bg-ktf-gray-100 lg:aspect-auto lg:min-h-[400px]">
         <CoverImage post={post} sizes="(min-width: 1024px) 680px, 100vw" priority />
       </div>

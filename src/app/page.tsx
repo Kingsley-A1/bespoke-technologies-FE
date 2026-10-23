@@ -121,7 +121,7 @@ export default async function HomePage() {
                   </div>
                   <h3 className="mt-7 text-h5 font-semibold tracking-[-0.02em] text-ktf-obsidian">{service.title}</h3>
                   <p className="mt-2 text-body-sm leading-body text-ktf-gray-600">{service.tagline}</p>
-                  <p className="mt-auto pt-6 font-mono text-[12px] text-ktf-gray-500">{service.tech.slice(0, 3).join(" · ")}</p>
+                  <p className="mt-auto pt-6 text-[12px] tabular-nums text-ktf-gray-500">{service.tech.slice(0, 3).join(" · ")}</p>
                 </Link>
               </StaggerItem>
             ))}
@@ -189,7 +189,7 @@ export default async function HomePage() {
                 {PRODUCT_OUTCOMES.map((outcome, index) => (
                   <StaggerItem key={outcome.id}>
                     <div className="group flex gap-5 p-6 sm:gap-7 sm:p-8">
-                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-ktf-gray-200 font-mono text-caption font-medium text-ktf-gray-600">
+                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-ktf-gray-200 text-caption tabular-nums font-medium text-ktf-gray-600">
                         0{index + 1}
                       </span>
                       <div>
@@ -251,7 +251,7 @@ export default async function HomePage() {
                     index > 0 ? "border-t border-ktf-gray-200 lg:border-t-0 lg:border-l" : ""
                   }`}
                 >
-                  <span className="font-mono text-caption font-medium text-ktf-gray-500">0{index + 1}</span>
+                  <span className="text-caption tabular-nums font-medium text-ktf-gray-500">0{index + 1}</span>
                   <h3 className="mt-4 text-h4 font-semibold tracking-[-0.025em] text-ktf-obsidian">{engagement.title}</h3>
                   <p className="mt-3 text-body-sm leading-body text-ktf-gray-600">{engagement.description}</p>
                   <dl className="mt-8 space-y-4">

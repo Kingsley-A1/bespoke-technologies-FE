@@ -1,5 +1,5 @@
 import { MessageSquarePlus } from "lucide-react";
-import { Button } from "@/components/ui";
+import { Button } from "@/components/ui/button";
 import { ShareButton } from "@/components/ui/share-button";
 import { Container } from "@/components/layout";
 import { PageHero } from "@/components/marketing/page-hero";

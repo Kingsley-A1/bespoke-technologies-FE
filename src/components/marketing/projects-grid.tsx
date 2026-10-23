@@ -2,7 +2,6 @@
 
 import { useState, useMemo } from "react";
 import Image from "next/image";
-import { motion, AnimatePresence } from "motion/react";
 import type { PortfolioProject, ProjectType } from "@/types/portfolio";
 import { cn } from "@/lib/utils";
 
@@ -159,15 +158,17 @@ export function ProjectCard({
 }) {
   const meta = TYPE_META[project.type];
   const visibleTags = compact ? project.tags.slice(0, 2) : project.tags;
+  const screenshot =
+    project.heroScreenshot && project.heroScreenshot !== project.image ? project.heroScreenshot : undefined;
+  // The product screenshot is fetched on first hover only, so the grid stays light.
+  const [showScreenshot, setShowScreenshot] = useState(false);
 
   return (
-    <motion.article
-      layout
-      initial={{ opacity: 0, y: 24 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -16, scale: 0.97 }}
-      transition={{ duration: 0.3 }}
-      className="group relative flex flex-col overflow-hidden rounded-md border border-ktf-gray-200 bg-ktf-white shadow-xs transition-all duration-300 hover:-translate-y-0.5 hover:border-ktf-blue/25 hover:shadow-md"
+    <article
+      onPointerEnter={(event) => {
+        if (screenshot && event.pointerType === "mouse") setShowScreenshot(true);
+      }}
+      className="group relative flex flex-col overflow-hidden rounded-xl border border-ktf-gray-200 bg-ktf-white transition-colors duration-200 hover:border-ktf-gray-300"
     >
       {/* Project image */}
       <div
@@ -180,13 +181,23 @@ export function ProjectCard({
           src={project.image}
           alt={project.name}
           fill
-          className="object-cover transition-transform duration-500 group-hover:scale-105"
+          className="object-cover"
           sizes={
             compact
               ? "(max-width: 640px) 50vw, (max-width: 1024px) 50vw, 33vw"
               : "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           }
         />
+        {screenshot && showScreenshot && (
+          <Image
+            src={screenshot}
+            alt=""
+            fill
+            unoptimized={Boolean(project.heroScreenshotKey)}
+            className="object-cover object-top opacity-0 transition-opacity duration-300 group-hover:opacity-100 motion-reduce:transition-none"
+            sizes="(max-width: 1024px) 50vw, 33vw"
+          />
+        )}
 
         {/* Coming Soon overlay */}
         {project.comingSoon && (
@@ -330,7 +341,7 @@ export function ProjectCard({
           </div>
         )}
       </div>
-    </motion.article>
+    </article>
   );
 }
 
@@ -408,30 +419,21 @@ export function ProjectsGrid({ projects }: { projects: readonly PortfolioProject
       </p>
 
       {/* Grid */}
-      <motion.div
-        layout
-        className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3"
-      >
-        <AnimatePresence mode="popLayout">
-          {filtered.map((project) => (
-            <ProjectCard key={project.id} project={project} />
-          ))}
-        </AnimatePresence>
-      </motion.div>
+      <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+        {filtered.map((project) => (
+          <ProjectCard key={project.id} project={project} />
+        ))}
+      </div>
 
       {/* Empty state */}
       {filtered.length === 0 && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="py-24 text-center"
-        >
+        <div className="py-24 text-center">
           <p className="text-h3 mb-2">No projects found</p>
           <p className="text-body text-ktf-gray-500">
             We don&apos;t have any {active} projects listed yet — check back
             soon.
           </p>
-        </motion.div>
+        </div>
       )}
     </div>
   );

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
-import { GeistMono } from "geist/font/mono";
 import { GeistSans } from "geist/font/sans";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { PublicExperience } from "@/components/layout/public-experience";
 import {
   BRAND_ICON_SRC,
@@ -86,7 +86,7 @@ export default async function RootLayout({
   return (
     <html
       lang="en"
-      className={`${GeistSans.variable} ${GeistMono.variable} h-full antialiased`}
+      className={`${GeistSans.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-ktf-white text-ktf-obsidian">
         {!isLearnHost && <script
@@ -96,6 +96,8 @@ export default async function RootLayout({
           }}
         />}
         <PublicExperience isLearnHost={isLearnHost}>{children}</PublicExperience>
+        {/* Real-user Core Web Vitals (no cookies); reports only on Vercel deployments. */}
+        <SpeedInsights />
       </body>
     </html>
   );

@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui";
+import { Button } from "@/components/ui/button";
 import { Container } from "@/components/layout";
 import { PageHero } from "@/components/marketing/page-hero";
 import { SERVICES, SITE_NAME } from "@/lib/constants";

@@ -37,14 +37,14 @@
   --color-ktf-info: #0a84ff;
 
   /* ---- Typography Scale ---- */
-  /* Geist (self-hosted via next/font) gives every device the same type; the
-     system stack remains the fallback while it loads. */
+  /* Geist Sans (self-hosted via next/font) gives every device the same type;
+     the system stack remains the fallback while it loads. Code uses the
+     system monospace font to avoid a second font download. */
   --font-sans:
     var(--font-geist-sans), "Segoe UI", system-ui, -apple-system,
     BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
   --font-mono:
-    var(--font-geist-mono), "SFMono-Regular", Consolas, "Liberation Mono", Menlo,
-    monospace;
+    "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
 
   --text-display: 3.75rem; /* 60px - hero headlines */
   --text-h1: 3rem; /* 48px */
@@ -304,71 +304,110 @@ body {
   }
 }
 
-@keyframes ktfReveal {
+/* ---- Motion system ----
+   Text is never hidden and never animates on scroll. Groups of cards rise in
+   once (8px, 0.4s, 50ms stagger) the first time they scroll into view; groups
+   already on screen when the page loads stay still (see StaggerGroup). Without
+   JavaScript, or with reduced motion, everything is simply visible. */
+@keyframes ktfRise {
   from {
     opacity: 0;
-    transform: translateY(var(--ktf-reveal-y, 18px));
+    transform: translateY(8px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: none;
   }
 }
 
-.ktf-reveal,
-.ktf-hero-console {
-  animation: ktfReveal 0.62s var(--ease-out) both;
-  animation-delay: var(--ktf-reveal-delay, 0s);
+.ktf-stagger[data-reveal="pending"] > :not(.ktf-progress-line) {
+  opacity: 0;
+  transform: translateY(8px);
 }
 
-.ktf-hero-console {
-  --ktf-reveal-delay: 0.14s;
-  --ktf-reveal-y: 24px;
+.ktf-stagger[data-reveal="shown"] > :not(.ktf-progress-line) {
+  animation: ktfRise 0.4s var(--ease-out) both;
+  animation-delay: calc(var(--ktf-stagger-index, 0) * 50ms);
 }
 
-.ktf-stagger > * {
-  animation: ktfReveal 0.55s var(--ease-out) both;
-  animation-delay: calc(
-    var(--ktf-reveal-delay, 0s) + (var(--ktf-stagger-index, 0) * 70ms)
-  );
-}
+.ktf-stagger > :nth-child(2) { --ktf-stagger-index: 1; }
+.ktf-stagger > :nth-child(3) { --ktf-stagger-index: 2; }
+.ktf-stagger > :nth-child(4) { --ktf-stagger-index: 3; }
+.ktf-stagger > :nth-child(5) { --ktf-stagger-index: 4; }
+.ktf-stagger > :nth-child(n + 6) { --ktf-stagger-index: 5; }
 
-.ktf-stagger > :nth-child(1) {
-  --ktf-stagger-index: 0;
-}
-
-.ktf-stagger > :nth-child(2) {
-  --ktf-stagger-index: 1;
-}
-
-.ktf-stagger > :nth-child(3) {
-  --ktf-stagger-index: 2;
-}
-
-.ktf-stagger > :nth-child(4) {
-  --ktf-stagger-index: 3;
-}
-
-.ktf-stagger > :nth-child(5) {
-  --ktf-stagger-index: 4;
-}
-
-.ktf-stagger > :nth-child(6) {
-  --ktf-stagger-index: 5;
-}
-
-@supports (animation-timeline: view()) {
-  .ktf-reveal,
-  .ktf-stagger > * {
-    animation-timeline: view();
-    animation-range: entry 0% cover 26%;
-    animation-delay: 0s;
+/* Hero product word: a short fade when the phone on stage changes. */
+@keyframes ktfWordIn {
+  from {
+    opacity: 0;
+    transform: translateY(0.16em);
   }
-
-  .ktf-hero-console {
-    animation-timeline: auto;
-    animation-range: normal;
+  to {
+    opacity: 1;
+    transform: none;
   }
+}
+
+.ktf-word-swap {
+  animation: ktfWordIn 0.3s var(--ease-out);
+}
+
+/* Route change: a brief, light fade — never a blocking overlay. */
+@keyframes ktfPageIn {
+  from {
+    opacity: 0.35;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.ktf-page-enter {
+  animation: ktfPageIn 0.2s var(--ease-out) both;
+}
+
+/* Overlays (mobile menu): quick CSS entrances instead of a JS animation library. */
+@keyframes ktfFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes ktfSlideInRight {
+  from { transform: translateX(100%); }
+  to { transform: none; }
+}
+
+.ktf-fade-in {
+  animation: ktfFadeIn 0.2s var(--ease-out) both;
+}
+
+@keyframes ktfMenuIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: none; }
+}
+
+.ktf-menu-in {
+  animation: ktfMenuIn 0.14s var(--ease-out) both;
+}
+
+.ktf-rise-in {
+  animation: ktfRise 0.3s var(--ease-out) both;
+}
+
+.ktf-slide-in-right {
+  animation: ktfSlideInRight 0.26s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Delivery process: the connecting line draws across once it is in view. */
+.ktf-progress-line {
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.9s var(--ease-out) 0.15s;
+}
+
+[data-reveal="shown"] .ktf-progress-line,
+[data-reveal="static"] .ktf-progress-line {
+  transform: scaleX(1);
 }
 
 .animate-blink {
@@ -447,10 +486,21 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .ktf-reveal,
-  .ktf-hero-console,
-  .ktf-stagger > * {
+  .ktf-stagger[data-reveal] > :not(.ktf-progress-line),
+  .ktf-word-swap,
+  .ktf-page-enter,
+  .ktf-fade-in,
+  .ktf-menu-in,
+  .ktf-rise-in,
+  .ktf-slide-in-right {
     animation: none;
+    opacity: 1;
+    transform: none;
+  }
+
+  .ktf-progress-line {
+    transform: none;
+    transition: none;
   }
 
   .ktf-hex-pulse {

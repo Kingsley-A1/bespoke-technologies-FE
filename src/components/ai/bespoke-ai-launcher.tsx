@@ -1,12 +1,25 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import { usePathname, useRouter } from "next/navigation";
 import { WHATSAPP_INQUIRY_MESSAGE, WHATSAPP_NUMBER } from "@/lib/constants";
 import { WhatsAppIcon } from "@/components/icons/whatsapp-icon";
 import { cn } from "@/lib/utils";
 import { BespokeAIIcon } from "./bespoke-ai-icon";
-import { BespokeAIPanel } from "./bespoke-ai-panel";
+
+// The chat panel (AI SDK, streaming, markdown) is loaded only when a visitor
+// opens it, so it is not part of every page's JavaScript. Hovering or focusing
+// the launcher starts the download early.
+const loadPanel = () => import("./bespoke-ai-panel");
+const BespokeAIPanel = dynamic(() => loadPanel().then((module) => module.BespokeAIPanel), {
+  ssr: false,
+  loading: () => (
+    <div className="flex h-full items-center justify-center text-sm text-ktf-gray-500" role="status">
+      Loading Bespoke AI…
+    </div>
+  ),
+});
 
 // The panel opens at Galaxy S22 Ultra proportions (logical CSS pixels), then
 // can be dragged and resized freely by desktop users who want more room.
@@ -290,6 +303,8 @@ export function BespokeAILauncher() {
               ref={launcherRef}
               type="button"
               onClick={handleOpen}
+              onPointerEnter={() => void loadPanel()}
+              onFocus={() => void loadPanel()}
               className="group flex h-11 items-center justify-center gap-2 rounded-full bg-ktf-navy px-3.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-ktf-blue focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ktf-blue sm:px-4"
               aria-label="Ask Bespoke AI for a build recommendation"
             >

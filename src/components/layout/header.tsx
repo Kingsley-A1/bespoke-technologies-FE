@@ -1,10 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { motion, AnimatePresence } from "motion/react";
 import { ArrowUpRight, Sparkles } from "lucide-react";
 import {
   BRAND_ICON_SRC,
@@ -21,6 +20,20 @@ import { useMediaQuery } from "@/hooks";
 
 export function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const headerRef = useRef<HTMLElement>(null);
+
+  // A hairline shadow appears once the page scrolls. Stored as a data
+  // attribute so scrolling never re-renders the header.
+  useEffect(() => {
+    const header = headerRef.current;
+    if (!header) return;
+    const update = () => {
+      header.dataset.scrolled = window.scrollY > 4 ? "true" : "false";
+    };
+    update();
+    window.addEventListener("scroll", update, { passive: true });
+    return () => window.removeEventListener("scroll", update);
+  }, []);
   const pathname = usePathname();
   const isDesktop = useMediaQuery("(min-width: 1024px)");
 
@@ -33,7 +46,11 @@ export function Header() {
 
   return (
     <>
-      <header className="sticky top-0 z-100 border-b border-ktf-blue/10 bg-ktf-white/92 shadow-xs backdrop-blur-xl">
+      <header
+        ref={headerRef}
+        data-scrolled="false"
+        className="sticky top-0 z-100 border-b border-ktf-gray-200/70 bg-ktf-white/90 backdrop-blur-xl transition-shadow duration-200 data-[scrolled=true]:shadow-[0_1px_12px_rgba(11,31,58,0.08)]"
+      >
         <nav
           className="mx-auto flex h-[4.25rem] max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8"
           aria-label="Main navigation"
@@ -97,24 +114,18 @@ export function Header() {
             aria-label={mobileOpen ? "Close menu" : "Open menu"}
           >
             <div className="flex w-5 flex-col gap-1.25">
-              <motion.span
-                animate={
-                  mobileOpen ? { rotate: 45, y: 7 } : { rotate: 0, y: 0 }
-                }
-                transition={{ duration: 0.2 }}
-                className="block h-0.5 w-full bg-current origin-center"
+              <span
+                className={cn(
+                  "block h-0.5 w-full origin-center bg-current transition-transform duration-200",
+                  mobileOpen && "translate-y-[7px] rotate-45",
+                )}
               />
-              <motion.span
-                animate={mobileOpen ? { opacity: 0 } : { opacity: 1 }}
-                transition={{ duration: 0.15 }}
-                className="block h-0.5 w-full bg-current"
-              />
-              <motion.span
-                animate={
-                  mobileOpen ? { rotate: -45, y: -7 } : { rotate: 0, y: 0 }
-                }
-                transition={{ duration: 0.2 }}
-                className="block h-0.5 w-full bg-current origin-center"
+              <span className={cn("block h-0.5 w-full bg-current transition-opacity duration-150", mobileOpen && "opacity-0")} />
+              <span
+                className={cn(
+                  "block h-0.5 w-full origin-center bg-current transition-transform duration-200",
+                  mobileOpen && "-translate-y-[7px] -rotate-45",
+                )}
               />
             </div>
           </button>
@@ -124,31 +135,22 @@ export function Header() {
       {/* ── Mobile Navigation Overlay ─────────────────────────
           Rendered OUTSIDE <header> so the sticky z-100 stacking
           context does not clip the fixed panel over the page.     */}
-      <AnimatePresence>
-        {mobileOpen && !isDesktop && (
+      {mobileOpen && !isDesktop && (
           <>
             {/* Frosted backdrop */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.22 }}
-              className="fixed inset-0 z-9998 bg-ktf-obsidian/60 backdrop-blur-sm lg:hidden"
+            <div
+              className="ktf-fade-in fixed inset-0 z-9998 bg-ktf-obsidian/60 backdrop-blur-sm lg:hidden"
               onClick={closeMobile}
               aria-hidden="true"
             />
 
             {/* Sidebar Panel */}
-            <motion.div
+            <div
               id="mobile-nav"
               role="dialog"
               aria-modal="true"
               aria-label="Navigation menu"
-              initial={{ x: "100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "100%" }}
-              transition={{ type: "spring", stiffness: 320, damping: 32 }}
-              className="fixed inset-y-0 right-0 z-9999 flex w-4/5 max-w-xs flex-col border-l border-ktf-blue/20 bg-ktf-white [box-shadow:0_0_80px_rgba(0,0,0,0.35)] lg:hidden"
+              className="ktf-slide-in-right fixed inset-y-0 right-0 z-9999 flex w-4/5 max-w-xs flex-col border-l border-ktf-blue/20 bg-ktf-white [box-shadow:0_0_80px_rgba(0,0,0,0.35)] lg:hidden"
             >
               {/* Panel header — branded band */}
               <div className="relative shrink-0 overflow-hidden border-b border-ktf-gray-100 bg-gradient-to-br from-ktf-blue/10 via-white to-white px-5 pb-5 pt-5">
@@ -188,11 +190,8 @@ export function Header() {
               {/* Nav Links — the same groups as the desktop menus */}
               <nav className="flex-1 overflow-y-auto px-3 py-4" aria-label="Mobile navigation">
                 {NAV_GROUPS.map((group, groupIndex) => (
-                  <motion.section
+                  <section
                     key={group.label}
-                    initial={{ opacity: 0, x: 16 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.04 * groupIndex, duration: 0.18 }}
                     className={groupIndex > 0 ? "mt-4 border-t border-ktf-gray-100 pt-4" : undefined}
                     aria-label={group.label}
                   >
@@ -241,7 +240,7 @@ export function Header() {
                         );
                       })}
                     </ul>
-                  </motion.section>
+                  </section>
                 ))}
               </nav>
 
@@ -287,10 +286,9 @@ export function Header() {
                   </Link>
                 </div>
               </div>
-            </motion.div>
+            </div>
           </>
         )}
-      </AnimatePresence>
     </>
   );
 }
