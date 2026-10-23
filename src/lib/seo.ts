@@ -78,12 +78,6 @@ export const PUBLIC_SITEMAP_ROUTES = [
     priority: 0.7,
   },
   {
-    path: "/bespoke-ai",
-    lastModified: "2026-06-09",
-    changeFrequency: "weekly",
-    priority: 0.8,
-  },
-  {
     path: "/idea-execution-gate",
     lastModified: "2026-09-21",
     changeFrequency: "monthly",

@@ -107,7 +107,7 @@ const edge = spawn(edgePath, [
 let client;
 try {
   await waitForEdge();
-  const targetResponse = await fetch(`http://127.0.0.1:${debuggingPort}/json/new?${encodeURIComponent(`${baseUrl}/bespoke-ai`)}`, { method: "PUT" });
+  const targetResponse = await fetch(`http://127.0.0.1:${debuggingPort}/json/new?${encodeURIComponent(`${baseUrl}/?ask=ai`)}`, { method: "PUT" });
   if (!targetResponse.ok) throw new Error(`Could not create the Edge QA target: ${targetResponse.status}`);
   const target = await targetResponse.json();
   client = new CdpClient(target.webSocketDebuggerUrl);
@@ -132,7 +132,7 @@ try {
 
   const results = { browser: "Microsoft Edge", baseUrl, capturedAt: new Date().toISOString(), checks: {}, screenshots: [] };
   await setViewport(client, 752, 564);
-  await navigate(client, `${baseUrl}/bespoke-ai`);
+  await navigate(client, `${baseUrl}/?ask=ai`);
   results.checks.desktopNoHorizontalOverflow = await evaluate(client, "Math.round(document.body.getBoundingClientRect().width) <= window.innerWidth");
   results.checks.exactlyThreeQuickStarts = await evaluate(client, "document.querySelectorAll('[data-bespoke-ai-quick-start]').length === 3");
   results.checks.composerVisible = await evaluate(client, "document.querySelector('[data-bespoke-ai-composer]')?.checkVisibility() === true");

@@ -2,9 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { KeyRound, Loader2, ShieldCheck } from "lucide-react";
-
-const inputClass = "h-11 w-full rounded-md border border-slate-300 bg-white px-3.5 text-sm text-slate-950 shadow-xs outline-none transition focus:border-ktf-blue focus:ring-2 focus:ring-ktf-blue/15";
+import { Loader2 } from "lucide-react";
+import { AuthAlert, AuthNote, authInputClass, authLabelClass, authPrimaryButtonClass } from "@/features/admin/components/admin-auth-ui";
 
 export function RecoverForm() {
   const router = useRouter();
@@ -37,9 +36,9 @@ export function RecoverForm() {
   return (
     <form onSubmit={submit} className="space-y-5">
       <label className="block">
-        <span className="mb-1.5 block text-[13px] font-semibold text-slate-800">Admin email</span>
+        <span className={authLabelClass}>Work email</span>
         <input
-          className={inputClass}
+          className={authInputClass}
           type="email"
           autoComplete="username"
           required
@@ -49,28 +48,26 @@ export function RecoverForm() {
         />
       </label>
       <label className="block">
-        <span className="mb-1.5 block text-[13px] font-semibold text-slate-800">Single-use recovery code</span>
+        <span className={authLabelClass}>Recovery code</span>
         <input
-          className={`${inputClass} font-mono uppercase tracking-wide`}
+          className={`${authInputClass} font-mono uppercase tracking-wide`}
           autoComplete="off"
+          spellCheck={false}
           required
           value={recoveryCode}
           onChange={(event) => setRecoveryCode(event.target.value.toUpperCase().slice(0, 40))}
           placeholder="BT-XXXX-XXXX-XXXX-XXXX"
         />
       </label>
-      {error && <p role="alert" className="rounded-md border border-rose-200 bg-rose-50 p-3 text-xs leading-5 text-rose-700">{error}</p>}
-      <button
-        className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-md bg-ktf-blue text-sm font-semibold text-white shadow-sm transition hover:bg-ktf-blue-deep disabled:opacity-50"
-        disabled={busy}
-      >
-        {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <KeyRound className="h-4 w-4" />}
-        Verify recovery code
+      {error ? <AuthAlert>{error}</AuthAlert> : null}
+      <button type="submit" className={authPrimaryButtonClass} disabled={busy}>
+        {busy ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : null}
+        {busy ? "Checking code…" : "Continue"}
       </button>
-      <p className="flex items-start gap-2 text-xs leading-5 text-slate-500">
-        <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
-        This code cannot open the admin workspace. It unlocks a ten-minute, authenticator-replacement-only session.
-      </p>
+      <AuthNote>
+        A recovery code does not open Admin. It only allows a ten-minute session to replace your authenticator, and it
+        can be used once.
+      </AuthNote>
     </form>
   );
 }

@@ -135,7 +135,7 @@ export function AdminShell({
       >
         <div className="flex h-[86px] items-center justify-between border-b border-slate-100 px-5">
           <a href="/" target="_blank" rel="noreferrer" aria-label="Open Bespoke Technologies website" title="Open main website" className="rounded-lg transition-opacity hover:opacity-80">
-            <AdminLogo />
+            <AdminLogo href={null} />
           </a>
           <button type="button" className="rounded-lg p-2 text-slate-500 lg:hidden" onClick={() => setMobileOpen(false)} aria-label="Close navigation">
             <X className="h-5 w-5" />

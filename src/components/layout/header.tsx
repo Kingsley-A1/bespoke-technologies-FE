@@ -6,6 +6,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { ArrowUpRight, Sparkles } from "lucide-react";
 import {
+  BESPOKE_AI_OPEN_HREF,
   BRAND_ICON_SRC,
   NAV_GROUPS,
   SITE_NAME,
@@ -97,7 +98,7 @@ export function Header() {
           {/* Desktop CTA */}
           <div className="hidden items-center gap-2 lg:flex">
             <Link
-              href="/bespoke-ai"
+              href={BESPOKE_AI_OPEN_HREF}
               className="hidden h-9 items-center justify-center whitespace-nowrap rounded-full border border-ktf-gray-200 bg-white px-4 text-sm font-medium text-ktf-obsidian xl:inline-flex transition-colors duration-150 hover:border-ktf-gray-300 hover:bg-ktf-surface"
             >
               Ask Bespoke AI

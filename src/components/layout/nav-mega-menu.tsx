@@ -18,13 +18,13 @@ import {
   Users,
   type LucideIcon,
 } from "lucide-react";
-import type { NavGroup } from "@/lib/constants";
+import { BESPOKE_AI_OPEN_HREF, type NavGroup } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
 /** One icon per destination, shared by the desktop menus and the mobile menu. */
 export const NAV_ICONS: Record<string, LucideIcon> = {
   "/services": Layers,
-  "/bespoke-ai": Sparkles,
+  [BESPOKE_AI_OPEN_HREF]: Sparkles,
   "/digital-readiness-audit": ClipboardCheck,
   "/idea-execution-gate": Lightbulb,
   "/projects": FolderGit2,

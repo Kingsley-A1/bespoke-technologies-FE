@@ -2,13 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
-import { CheckCircle2, Copy, Loader2, ShieldCheck } from "lucide-react";
-
-const inputClass =
-  "h-11 w-full rounded-md border border-slate-300 bg-white px-3.5 text-sm text-slate-950 shadow-xs outline-none transition focus:border-ktf-blue focus:ring-2 focus:ring-ktf-blue/15";
-
-const labelClass = "mb-1.5 block text-[13px] font-semibold text-slate-800";
+import { CheckCircle2, Loader2 } from "lucide-react";
+import { AuthAlert, AuthNote, authInputClass, authLabelClass, authPrimaryButtonClass } from "@/features/admin/components/admin-auth-ui";
+import { AuthenticatorSetup } from "@/features/admin/components/authenticator-setup";
 
 type Step = "identify" | "confirm" | "done";
 
@@ -22,7 +18,6 @@ export function RegisterFlow({ defaultEmail = "" }: { defaultEmail?: string }) {
   const [totp, setTotp] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [copied, setCopied] = useState(false);
 
   async function begin(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -75,118 +70,38 @@ export function RegisterFlow({ defaultEmail = "" }: { defaultEmail?: string }) {
     }
   }
 
-  async function copySecret() {
-    if (!secret) return;
-    try {
-      await navigator.clipboard.writeText(secret);
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 2000);
-    } catch {
-      // Clipboard unavailable — the secret is still visible for manual entry.
-    }
-  }
-
   if (step === "done") {
     return (
-      <div className="rounded-md border border-emerald-200 bg-emerald-50 p-8 text-center">
-        <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-md bg-emerald-100 text-emerald-700">
+      <div role="status" className="flex flex-col items-center py-4 text-center">
+        <span className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
           <CheckCircle2 className="h-6 w-6" aria-hidden="true" />
         </span>
-        <h2 className="mt-4 text-lg font-bold tracking-[-0.02em] text-slate-950">
-          Authenticator enrolled.
-        </h2>
-        <p className="mt-2 text-sm leading-6 text-slate-600">
-          Sign in with your email and the 6-digit code from your authenticator
-          app. Redirecting to sign-in…
-        </p>
+        <p className="mt-4 text-base font-semibold text-slate-950">Authenticator registered</p>
+        <p className="mt-1.5 text-sm leading-6 text-slate-600">Taking you to sign in…</p>
       </div>
     );
   }
 
-  if (step === "confirm") {
+  if (step === "confirm" && qrDataUrl && secret) {
     return (
       <form onSubmit={confirm} className="space-y-5">
-        <div className="rounded-md border border-slate-200 bg-white p-5">
-          <p className="text-[13px] font-semibold text-slate-800">
-            1 · Scan with Google Authenticator (or any TOTP app)
-          </p>
-          <div className="mt-4 flex flex-col items-center gap-4 sm:flex-row sm:items-start">
-            {qrDataUrl && (
-              <Image
-                src={qrDataUrl}
-                alt="Authenticator enrollment QR code"
-                width={176}
-                height={176}
-                unoptimized
-                className="h-44 w-44 shrink-0 rounded-md border border-slate-200"
-              />
-            )}
-            <div className="min-w-0 text-center sm:text-left">
-              <p className="text-xs leading-5 text-slate-500">
-                Can&apos;t scan? Enter this setup key manually:
-              </p>
-              <code className="mt-2 block break-all rounded-md border border-slate-200 bg-slate-50 px-3 py-2 font-mono text-[11px] tracking-wide text-slate-800">
-                {secret}
-              </code>
-              <button
-                type="button"
-                onClick={() => void copySecret()}
-                className="mt-2 inline-flex items-center gap-1.5 text-[11px] font-semibold text-slate-600 transition hover:text-ktf-blue-deep"
-              >
-                {copied ? (
-                  <>
-                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" /> Copied
-                  </>
-                ) : (
-                  <>
-                    <Copy className="h-3.5 w-3.5" /> Copy setup key
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <label className="block">
-          <span className={labelClass}>2 · Enter the 6-digit code from the app</span>
-          <input
-            value={totp}
-            onChange={(event) => setTotp(event.target.value.replace(/\D/g, "").slice(0, 6))}
-            inputMode="numeric"
-            autoComplete="one-time-code"
-            pattern="\d{6}"
-            required
-            placeholder="000000"
-            className={`${inputClass} text-center font-mono text-lg tracking-[0.4em]`}
-          />
-        </label>
-
-        {error && (
-          <p role="alert" className="rounded-md border border-rose-200 bg-rose-50 p-3 text-xs leading-5 text-rose-700">
-            {error}
-          </p>
-        )}
-
-        <button
-          type="submit"
-          disabled={busy || totp.length !== 6}
-          className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-md bg-ktf-blue text-sm font-semibold text-white shadow-sm transition hover:bg-ktf-blue-deep disabled:opacity-50"
-        >
-          {busy && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
-          Confirm and finish enrollment
+        <StepLabel step={2} title="Add the authenticator" />
+        <AuthenticatorSetup qrDataUrl={qrDataUrl} secret={secret} qrAlt="Authenticator enrollment QR code" code={totp} onCodeChange={setTotp} />
+        {error ? <AuthAlert>{error}</AuthAlert> : null}
+        <button type="submit" disabled={busy || totp.length !== 6} className={authPrimaryButtonClass}>
+          {busy ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : null}
+          Finish registration
         </button>
-        <p className="text-[11px] leading-4 text-slate-400">
-          The setup expires after 15 minutes. Confirming retires any previously
-          enrolled authenticator for this identity.
-        </p>
+        <AuthNote>This setup expires after 15 minutes. Finishing replaces any authenticator registered before for this account.</AuthNote>
       </form>
     );
   }
 
   return (
     <form onSubmit={begin} className="space-y-5">
+      <StepLabel step={1} title="Verify your identity" />
       <label className="block">
-        <span className={labelClass}>Admin email</span>
+        <span className={authLabelClass}>Work email</span>
         <input
           value={email}
           onChange={(event) => setEmail(event.target.value)}
@@ -194,12 +109,12 @@ export function RegisterFlow({ defaultEmail = "" }: { defaultEmail?: string }) {
           type="email"
           autoComplete="username"
           required
-          className={inputClass}
+          className={authInputClass}
           placeholder="name@bespoketech.com.ng"
         />
       </label>
       <label className="block">
-        <span className={labelClass}>Registration code</span>
+        <span className={authLabelClass}>Registration code</span>
         <input
           value={registrationCode}
           onChange={(event) => setRegistrationCode(event.target.value)}
@@ -207,31 +122,23 @@ export function RegisterFlow({ defaultEmail = "" }: { defaultEmail?: string }) {
           type="password"
           autoComplete="off"
           required
-          className={inputClass}
-          placeholder="Provided privately by the founder"
+          className={authInputClass}
         />
       </label>
-
-      {error && (
-        <p role="alert" className="rounded-md border border-rose-200 bg-rose-50 p-3 text-xs leading-5 text-rose-700">
-          {error}
-        </p>
-      )}
-
-      <button
-        type="submit"
-        disabled={busy}
-        className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-md bg-ktf-blue text-sm font-semibold text-white shadow-sm transition hover:bg-ktf-blue-deep disabled:opacity-50"
-      >
-        {busy && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
-        Continue to authenticator setup
+      {error ? <AuthAlert>{error}</AuthAlert> : null}
+      <button type="submit" disabled={busy} className={authPrimaryButtonClass}>
+        {busy ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : null}
+        Continue
       </button>
-
-      <p className="flex items-start gap-2 text-xs leading-5 text-slate-500">
-        <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" aria-hidden="true" />
-        Only pre-authorized Bespoke admin identities can register. The code
-        alone grants nothing.
-      </p>
+      <AuthNote>Only pre-approved staff accounts can register. The code alone grants no access.</AuthNote>
     </form>
+  );
+}
+
+function StepLabel({ step, title }: { step: number; title: string }) {
+  return (
+    <p className="text-xs font-medium uppercase tracking-[0.08em] text-slate-500">
+      Step {step} of 2 <span aria-hidden="true">·</span> <span className="normal-case tracking-normal text-slate-700">{title}</span>
+    </p>
   );
 }

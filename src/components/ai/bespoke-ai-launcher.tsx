@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
-import { WHATSAPP_INQUIRY_MESSAGE, WHATSAPP_NUMBER } from "@/lib/constants";
+import { BESPOKE_AI_OPEN_HREF, WHATSAPP_INQUIRY_MESSAGE, WHATSAPP_NUMBER } from "@/lib/constants";
 import { WhatsAppIcon } from "@/components/icons/whatsapp-icon";
 import { useMediaQuery } from "@/hooks";
 import { BespokeAIIcon } from "./bespoke-ai-icon";
@@ -38,6 +38,9 @@ const clamp = (value: number, min: number, max: number) => Math.min(Math.max(val
  * page narrows to make room, and the left edge can be dragged to resize.
  * Mobile: a bottom sheet covering most of the screen; drag the handle or the
  * header down, tap the backdrop, press Escape or use the close button.
+ *
+ * Any link to BESPOKE_AI_OPEN_HREF opens the panel in place, and a page loaded
+ * with ?ask=ai (including the retired /bespoke-ai URL) opens with it showing.
  */
 export function BespokeAILauncher() {
   const pathname = usePathname();
@@ -48,12 +51,18 @@ export function BespokeAILauncher() {
   const launcherRef = useRef<HTMLButtonElement>(null);
   const surfaceRef = useRef<HTMLElement>(null);
   const restored = useRef(false);
-  const shouldHideAI = pathname === "/bespoke-ai";
-  const shouldHideWhatsapp = pathname === "/contact" || pathname === "/bespoke-ai";
+  const shouldHideWhatsapp = pathname === "/contact";
   const whatsappHref = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(WHATSAPP_INQUIRY_MESSAGE)}`;
 
   // The desktop panel stays open across page navigations within the session.
   useEffect(() => {
+    const url = new URL(window.location.href);
+    const askedFor = url.searchParams.get("ask") === "ai";
+    if (askedFor) {
+      url.searchParams.delete("ask");
+      window.history.replaceState(window.history.state, "", `${url.pathname}${url.search}${url.hash}`);
+      setOpen(true);
+    }
     try {
       const saved = JSON.parse(window.sessionStorage.getItem(SESSION_KEY) ?? "{}") as { open?: boolean; width?: number };
       if (typeof saved.width === "number") setWidth(clamp(saved.width, MIN_WIDTH, MAX_WIDTH));
@@ -63,6 +72,22 @@ export function BespokeAILauncher() {
     } finally {
       restored.current = true;
     }
+  }, []);
+
+  // "Ask Bespoke AI" links anywhere on the page open the panel instead of
+  // navigating. Captured before Next.js handles the click; modified clicks
+  // (new tab, new window) keep their normal behaviour.
+  useEffect(() => {
+    const onClick = (event: MouseEvent) => {
+      if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      const target = event.target instanceof Element ? event.target : null;
+      if (!target?.closest(`a[href="${BESPOKE_AI_OPEN_HREF}"]`)) return;
+      event.preventDefault();
+      void loadPanel();
+      setOpen(true);
+    };
+    document.addEventListener("click", onClick, true);
+    return () => document.removeEventListener("click", onClick, true);
   }, []);
 
   useEffect(() => {
@@ -183,8 +208,6 @@ export function BespokeAILauncher() {
     [finishClose, isDesktop],
   );
 
-  if (shouldHideAI && shouldHideWhatsapp) return null;
-
   return (
     <>
       {!open ? (
@@ -192,21 +215,19 @@ export function BespokeAILauncher() {
           data-bespoke-contact-dock="true"
           className="fixed bottom-5 right-5 z-[250] flex items-center gap-1.5 rounded-full border border-ktf-gray-200 bg-white/95 p-1.5 shadow-[0_10px_30px_-12px_rgba(11,31,58,0.35)] backdrop-blur-xl"
         >
-          {!shouldHideAI ? (
-            <button
-              ref={launcherRef}
-              type="button"
-              onClick={() => setOpen(true)}
-              onPointerEnter={() => void loadPanel()}
-              onFocus={() => void loadPanel()}
-              className="flex h-11 items-center justify-center gap-2 rounded-full bg-ktf-obsidian px-3.5 text-sm font-medium text-white transition-colors hover:bg-ktf-charcoal sm:px-4"
-              aria-label="Ask Bespoke AI"
-              aria-haspopup="dialog"
-            >
-              <BespokeAIIcon inverse className="h-5 w-5 text-white" />
-              <span className="hidden sm:inline">Ask AI</span>
-            </button>
-          ) : null}
+          <button
+            ref={launcherRef}
+            type="button"
+            onClick={() => setOpen(true)}
+            onPointerEnter={() => void loadPanel()}
+            onFocus={() => void loadPanel()}
+            className="flex h-11 items-center justify-center gap-2 rounded-full bg-ktf-obsidian px-3.5 text-sm font-medium text-white transition-colors hover:bg-ktf-charcoal sm:px-4"
+            aria-label="Ask Bespoke AI"
+            aria-haspopup="dialog"
+          >
+            <BespokeAIIcon inverse className="h-5 w-5 text-white" />
+            <span className="hidden sm:inline">Ask AI</span>
+          </button>
 
           {!shouldHideWhatsapp ? (
             <a

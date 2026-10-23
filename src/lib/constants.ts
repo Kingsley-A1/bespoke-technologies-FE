@@ -42,6 +42,13 @@ export const FOUNDER = {
 } as const;
 
 /**
+ * Links here open the Bespoke AI side panel in place (see BespokeAILauncher).
+ * Without JavaScript, or opened in a new tab, they load the homepage with the
+ * panel open. The old /bespoke-ai page redirects here.
+ */
+export const BESPOKE_AI_OPEN_HREF = "/?ask=ai";
+
+/**
  * Primary navigation, grouped the way Stripe and Vercel group theirs: a few
  * clear menus instead of one long row. The header, mobile menu and footer all
  * render from this list, so a page is added in exactly one place.
@@ -52,7 +59,7 @@ export const NAV_GROUPS = [
     href: "/services",
     items: [
       { label: "Services", href: "/services", description: "Web, mobile, AI, cloud, API and design" },
-      { label: "Bespoke AI", href: "/bespoke-ai", description: "Ask about our work and services" },
+      { label: "Bespoke AI", href: BESPOKE_AI_OPEN_HREF, description: "Ask about our work and services" },
       { label: "Digital Readiness Audit", href: "/digital-readiness-audit", description: "Assess your business online" },
       { label: "Idea Execution Gate", href: "/idea-execution-gate", description: "Test an idea before you build it" },
     ],
@@ -88,11 +95,13 @@ export const NAV_GROUPS = [
 export type NavGroup = (typeof NAV_GROUPS)[number];
 export type NavItem = NavGroup["items"][number];
 
-/** Every primary destination as a flat list (used by Bespoke AI's site context). */
+/** Every primary page as a flat list (used by Bespoke AI's site context, so the assistant itself is left out). */
 export const NAV_LINKS = [
   { label: "Home", href: "/" },
-  ...NAV_GROUPS.flatMap((group) => group.items.map(({ label, href }) => ({ label, href }))),
-] as const;
+  ...NAV_GROUPS.flatMap((group) =>
+    group.items.filter(({ href }) => href !== BESPOKE_AI_OPEN_HREF).map(({ label, href }) => ({ label, href })),
+  ),
+];
 
 // ── Stats ──────────────────────────────────────────────────────────────────
 

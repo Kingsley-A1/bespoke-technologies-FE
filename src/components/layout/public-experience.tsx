@@ -19,9 +19,6 @@ export function PublicExperience({ children, isLearnHost = false }: { children: 
   if (isLearnHost || pathname.startsWith("/admin") || pathname === "/learn" || pathname.startsWith("/learn/")) {
     return <>{children}</>;
   }
-  if (pathname === "/bespoke-ai") {
-    return <main className="flex min-h-dvh flex-col">{children}</main>;
-  }
   // Assessment products print to PDF, so their chrome is excluded from print.
   if (
     pathname.startsWith("/digital-readiness-audit") ||
@@ -35,8 +32,6 @@ export function PublicExperience({ children, isLearnHost = false }: { children: 
       </>
     );
   }
-  // The Bespoke AI page is a focused, app-like workspace — the marketing
-  // footer would compete with the composer, so it is hidden there.
   return (
     <>
       <Header />

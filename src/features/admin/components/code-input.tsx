@@ -27,7 +27,7 @@ export function CodeInput({ autoSubmit = false }: { autoSubmit?: boolean }) {
 
   return (
     <div>
-      <label htmlFor="admin-code" className="mb-2 block text-sm font-semibold text-slate-800">
+      <label htmlFor="admin-code" className="mb-1.5 block text-[13px] font-medium text-slate-800">
         Six-digit access code
       </label>
       <div className="relative" onClick={() => inputRef.current?.focus()}>
@@ -57,10 +57,10 @@ export function CodeInput({ autoSubmit = false }: { autoSubmit?: boolean }) {
             <span
               key={index}
               data-code-cell={index}
-              className={`flex aspect-square max-h-14 items-center justify-center rounded-lg border bg-white text-xl font-bold shadow-sm transition ${
+              className={`flex h-12 items-center justify-center rounded-lg border bg-white text-xl font-semibold text-slate-950 transition sm:h-13 ${
                 focused && index === Math.min(value.length, 5)
-                  ? "border-ktf-blue ring-2 ring-ktf-blue/20"
-                  : "border-slate-200"
+                  ? "border-ktf-blue ring-3 ring-ktf-blue/15"
+                  : "border-slate-300"
               }`}
             >
               {value[index] ? (
@@ -76,7 +76,7 @@ export function CodeInput({ autoSubmit = false }: { autoSubmit?: boolean }) {
         </div>
       </div>
       <p id="admin-code-hint" className="mt-2 text-xs leading-5 text-slate-500">
-        Enter the rotating code from your approved authenticator. Full-code paste is supported.
+        From your authenticator app. You can paste the whole code.
       </p>
     </div>
   );

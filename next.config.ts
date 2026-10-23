@@ -36,6 +36,12 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      // The full-page assistant was retired; Bespoke AI now opens as a side panel.
+      { source: "/bespoke-ai", destination: "/?ask=ai", permanent: true },
+    ];
+  },
   async headers() {
     return [
       {

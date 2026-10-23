@@ -1,11 +1,9 @@
 "use client";
 
-import Image from "next/image";
-import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
-import { ArrowLeft, PanelLeft, PanelLeftClose, SquarePen, X } from "lucide-react";
+import { PanelLeft, PanelLeftClose, SquarePen, X } from "lucide-react";
 import { useMediaQuery } from "@/hooks";
 import { getBespokeAIErrorPayload } from "@/lib/ai/bespoke-ai-errors";
 import type { BespokeAIUIMessage } from "@/lib/ai/bespoke-ai-types";
@@ -19,11 +17,8 @@ import { BespokeAISuggestions } from "./bespoke-ai-suggestions";
 import { useBespokeAIConversations } from "./use-bespoke-ai-conversations";
 
 type BespokeAIPanelProps = {
-  /**
-   * page: the /bespoke-ai route. panel: the desktop side panel. sheet: the
-   * mobile bottom sheet. admin: the Coworker workspace.
-   */
-  mode?: "page" | "panel" | "sheet" | "admin";
+  /** panel: the desktop side panel. sheet: the mobile bottom sheet. admin: the Coworker workspace. */
+  mode: "panel" | "sheet" | "admin";
   onClose?: () => void;
   /** Lets the mobile sheet be dragged down from its header. */
   onHeaderPointerDown?: (event: React.PointerEvent<HTMLElement>) => void;
@@ -32,11 +27,10 @@ type BespokeAIPanelProps = {
 const iconButton =
   "flex h-9 w-9 items-center justify-center rounded-full text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-35";
 
-export function BespokeAIPanel({ mode = "page", onClose, onHeaderPointerDown }: BespokeAIPanelProps) {
+export function BespokeAIPanel({ mode, onClose, onHeaderPointerDown }: BespokeAIPanelProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const isDesktop = useMediaQuery("(min-width: 1024px)");
   const isAdmin = mode === "admin";
-  const isStandalone = mode === "page";
   // The side panel and the sheet are narrow surfaces: history opens over the
   // conversation instead of beside it.
   const isCompact = mode === "panel" || mode === "sheet";
@@ -173,13 +167,12 @@ export function BespokeAIPanel({ mode = "page", onClose, onHeaderPointerDown }: 
     <section
       className={cn(
         "flex min-h-0 flex-1 overflow-hidden bg-white",
-        isStandalone && "h-dvh bg-[#f7f9fc] p-0 sm:p-3 lg:p-5",
         isCompact && "relative h-full bg-[linear-gradient(180deg,#ffffff_0%,#ffffff_58%,#edf4fd_100%)]",
         isAdmin && "h-[calc(100dvh-86px)] min-h-[620px]",
       )}
       aria-labelledby="bespoke-ai-panel-title"
     >
-      <div className={cn("flex min-h-0 flex-1 overflow-hidden", isCompact ? "bg-transparent" : "bg-white", isStandalone && "mx-auto max-w-[1440px] sm:rounded-lg sm:border sm:border-slate-200 sm:shadow-[0_30px_90px_-45px_rgba(15,38,71,0.45)]") }>
+      <div className={cn("flex min-h-0 flex-1 overflow-hidden", isCompact ? "bg-transparent" : "bg-white")}>
         {usesHistoryDock && isHistoryDockOpen ? historySidebar : null}
         {mobileHistoryDrawer}
 
@@ -218,15 +211,6 @@ export function BespokeAIPanel({ mode = "page", onClose, onHeaderPointerDown }: 
               >
                 <SquarePen className="h-4 w-4" />
               </button>
-              {isStandalone ? (
-                <Link
-                  href="/"
-                  className="ml-1 inline-flex h-9 items-center gap-1.5 rounded-full border border-slate-200 px-3.5 text-[13px] font-medium text-slate-700 transition-colors hover:border-slate-300 hover:text-slate-950"
-                >
-                  <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-                  Website
-                </Link>
-              ) : null}
               {onClose ? (
                 <button data-bespoke-ai-close="true" type="button" onClick={onClose} className={iconButton} aria-label={`Close ${assistantName}`}>
                   <X className="h-4.5 w-4.5" />
@@ -238,9 +222,7 @@ export function BespokeAIPanel({ mode = "page", onClose, onHeaderPointerDown }: 
           <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto">
             {hasEmptyState ? (
               <div data-bespoke-ai-empty-state="true" className="relative flex min-h-full items-center justify-center overflow-hidden px-4 py-7 sm:px-6">
-                {isStandalone && !isAdmin ? (
-                  <Image src="/ai/bespoke-ai-glass-orb.png" alt="" width={1672} height={909} priority className="pointer-events-none absolute left-1/2 top-[-16%] w-[min(680px,82vw)] -translate-x-1/2 opacity-[0.14] mix-blend-multiply" />
-                ) : isCompact ? null : (
+                {isCompact ? null : (
                   <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-[radial-gradient(circle_at_50%_0%,rgba(10,132,255,0.07),transparent_70%)]" />
                 )}
                 <div data-bespoke-ai-empty-content="true" className={cn("relative z-10 w-full pt-6 sm:pt-8", isCompact ? "max-w-[380px]" : "max-w-[720px]")}>
