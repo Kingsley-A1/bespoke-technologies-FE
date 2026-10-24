@@ -215,13 +215,14 @@ export function BespokeAILauncher() {
           data-bespoke-contact-dock="true"
           className="fixed bottom-5 right-5 z-[250] flex items-center gap-1.5 rounded-full border border-ktf-gray-200 bg-white/95 p-1.5 shadow-[0_10px_30px_-12px_rgba(11,31,58,0.35)] backdrop-blur-xl"
         >
+          {/* Desktop opens the assistant from the header and the Services menu; this button is for phones and tablets. */}
           <button
             ref={launcherRef}
             type="button"
             onClick={() => setOpen(true)}
             onPointerEnter={() => void loadPanel()}
             onFocus={() => void loadPanel()}
-            className="flex h-11 items-center justify-center gap-2 rounded-full bg-ktf-obsidian px-3.5 text-sm font-medium text-white transition-colors hover:bg-ktf-charcoal sm:px-4"
+            className="flex h-11 items-center justify-center gap-2 rounded-full bg-ktf-obsidian px-3.5 text-sm font-medium text-white transition-colors hover:bg-ktf-charcoal sm:px-4 lg:hidden"
             aria-label="Ask Bespoke AI"
             aria-haspopup="dialog"
           >
