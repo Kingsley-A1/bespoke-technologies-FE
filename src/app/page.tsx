@@ -12,7 +12,6 @@ import {
   ShieldCheck,
   Smartphone,
 } from "lucide-react";
-import { BespokeAIIcon } from "@/components/ai/bespoke-ai-icon";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/layout/container";
 import { AnimatedStats } from "@/components/marketing/animated-stats";
@@ -31,7 +30,6 @@ import { listPublishedPortfolioProjectsSafe } from "@/features/admin/portfolio/r
 import { NewsCard } from "@/features/news/components/news-cards";
 import { listLatestNewsSafe } from "@/features/news/repository";
 import {
-  BESPOKE_AI_OPEN_HREF,
   ENGAGEMENT_PATHS,
   PARTNERS,
   PRODUCT_OUTCOMES,
@@ -417,15 +415,6 @@ export default async function HomePage() {
               <Button size="lg" href="/contact" className="rounded-full bg-white text-ktf-navy hover:bg-ktf-gray-100">
                 Contact us
                 <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                href={BESPOKE_AI_OPEN_HREF}
-                className="rounded-full border-white/25 text-white hover:border-white/40 hover:bg-white/10"
-              >
-                <BespokeAIIcon className="mr-2 h-4 w-4 text-white" inverse />
-                Ask Bespoke AI
               </Button>
             </Reveal>
           </div>

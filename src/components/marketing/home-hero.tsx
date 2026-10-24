@@ -96,9 +96,6 @@ export async function HomeHero() {
       word: heroWordForProjectType(project.type),
     } satisfies HeroPhone));
 
-  // Real delivered work, named — the Stripe-style proof row under the hero.
-  const deliveredFor = projects.filter((project) => !project.comingSoon).map((project) => project.name).slice(0, 8);
-
   const fallbackProjectIds = new Set(
     Object.values(FALLBACK_SCREENS).map((screen) => screen.projectId),
   );
@@ -196,20 +193,6 @@ export async function HomeHero() {
         </div>
       </Container>
 
-      {deliveredFor.length > 0 && (
-        <Container size="lg" className="relative mt-12 sm:mt-14">
-          <div className="border-t border-ktf-gray-200 pt-6">
-            <p className="text-center text-caption font-medium text-ktf-gray-500">Products we have built and shipped</p>
-            <ul className="mt-4 flex flex-wrap items-center justify-center gap-x-8 gap-y-3" role="list">
-              {deliveredFor.map((name) => (
-                <li key={name} className="text-body-sm font-semibold tracking-[-0.01em] text-ktf-gray-600">
-                  {name}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </Container>
-      )}
     </section>
   );
 }
